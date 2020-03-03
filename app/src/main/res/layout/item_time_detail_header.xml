@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <androidx.appcompat.widget.LinearLayoutCompat xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
     android:orientation="vertical">
@@ -51,7 +52,7 @@
 
         <androidx.appcompat.widget.LinearLayoutCompat
             style="@style/settings_item_ll"
-            android:layout_marginBottom="-8dp">
+            android:layout_marginBottom="-16dp">
 
             <androidx.appcompat.widget.AppCompatTextView
                 style="@style/settings_item_tv_main"
@@ -73,14 +74,43 @@
                 android:text=" 分钟" />
         </androidx.appcompat.widget.LinearLayoutCompat>
 
-        <androidx.appcompat.widget.AppCompatSeekBar
-            android:id="@+id/sb_time_length"
+        <androidx.appcompat.widget.LinearLayoutCompat
             android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginBottom="16dp"
-            android:layout_marginEnd="16dp"
-            android:layout_marginStart="16dp"
-            android:max="90" />
+            android:layout_height="wrap_content">
+
+            <com.google.android.material.slider.Slider
+                android:id="@+id/sb_time_length"
+                android:layout_width="0dp"
+                android:layout_height="match_parent"
+                android:layout_gravity="center_vertical"
+                android:layout_marginStart="16dp"
+                android:layout_marginEnd="16dp"
+                android:layout_weight="1"
+                android:stepSize="5"
+                android:valueFrom="10"
+                android:valueTo="120"
+                app:haloRadius="0dp"
+                app:thumbColor="@android:color/white"
+                app:thumbElevation="0dp"
+                app:thumbRadius="8dp"
+                app:tickColor="@android:color/transparent"
+                app:trackHeight="24dp" />
+
+            <androidx.appcompat.widget.AppCompatTextView
+                android:id="@+id/ib_edit"
+                style="@style/ButtonBackground"
+                android:layout_width="40dp"
+                android:layout_height="56dp"
+                android:layout_marginEnd="16dp"
+                android:fontFamily="@font/iconfont"
+                android:gravity="center"
+                android:includeFontPadding="false"
+                android:text=""
+                android:textColor="@color/blue"
+                android:textSize="23sp" />
+
+        </androidx.appcompat.widget.LinearLayoutCompat>
+
     </androidx.appcompat.widget.LinearLayoutCompat>
 
 </androidx.appcompat.widget.LinearLayoutCompat>

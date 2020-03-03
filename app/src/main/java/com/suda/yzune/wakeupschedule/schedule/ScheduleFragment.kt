@@ -6,11 +6,7 @@ import android.view.Gravity
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.widget.FrameLayout
-import android.widget.Toast
-import androidx.appcompat.widget.AppCompatImageView
-import androidx.appcompat.widget.AppCompatTextView
-import androidx.appcompat.widget.LinearLayoutCompat
+import android.widget.*
 import androidx.constraintlayout.widget.ConstraintLayout
 import androidx.constraintlayout.widget.ConstraintSet
 import androidx.core.view.setPadding
@@ -51,7 +47,6 @@ class ScheduleFragment : BaseFragment() {
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View {
         weekDay = CourseUtils.getWeekdayInt()
         ui = ScheduleUI(context!!, viewModel.table, if (week == viewModel.currentWeek) weekDay else -1)
-        ui.showTimeDetail = context!!.getPrefer().getBoolean(Const.KEY_SCHEDULE_DETAIL_TIME, true)
         showCourseNumber = viewModel.getShowCourseNumber(week)
         return ui.root
     }
@@ -59,11 +54,11 @@ class ScheduleFragment : BaseFragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         weekDate = CourseUtils.getDateStringFromWeek(CourseUtils.countWeek(viewModel.table.startDate, viewModel.table.sundayFirst), week, viewModel.table.sundayFirst)
-        ((view as ConstraintLayout).getViewById(R.id.anko_tv_title0) as AppCompatTextView).text = weekDate[0] + "\n月"
-        var textView: AppCompatTextView?
+        ((view as ConstraintLayout).getViewById(R.id.anko_tv_title0) as TextView).text = weekDate[0] + "\n月"
+        var textView: TextView?
         for (i in 1..7) {
             if (ui.dayMap[i] == -1) continue
-            textView = view.getViewById(R.id.anko_tv_title0 + ui.dayMap[i]) as AppCompatTextView
+            textView = view.getViewById(R.id.anko_tv_title0 + ui.dayMap[i]) as TextView
             if (i == 7 && !viewModel.table.showSat && !viewModel.table.sundayFirst) {
                 textView.text = viewModel.daysArray[i] + "\n${weekDate[7]}"
             } else if (!viewModel.table.showSun && viewModel.table.sundayFirst && i != 7) {
@@ -74,9 +69,9 @@ class ScheduleFragment : BaseFragment() {
         }
         if (viewModel.timeList.isNotEmpty() && ui.showTimeDetail) {
             for (i in 0 until viewModel.table.nodes) {
-                (ui.content.getViewById(R.id.anko_tv_node1 + i) as FrameLayout).apply {
-                    findViewById<AppCompatTextView>(R.id.tv_start).text = viewModel.timeList[i].startTime
-                    findViewById<AppCompatTextView>(R.id.tv_end).text = viewModel.timeList[i].endTime
+                (ui.content.getViewById(R.id.anko_tv_node1 + i) as LinearLayout).apply {
+                    findViewById<TextView>(R.id.tv_start).text = viewModel.timeList[i].startTime
+                    findViewById<TextView>(R.id.tv_end).text = viewModel.timeList[i].endTime
                 }
             }
         }
@@ -93,20 +88,20 @@ class ScheduleFragment : BaseFragment() {
                 if (ui.root.getViewById(R.id.anko_empty_view) != null) {
                     return@Observer
                 }
-                val img = AppCompatImageView(context!!).apply {
+                val img = ImageView(context!!).apply {
                     setImageResource(R.drawable.ic_schedule_empty)
                 }
-                ui.root.addView(LinearLayoutCompat(context!!).apply {
+                ui.root.addView(LinearLayout(context!!).apply {
                     id = R.id.anko_empty_view
-                    orientation = LinearLayoutCompat.VERTICAL
+                    orientation = LinearLayout.VERTICAL
                     if (context.getPrefer().getBoolean(Const.KEY_SHOW_EMPTY_VIEW, true)) {
-                        addView(img, LinearLayoutCompat.LayoutParams.WRAP_CONTENT, dip(240))
+                        addView(img, LinearLayout.LayoutParams.WRAP_CONTENT, dip(240))
                     }
-                    addView(AppCompatTextView(context).apply {
+                    addView(TextView(context).apply {
                         text = "本周没有课程哦"
                         setTextColor(viewModel.table.textColor)
                         gravity = Gravity.CENTER
-                    }, LinearLayoutCompat.LayoutParams(LinearLayoutCompat.LayoutParams.MATCH_PARENT, LinearLayoutCompat.LayoutParams.WRAP_CONTENT).apply {
+                    }, LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.WRAP_CONTENT).apply {
                         topMargin = dip(16)
                     })
                 }, ConstraintLayout.LayoutParams(ConstraintLayout.LayoutParams.MATCH_CONSTRAINT,

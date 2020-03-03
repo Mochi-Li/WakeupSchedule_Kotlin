@@ -8,8 +8,7 @@ import com.suda.yzune.wakeupschedule.bean.HtmlCountBean
 class ApplyInfoAdapter(layoutResId: Int, data: MutableList<HtmlCountBean>) :
         BaseQuickAdapter<HtmlCountBean, BaseViewHolder>(layoutResId, data) {
 
-    override fun convert(helper: BaseViewHolder, item: HtmlCountBean?) {
-        if (item == null) return
+    override fun convert(helper: BaseViewHolder, item: HtmlCountBean) {
         helper.setVisible(R.id.ll_detail, true)
         helper.setVisible(R.id.ll_detail_num, true)
         helper.setVisible(R.id.v_line, true)

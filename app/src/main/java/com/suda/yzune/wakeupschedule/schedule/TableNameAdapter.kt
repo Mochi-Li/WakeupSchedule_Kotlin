@@ -13,8 +13,7 @@ import splitties.dimensions.dip
 class TableNameAdapter(layoutResId: Int, data: MutableList<TableSelectBean>) :
         BaseQuickAdapter<TableSelectBean, BaseViewHolder>(layoutResId, data) {
 
-    override fun convert(helper: BaseViewHolder, item: TableSelectBean?) {
-        if (item == null) return
+    override fun convert(helper: BaseViewHolder, item: TableSelectBean) {
         helper.setGone(R.id.menu_setting, item.type != 1)
 
         if (item.tableName != "") {
@@ -26,13 +25,13 @@ class TableNameAdapter(layoutResId: Int, data: MutableList<TableSelectBean>) :
         if (item.background != "") {
             Glide.with(context)
                     .load(item.background)
-                    .override(200, 300)
+                    .override(200, 200)
                     .transform(CenterCrop(), RoundedCorners(context.dip(4)))
                     .into(imageView)
         } else {
             Glide.with(context)
                     .load(R.drawable.main_background_2020_1)
-                    .override(200, 300)
+                    .override(200, 200)
                     .transform(CenterCrop(), RoundedCorners(context.dip(4)))
                     .into(imageView)
         }

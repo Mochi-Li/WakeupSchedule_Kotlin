@@ -102,7 +102,9 @@ object ViewUtils {
             val c = Class.forName("android.view.Display")
             val method = c.getMethod("getRealMetrics", DisplayMetrics::class.java)
             method.invoke(display, dm)
-            vh = dm.heightPixels - windowManager.defaultDisplay.height
+            val point = Point()
+            windowManager.defaultDisplay.getSize(point)
+            vh = dm.heightPixels - point.y
         } catch (e: Exception) {
             e.printStackTrace()
         }

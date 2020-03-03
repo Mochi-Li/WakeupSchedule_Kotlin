@@ -37,12 +37,6 @@ abstract class BaseBlurTitleActivity : BaseActivity() {
         val outValue = TypedValue()
         theme.resolveAttribute(R.attr.selectableItemBackgroundBorderless, outValue, true)
 
-        llContent = LinearLayout(this).apply {
-            orientation = LinearLayout.VERTICAL
-            setPadding(0, getStatusBarHeight() + dip(48), 0, 0)
-            inflate(this@BaseBlurTitleActivity, layoutId, this)
-        }
-
         mainTitle = AppCompatTextView(this).apply {
             text = title
             gravity = Gravity.CENTER_VERTICAL
@@ -55,11 +49,11 @@ abstract class BaseBlurTitleActivity : BaseActivity() {
             addView(ScrollView(context).apply {
                 overScrollMode = View.OVER_SCROLL_NEVER
                 isVerticalScrollBarEnabled = false
-                addView(llContent)
+                inflate(this@BaseBlurTitleActivity, layoutId, this)
             }, ConstraintLayout.LayoutParams(
                     ConstraintLayout.LayoutParams.MATCH_CONSTRAINT,
                     ConstraintLayout.LayoutParams.MATCH_CONSTRAINT).apply {
-                topToTop = ConstraintSet.PARENT_ID
+                topToBottom = R.id.anko_layout
                 bottomToBottom = ConstraintSet.PARENT_ID
                 startToStart = ConstraintSet.PARENT_ID
                 endToEnd = ConstraintSet.PARENT_ID

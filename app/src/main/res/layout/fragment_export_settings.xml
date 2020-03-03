@@ -29,12 +29,12 @@
         android:id="@+id/tv_export"
         style="@style/DialogButtonStyle"
         android:layout_marginTop="8dp"
-        android:text="导出为备份文件" />
+        android:text="导出为备份（可导入）文件" />
 
     <com.google.android.material.button.MaterialButton
         android:id="@+id/tv_export_ics"
         style="@style/DialogButtonStyle"
-        android:text="导出为 ics 格式" />
+        android:text="导出为 ics（日历用）格式" />
 
     <com.google.android.material.button.MaterialButton
         android:id="@+id/tv_cancel"

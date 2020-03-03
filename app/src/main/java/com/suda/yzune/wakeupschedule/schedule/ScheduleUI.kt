@@ -6,8 +6,9 @@ import android.util.TypedValue
 import android.view.Gravity
 import android.view.View
 import android.widget.FrameLayout
+import android.widget.LinearLayout
 import android.widget.ScrollView
-import androidx.appcompat.widget.AppCompatTextView
+import android.widget.TextView
 import androidx.constraintlayout.widget.ConstraintLayout
 import androidx.constraintlayout.widget.ConstraintSet
 import androidx.core.graphics.ColorUtils
@@ -23,7 +24,7 @@ class ScheduleUI(override val ctx: Context, table: TableBean, day: Int, forWidge
 
     private var col = 6
 
-    var showTimeDetail = true
+    var showTimeDetail = ctx.getPrefer().getBoolean(Const.KEY_SCHEDULE_DETAIL_TIME, true)
 
     val dayMap = IntArray(8)
     val itemHeight = ctx.dip(if (forWidget) table.widgetItemHeight else table.itemHeight)
@@ -60,45 +61,49 @@ class ScheduleUI(override val ctx: Context, table: TableBean, day: Int, forWidge
     val content = ConstraintLayout(ctx).apply {
         id = R.id.anko_cl_content_panel
         val timeSize = when (col) {
-            7 -> 9f
-            6 -> 10f
-            else -> 8f
+            7 -> 11f
+            6 -> 12f
+            else -> 10f
         }
         for (i in 1..table.nodes) {
-            addView(FrameLayout(context).apply {
+            addView(LinearLayout(context).apply {
                 id = R.id.anko_tv_node1 + i - 1
+                orientation = LinearLayout.VERTICAL
                 if (showTimeDetail) {
-                    addView(AppCompatTextView(context).apply {
+                    gravity = Gravity.CENTER_HORIZONTAL
+                } else {
+                    gravity = Gravity.CENTER
+                }
+                addView(TextView(context).apply {
+                    setTextColor(textColor)
+                    text = i.toString()
+                    setTextSize(TypedValue.COMPLEX_UNIT_DIP, 14f)
+                    setSingleLine()
+                }, LinearLayout.LayoutParams(LinearLayout.LayoutParams.WRAP_CONTENT, LinearLayout.LayoutParams.WRAP_CONTENT))
+                if (showTimeDetail) {
+                    addView(TextView(context).apply {
                         id = R.id.tv_start
                         setTextColor(textColor)
                         //gravity = Gravity.CENTER
                         //textAlignment = View.TEXT_ALIGNMENT_CENTER
                         setSingleLine()
                         setTextSize(TypedValue.COMPLEX_UNIT_DIP, timeSize)
-                    }, FrameLayout.LayoutParams(FrameLayout.LayoutParams.WRAP_CONTENT, FrameLayout.LayoutParams.WRAP_CONTENT).apply {
-                        gravity = Gravity.CENTER_HORIZONTAL or Gravity.TOP
+                    }, LinearLayout.LayoutParams(LinearLayout.LayoutParams.WRAP_CONTENT, LinearLayout.LayoutParams.WRAP_CONTENT).apply {
+                        //topMargin = dip(4)
                     })
-                    addView(AppCompatTextView(context).apply {
+                    addView(TextView(context).apply {
                         id = R.id.tv_end
                         setTextColor(textColor)
                         setSingleLine()
                         setTextSize(TypedValue.COMPLEX_UNIT_DIP, timeSize)
-                    }, FrameLayout.LayoutParams(FrameLayout.LayoutParams.WRAP_CONTENT, FrameLayout.LayoutParams.WRAP_CONTENT).apply {
-                        gravity = Gravity.CENTER_HORIZONTAL or Gravity.BOTTOM
+                    }, LinearLayout.LayoutParams(LinearLayout.LayoutParams.WRAP_CONTENT, LinearLayout.LayoutParams.WRAP_CONTENT).apply {
+                        //topMargin = dip(2)
                     })
                 }
-                addView(AppCompatTextView(context).apply {
-                    setTextColor(textColor)
-                    text = i.toString()
-                    textSize = 12f
-                    setSingleLine()
-                }, FrameLayout.LayoutParams(FrameLayout.LayoutParams.WRAP_CONTENT, FrameLayout.LayoutParams.WRAP_CONTENT).apply {
-                    gravity = Gravity.CENTER
-                })
             }, ConstraintLayout.LayoutParams(0, itemHeight).apply {
                 topMargin = dip(2)
                 endToStart = R.id.anko_ll_week_panel_0
-                horizontalWeight = 0.5f
+                horizontalWeight = 0.64f
                 startToStart = ConstraintSet.PARENT_ID
                 when (i) {
                     1 -> {
@@ -132,17 +137,17 @@ class ScheduleUI(override val ctx: Context, table: TableBean, day: Int, forWidge
         for (i in 0 until col - 1) {
             addView(FrameLayout(context).apply { id = R.id.anko_ll_week_panel_0 + i }, ConstraintLayout.LayoutParams(0,
                     ConstraintLayout.LayoutParams.WRAP_CONTENT).apply {
-                marginStart = dip(1)
-                marginEnd = dip(1)
                 horizontalWeight = 1f
                 when (i) {
                     0 -> {
                         startToEnd = R.id.anko_tv_node1
                         endToStart = R.id.anko_ll_week_panel_0 + i + 1
+                        marginEnd = dip(1)
                     }
                     col - 2 -> {
                         startToEnd = R.id.anko_ll_week_panel_0 + i - 1
                         endToEnd = ConstraintSet.PARENT_ID
+                        marginStart = dip(1)
                         if (!forWidget) {
                             marginEnd = if (col < 8) {
                                 dip(8)
@@ -154,6 +159,8 @@ class ScheduleUI(override val ctx: Context, table: TableBean, day: Int, forWidge
                     else -> {
                         startToEnd = R.id.anko_ll_week_panel_0 + i - 1
                         endToStart = R.id.anko_ll_week_panel_0 + i + 1
+                        marginStart = dip(1)
+                        marginEnd = dip(1)
                     }
                 }
             })
@@ -170,7 +177,7 @@ class ScheduleUI(override val ctx: Context, table: TableBean, day: Int, forWidge
     override val root = ConstraintLayout(ctx).apply {
         val textAlphaColor = ColorUtils.setAlphaComponent(textColor, (0.32 * (textColor shr 24 and 0xff)).toInt())
         for (i in 0 until col) {
-            addView(AppCompatTextView(context).apply {
+            addView(TextView(context).apply {
                 id = R.id.anko_tv_title0 + i
                 setPadding(0, dip(8), 0, dip(8))
                 textSize = 12f
@@ -185,7 +192,7 @@ class ScheduleUI(override val ctx: Context, table: TableBean, day: Int, forWidge
             }, ConstraintLayout.LayoutParams(0, ConstraintLayout.LayoutParams.WRAP_CONTENT).apply {
                 when (i) {
                     0 -> {
-                        horizontalWeight = 0.5f
+                        horizontalWeight = 0.64f
                         startToStart = ConstraintSet.PARENT_ID
                         topToTop = ConstraintSet.PARENT_ID
                         endToStart = R.id.anko_tv_title0 + i + 1
@@ -195,6 +202,7 @@ class ScheduleUI(override val ctx: Context, table: TableBean, day: Int, forWidge
                         startToEnd = R.id.anko_tv_title0 + i - 1
                         endToEnd = ConstraintSet.PARENT_ID
                         baselineToBaseline = R.id.anko_tv_title0 + i - 1
+                        marginStart = dip(1)
                         if (!forWidget) {
                             marginEnd = if (col < 8) {
                                 dip(8)
@@ -208,6 +216,10 @@ class ScheduleUI(override val ctx: Context, table: TableBean, day: Int, forWidge
                         startToEnd = R.id.anko_tv_title0 + i - 1
                         endToStart = R.id.anko_tv_title0 + i + 1
                         baselineToBaseline = R.id.anko_tv_title0 + i - 1
+                        if (i != 1) {
+                            marginStart = dip(1)
+                        }
+                        marginEnd = dip(1)
                     }
                 }
             })

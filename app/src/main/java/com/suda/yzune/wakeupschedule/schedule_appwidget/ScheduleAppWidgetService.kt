@@ -4,10 +4,7 @@ import android.content.Intent
 import android.graphics.Color
 import android.view.Gravity
 import android.view.View
-import android.widget.FrameLayout
-import android.widget.RemoteViews
-import android.widget.RemoteViewsService
-import android.widget.TextView
+import android.widget.*
 import androidx.core.view.setPadding
 import com.suda.yzune.wakeupschedule.AppDatabase
 import com.suda.yzune.wakeupschedule.R
@@ -15,11 +12,9 @@ import com.suda.yzune.wakeupschedule.bean.CourseBean
 import com.suda.yzune.wakeupschedule.bean.TableBean
 import com.suda.yzune.wakeupschedule.bean.TimeDetailBean
 import com.suda.yzune.wakeupschedule.schedule.ScheduleUI
-import com.suda.yzune.wakeupschedule.utils.Const
 import com.suda.yzune.wakeupschedule.utils.CourseUtils
 import com.suda.yzune.wakeupschedule.utils.CourseUtils.countWeek
 import com.suda.yzune.wakeupschedule.utils.ViewUtils
-import com.suda.yzune.wakeupschedule.utils.getPrefer
 import com.suda.yzune.wakeupschedule.widget.TipTextView
 import splitties.dimensions.dip
 import java.text.ParseException
@@ -58,9 +53,7 @@ class ScheduleAppWidgetService : RemoteViewsService() {
         private val weekDay = CourseUtils.getWeekdayInt()
         private val allCourseList = Array(7) { listOf<CourseBean>() }
 
-        override fun onCreate() {
-
-        }
+        override fun onCreate() {}
 
         override fun onDataSetChanged() {
             table = if (tableId == -1) {
@@ -101,6 +94,7 @@ class ScheduleAppWidgetService : RemoteViewsService() {
 
         override fun getViewAt(position: Int): RemoteViews {
             val mRemoteViews = RemoteViews(applicationContext.packageName, R.layout.item_schedule_widget)
+            if (position < 0 || position >= 1) return mRemoteViews
             initData(mRemoteViews)
             return mRemoteViews
         }
@@ -123,11 +117,9 @@ class ScheduleAppWidgetService : RemoteViewsService() {
 
         fun initData(views: RemoteViews) {
             val ui = ScheduleUI(applicationContext, table, weekDay, true)
-            val showTimeDetail = applicationContext.getPrefer().getBoolean(Const.KEY_SCHEDULE_DETAIL_TIME, true)
-            ui.showTimeDetail = showTimeDetail
-            if (timeList.isNotEmpty() && showTimeDetail) {
+            if (timeList.isNotEmpty() && ui.showTimeDetail) {
                 for (i in 0 until table.nodes) {
-                    (ui.content.getViewById(R.id.anko_tv_node1 + i) as FrameLayout).apply {
+                    (ui.content.getViewById(R.id.anko_tv_node1 + i) as LinearLayout).apply {
                         findViewById<TextView>(R.id.tv_start).text = timeList[i].startTime
                         findViewById<TextView>(R.id.tv_end).text = timeList[i].endTime
                     }

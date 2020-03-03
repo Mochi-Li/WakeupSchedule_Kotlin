@@ -4,23 +4,34 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.ArrayAdapter
 import androidx.appcompat.app.AlertDialog
+import androidx.constraintlayout.widget.ConstraintLayout
+import androidx.core.view.ViewCompat
+import androidx.core.view.updateLayoutParams
 import androidx.fragment.app.activityViewModels
-import androidx.lifecycle.Observer
 import androidx.navigation.Navigation
+import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
-import com.google.android.material.button.MaterialButton
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import com.google.android.material.textfield.TextInputEditText
 import com.google.android.material.textfield.TextInputLayout
+import com.google.android.material.textview.MaterialAutoCompleteTextView
 import com.suda.yzune.wakeupschedule.R
 import com.suda.yzune.wakeupschedule.base_view.BaseFragment
+import com.suda.yzune.wakeupschedule.bean.TimeTableBean
+import com.suda.yzune.wakeupschedule.utils.Const
+import com.suda.yzune.wakeupschedule.utils.getPrefer
 import es.dmoral.toasty.Toasty
+import kotlinx.android.synthetic.main.time_table_fragment.*
+import splitties.dimensions.dip
 import splitties.snackbar.longSnack
 
 class TimeTableFragment : BaseFragment() {
 
     private val viewModel by activityViewModels<TimeSettingsViewModel>()
+    private lateinit var adapter: TimeTableAdapter
+    private lateinit var arrayAdapter: ArrayAdapter<TimeTableBean>
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -32,26 +43,75 @@ class TimeTableFragment : BaseFragment() {
                               savedInstanceState: Bundle?): View {
         val view = inflater.inflate(R.layout.time_table_fragment, container, false)
         val recyclerView = view.findViewById<RecyclerView>(R.id.rv_time_table)
-        initRecyclerView(recyclerView, view)
-
-        viewModel.getTimeTableList().observe(this, Observer {
-            if (it == null) return@Observer
+        launch {
             viewModel.timeTableList.clear()
-            viewModel.timeTableList.addAll(it)
-            recyclerView.adapter?.notifyDataSetChanged()
-        })
+            val list = viewModel.getTimeTableList()
+            viewModel.timeTableList.addAll(list)
+            initRecyclerView(recyclerView, view)
+            arrayAdapter = ArrayAdapter(context!!, R.layout.popup_single_list_item)
+            arrayAdapter.addAll(list)
+            val index = list.indexOfFirst { it.id == viewModel.selectedId }
+            view.findViewById<MaterialAutoCompleteTextView>(R.id.tv_time_table).apply {
+                setText(list[index].name)
+                setAdapter(arrayAdapter)
+                listSelection = index
+                setOnItemClickListener { _, _, position, _ ->
+                    arrayAdapter.getItem(position)?.let {
+                        viewModel.selectedId = it.id
+                    }
+                }
+            }
+        }
         return view
     }
 
-    private fun initRecyclerView(recyclerView: RecyclerView, fragmentView: View) {
-        val adapter = TimeTableAdapter(R.layout.item_time_table, viewModel.timeTableList, viewModel.selectedId)
-        recyclerView.adapter = adapter
-        adapter.addFooterView(initFooterView())
-        adapter.setOnItemClickListener { _, _, position ->
-            adapter.selectedId = viewModel.timeTableList[position].id
-            viewModel.selectedId = viewModel.timeTableList[position].id
-            adapter.notifyDataSetChanged()
+    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+        super.onViewCreated(view, savedInstanceState)
+        if (activity!!.getPrefer().getBoolean(Const.KEY_HIDE_NAV_BAR, false)) {
+            ViewCompat.setOnApplyWindowInsetsListener(fab_add) { v, insets ->
+                v.updateLayoutParams<ConstraintLayout.LayoutParams> {
+                    bottomMargin = insets.systemWindowInsets.bottom + v.dip(16)
+                }
+                insets
+            }
         }
+        fab_add.setOnClickListener {
+            val dialog = MaterialAlertDialogBuilder(context!!)
+                    .setTitle("时间表名字")
+                    .setView(R.layout.dialog_edit_text)
+                    .setNegativeButton(R.string.cancel, null)
+                    .setPositiveButton(R.string.sure, null)
+                    .create()
+            dialog.show()
+            val inputLayout = dialog.findViewById<TextInputLayout>(R.id.text_input_layout)
+            val editText = dialog.findViewById<TextInputEditText>(R.id.edit_text)
+            dialog.getButton(AlertDialog.BUTTON_POSITIVE).setOnClickListener {
+                val value = editText?.text
+                if (value.isNullOrBlank()) {
+                    inputLayout?.error = "名称不能为空哦>_<"
+                } else {
+                    launch {
+                        try {
+                            val id = viewModel.addNewTimeTable(value.toString())
+                            adapter.addData(TimeTableBean(id, value.toString()))
+                            arrayAdapter.add(TimeTableBean(id, value.toString()))
+                            Toasty.success(activity!!.applicationContext, "新建成功~").show()
+                        } catch (e: Exception) {
+                            Toasty.error(activity!!.applicationContext, "发生异常>_<${e.message}").show()
+                        }
+                        dialog.dismiss()
+                    }
+                }
+            }
+        }
+    }
+
+    private fun initRecyclerView(recyclerView: RecyclerView, fragmentView: View) {
+        adapter = TimeTableAdapter(R.layout.item_time_table, viewModel.timeTableList)
+        recyclerView.adapter = adapter
+        adapter.addFooterView(View(context!!).apply {
+            layoutParams = ViewGroup.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, dip(240))
+        })
         adapter.addChildClickViewIds(R.id.ib_edit, R.id.ib_delete)
         adapter.setOnItemChildClickListener { _, view, position ->
             when (view.id) {
@@ -76,6 +136,8 @@ class TimeTableFragment : BaseFragment() {
                         launch {
                             try {
                                 viewModel.deleteTimeTable(viewModel.timeTableList[position])
+                                adapter.remove(position)
+                                arrayAdapter.remove(arrayAdapter.getItem(position))
                                 view.longSnack("删除成功~")
                             } catch (e: Exception) {
                                 view.longSnack("该时间表仍被使用中>_<请确保它不被使用再删除哦")
@@ -89,42 +151,8 @@ class TimeTableFragment : BaseFragment() {
                 }
             }
         }
-        recyclerView.layoutManager = androidx.recyclerview.widget.LinearLayoutManager(activity)
+        recyclerView.layoutManager = LinearLayoutManager(activity)
         recyclerView.adapter = adapter
-    }
-
-    private fun initFooterView(): View {
-        val view = LayoutInflater.from(activity).inflate(R.layout.item_add_course_btn, null)
-        val tvBtn = view.findViewById<MaterialButton>(R.id.tv_add)
-        tvBtn.text = "新建时间表"
-        tvBtn.setOnClickListener {
-            val dialog = MaterialAlertDialogBuilder(context!!)
-                    .setTitle("时间表名字")
-                    .setView(R.layout.dialog_edit_text)
-                    .setNegativeButton(R.string.cancel, null)
-                    .setPositiveButton(R.string.sure, null)
-                    .create()
-            dialog.show()
-            val inputLayout = dialog.findViewById<TextInputLayout>(R.id.text_input_layout)
-            val editText = dialog.findViewById<TextInputEditText>(R.id.edit_text)
-            dialog.getButton(AlertDialog.BUTTON_POSITIVE).setOnClickListener {
-                val value = editText?.text
-                if (value.isNullOrBlank()) {
-                    inputLayout?.error = "名称不能为空哦>_<"
-                } else {
-                    launch {
-                        try {
-                            viewModel.addNewTimeTable(editText.text.toString())
-                            Toasty.success(activity!!.applicationContext, "新建成功~").show()
-                        } catch (e: Exception) {
-                            Toasty.error(activity!!.applicationContext, "发生异常>_<${e.message}").show()
-                        }
-                        dialog.dismiss()
-                    }
-                }
-            }
-        }
-        return view
     }
 
 }

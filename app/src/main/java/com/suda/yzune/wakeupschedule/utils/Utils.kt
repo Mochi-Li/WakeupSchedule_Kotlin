@@ -36,4 +36,15 @@ object Utils {
         return md5StrBuff.toString()
     }
 
+//    fun getFileNameFromUri(context: Context, uri: Uri): String? {
+//        val cursor: Cursor? = context.contentResolver.query(uri, null, null, null, null, null)
+//        var fileName: String? = null
+//        cursor?.use {
+//            if (it.moveToFirst()) {
+//                fileName = it.getString(it.getColumnIndex(OpenableColumns.DISPLAY_NAME))
+//            }
+//        }
+//        return fileName
+//    }
+
 }

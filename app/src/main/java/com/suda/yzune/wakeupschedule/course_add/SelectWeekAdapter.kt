@@ -10,8 +10,7 @@ import splitties.resources.styledColor
 class SelectWeekAdapter(layoutResId: Int, max: Int, private val intData: List<Int>) :
         BaseQuickAdapter<Int, BaseViewHolder>(layoutResId, (1..max).toMutableList()) {
 
-    override fun convert(helper: BaseViewHolder, item: Int?) {
-        if (item == null) return
+    override fun convert(helper: BaseViewHolder, item: Int) {
         helper.setText(R.id.tv_num, "$item")
         if (intData.contains(item)) {
             helper.setTextColor(R.id.tv_num, Color.WHITE)

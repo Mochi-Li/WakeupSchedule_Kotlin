@@ -10,4 +10,8 @@ data class TimeTableBean(
         var name: String,
         var sameLen: Boolean = true,
         var courseLen: Int = 50
-)
+) {
+    override fun toString(): String {
+        return name
+    }
+}

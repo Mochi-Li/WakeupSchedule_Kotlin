@@ -11,7 +11,7 @@ import android.text.Editable
 import android.text.TextWatcher
 import android.view.LayoutInflater
 import android.view.View
-import android.widget.RelativeLayout
+import android.view.ViewGroup
 import android.widget.Toast
 import androidx.activity.viewModels
 import androidx.appcompat.widget.AppCompatEditText
@@ -20,25 +20,27 @@ import androidx.appcompat.widget.LinearLayoutCompat
 import androidx.constraintlayout.widget.ConstraintLayout
 import androidx.constraintlayout.widget.ConstraintSet
 import androidx.core.content.res.ResourcesCompat
+import androidx.core.view.ViewCompat
 import androidx.core.view.setMargins
+import androidx.core.view.updateLayoutParams
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.Observer
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.google.android.material.button.MaterialButton
+import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import com.suda.yzune.wakeupschedule.R
 import com.suda.yzune.wakeupschedule.base_view.BaseListActivity
 import com.suda.yzune.wakeupschedule.bean.CourseBaseBean
 import com.suda.yzune.wakeupschedule.bean.CourseEditBean
 import com.suda.yzune.wakeupschedule.schedule_import.Common
+import com.suda.yzune.wakeupschedule.utils.Const
 import com.suda.yzune.wakeupschedule.utils.CourseUtils
+import com.suda.yzune.wakeupschedule.utils.getPrefer
 import com.suda.yzune.wakeupschedule.widget.EditDetailFragment
 import com.suda.yzune.wakeupschedule.widget.colorpicker.ColorPickerFragment
 import es.dmoral.toasty.Toasty
-import kotlinx.coroutines.delay
 import splitties.dimensions.dip
 import splitties.resources.color
-import splitties.snackbar.action
-import splitties.snackbar.longSnack
 
 class AddCourseActivity : BaseListActivity(), ColorPickerFragment.ColorPickerDialogListener, AddCourseAdapter.OnItemEditTextChangedListener {
 
@@ -50,28 +52,13 @@ class AddCourseActivity : BaseListActivity(), ColorPickerFragment.ColorPickerDia
         tvButton.typeface = Typeface.DEFAULT_BOLD
         tvButton.setTextColor(color(R.color.colorAccent))
         tvButton.setOnClickListener {
-            if (viewModel.baseBean.courseName == "") {
-                Toasty.error(this.applicationContext, "请填写课程名称").show()
-            } else {
-                if (viewModel.baseBean.id == -1 || !viewModel.updateFlag) {
-                    launch {
-                        val task = viewModel.checkSameName()
-                        if (task != null) {
-                            viewModel.baseBean.id = task.id
-                        }
-                        saveData(task != null)
-                    }
-                } else {
-                    saveData()
-                }
-            }
+            saveAndExit()
         }
         return tvButton
     }
 
     private val viewModel by viewModels<AddCourseViewModel>()
     private lateinit var etName: AppCompatEditText
-    private var isExit: Boolean = false
     private lateinit var adapter: AddCourseAdapter
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -86,21 +73,22 @@ class AddCourseActivity : BaseListActivity(), ColorPickerFragment.ColorPickerDia
             viewModel.tableId = intent.extras!!.getInt("tableId")
             viewModel.maxWeek = intent.extras!!.getInt("maxWeek")
             viewModel.nodes = intent.extras!!.getInt("nodes")
+            adapter = AddCourseAdapter(R.layout.item_add_course_detail, viewModel.editList)
             launch {
                 val detailList = viewModel.initData(intent.extras!!.getInt("id"), viewModel.tableId)
                 detailList.forEach {
                     viewModel.editList.add(CourseUtils.detailBean2EditBean(it))
                 }
+                adapter.notifyDataSetChanged()
                 val courseBaseBean = viewModel.initBaseData(intent.extras!!.getInt("id"))
                 viewModel.baseBean.id = courseBaseBean.id
                 viewModel.baseBean.color = courseBaseBean.color
                 viewModel.baseBean.courseName = courseBaseBean.courseName
                 viewModel.baseBean.tableId = courseBaseBean.tableId
-                adapter = AddCourseAdapter(R.layout.item_add_course_detail, viewModel.editList)
                 initAdapter(viewModel.baseBean)
             }
         }
-        rootView.addView(MaterialButton(this).apply {
+        val addFab = MaterialButton(this).apply {
             includeFontPadding = false
             textSize = 25f
             cornerRadius = dip(48)
@@ -132,19 +120,51 @@ class AddCourseActivity : BaseListActivity(), ColorPickerFragment.ColorPickerDia
                                 }
                             }))
                 }
-                mRecyclerView.scrollToPosition(adapter.data.size)
+                (mRecyclerView.layoutManager as LinearLayoutManager).scrollToPositionWithOffset(adapter.data.size, 0)
             }
-        }, ConstraintLayout.LayoutParams(dip(56), dip(67)).apply {
+        }
+        rootView.addView(addFab, ConstraintLayout.LayoutParams(dip(56), dip(67)).apply {
             bottomToBottom = ConstraintSet.PARENT_ID
             endToEnd = ConstraintSet.PARENT_ID
             setMargins(dip(16))
         })
+        if (getPrefer().getBoolean(Const.KEY_HIDE_NAV_BAR, false)) {
+            ViewCompat.setOnApplyWindowInsetsListener(addFab) { v, insets ->
+                v.updateLayoutParams<ConstraintLayout.LayoutParams> {
+                    bottomMargin = insets.systemWindowInsets.bottom + v.dip(16)
+                }
+                if (!adapter.hasFooterLayout()) {
+                    adapter.addFooterView(View(this).apply {
+                        layoutParams = ViewGroup.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, insets.systemWindowInsets.bottom)
+                    })
+                }
+                insets
+            }
+        }
     }
 
     override fun onEditTextAfterTextChanged(editable: Editable, position: Int, what: String) {
         when (what) {
             "room" -> viewModel.editList[position].room = editable.toString()
             "teacher" -> viewModel.editList[position].teacher = editable.toString()
+        }
+    }
+
+    private fun saveAndExit() {
+        if (viewModel.baseBean.courseName == "") {
+            Toasty.error(this.applicationContext, "请填写课程名称").show()
+        } else {
+            if (viewModel.baseBean.id == -1 || !viewModel.updateFlag) {
+                launch {
+                    val task = viewModel.checkSameName()
+                    if (task != null) {
+                        viewModel.baseBean.id = task.id
+                    }
+                    saveData(task != null)
+                }
+            } else {
+                saveData()
+            }
         }
     }
 
@@ -241,8 +261,6 @@ class AddCourseActivity : BaseListActivity(), ColorPickerFragment.ColorPickerDia
     private fun initHeaderView(baseBean: CourseBaseBean): View {
         val view = LayoutInflater.from(this).inflate(R.layout.item_add_course_base, null)
         etName = view.findViewById(R.id.et_name)
-        val rlRoot = view.findViewById<RelativeLayout>(R.id.rl_root)
-        rlRoot.setPadding(0, getStatusBarHeight() + dip(48), 0, 0)
         val llColor = view.findViewById<LinearLayoutCompat>(R.id.ll_color)
         tvColor = view.findViewById(R.id.tv_color)
         ivColor = view.findViewById(R.id.iv_color)
@@ -313,24 +331,18 @@ class AddCourseActivity : BaseListActivity(), ColorPickerFragment.ColorPickerDia
         }
     }
 
-    private fun exitBy2Click() {
-        if (!isExit) {
-            isExit = true // 准备退出
-            mRecyclerView.longSnack("真的不保存吗？那再按一次退出编辑哦，就不保存啦。") {
-                action("退出编辑") {
+    override fun onBackPressed() {
+        val builder = MaterialAlertDialogBuilder(this)
+                .setMessage("需要保存当前的编辑吗？")
+                .setNegativeButton("离开") { _, _ ->
                     finish()
                 }
+                .setPositiveButton("留下", null)
+        if (viewModel.baseBean.courseName.isNotEmpty()) {
+            builder.setPositiveButton("保存") { _, _ ->
+                saveAndExit()
             }
-            launch {
-                delay(2000)
-                isExit = false
-            }
-        } else {
-            finish()
         }
-    }
-
-    override fun onBackPressed() {
-        exitBy2Click()  //退出应用的操作
+        builder.show()
     }
 }

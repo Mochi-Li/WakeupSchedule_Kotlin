@@ -23,8 +23,8 @@ class TimeSettingsViewModel(application: Application) : AndroidViewModel(applica
     var entryPosition = 0
     var selectedId = 1
 
-    suspend fun addNewTimeTable(name: String) {
-        timeTableDao.initTimeTable(TimeTableBean(id = 0, name = name))
+    suspend fun addNewTimeTable(name: String): Int {
+        return timeTableDao.initTimeTable(TimeTableBean(id = 0, name = name))
     }
 
     suspend fun initTimeTableData(id: Int) {
@@ -67,7 +67,7 @@ class TimeSettingsViewModel(application: Application) : AndroidViewModel(applica
         timeTableDao.deleteTimeTable(timeTableBean)
     }
 
-    fun getTimeTableList(): LiveData<List<TimeTableBean>> {
+    suspend fun getTimeTableList(): List<TimeTableBean> {
         return timeTableDao.getTimeTableList()
     }
 

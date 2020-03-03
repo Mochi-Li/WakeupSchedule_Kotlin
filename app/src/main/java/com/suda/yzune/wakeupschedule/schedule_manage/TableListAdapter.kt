@@ -11,8 +11,7 @@ import com.suda.yzune.wakeupschedule.bean.TableSelectBean
 class TableListAdapter(layoutResId: Int, data: MutableList<TableSelectBean>) :
         BaseQuickAdapter<TableSelectBean, BaseViewHolder>(layoutResId, data) {
 
-    override fun convert(helper: BaseViewHolder, item: TableSelectBean?) {
-        if (item == null) return
+    override fun convert(helper: BaseViewHolder, item: TableSelectBean) {
         if (item.type == 1) {
             helper.getView<View>(R.id.ib_delete).visibility = View.GONE
         } else {

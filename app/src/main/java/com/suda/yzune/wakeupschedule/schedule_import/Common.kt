@@ -11,6 +11,7 @@ object Common {
     const val TYPE_ZF_NEW = "zf_new"
     const val TYPE_URP = "urp"
     const val TYPE_URP_NEW = "urp_new"
+    const val TYPE_URP_NEW_AJAX = "urp_new_ajax"
     const val TYPE_QZ = "qz"
     const val TYPE_QZ_OLD = "qz_old"
     const val TYPE_QZ_CRAZY = "qz_crazy"

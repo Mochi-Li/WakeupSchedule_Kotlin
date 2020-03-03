@@ -71,7 +71,7 @@ abstract class BaseListActivity : BaseActivity() {
         addView(mRecyclerView, ConstraintLayout.LayoutParams(
                 ConstraintLayout.LayoutParams.MATCH_CONSTRAINT,
                 ConstraintLayout.LayoutParams.MATCH_CONSTRAINT).apply {
-            topToTop = ConstraintSet.PARENT_ID
+            topToBottom = R.id.anko_layout
             bottomToBottom = ConstraintSet.PARENT_ID
             startToStart = ConstraintSet.PARENT_ID
             endToEnd = ConstraintSet.PARENT_ID

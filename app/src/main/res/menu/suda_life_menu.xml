@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android">
+    <item
+        android:id="@+id/menu_empty_room"
+        android:title="空教室查询" />
+    <item
+        android:id="@+id/menu_bathroom"
+        android:title="东区澡堂拥挤度" />
+</menu>

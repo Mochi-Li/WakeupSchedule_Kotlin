@@ -8,8 +8,10 @@ import androidx.activity.viewModels
 import com.suda.yzune.wakeupschedule.SplashActivity
 import com.suda.yzune.wakeupschedule.base_view.BaseActivity
 import com.suda.yzune.wakeupschedule.utils.Const
+import com.suda.yzune.wakeupschedule.utils.getPrefer
 import es.dmoral.toasty.Toasty
 import kotlinx.android.synthetic.main.fragment_login_web.*
+import splitties.activities.start
 
 class LoginWebActivity : BaseActivity() {
 
@@ -17,6 +19,12 @@ class LoginWebActivity : BaseActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+
+        if (!getPrefer().getBoolean(Const.KEY_HAS_INTRO, false)) {
+            start<SplashActivity>()
+            Toasty.info(this, "安装后请先打开App一次再导入", Toasty.LENGTH_LONG).show()
+            finish()
+        }
 
         intent.extras?.getString("import_type")?.let {
             viewModel.importType = it
@@ -65,13 +73,13 @@ class LoginWebActivity : BaseActivity() {
                 val uri = intent.data
                 val path = uri?.path ?: ""
                 val type = when {
-                    path.contains("wakeup_schedule") -> "file"
-                    path.endsWith("csv") -> "csv"
-                    path.endsWith("html") -> "html"
+                    path.contains("wakeup_schedule") || path.endsWith("WAKEUP_SCHEDULE") -> "file"
+                    path.endsWith("csv") || path.endsWith("CSV") -> "csv"
+                    path.endsWith("html") || path.endsWith("HTML") -> "html"
                     else -> ""
                 }
                 if (type.isEmpty()) {
-                    Toasty.error(this@LoginWebActivity, "文件的扩展名不对哦>_<", Toast.LENGTH_LONG).show()
+                    Toasty.error(this@LoginWebActivity, "文件的扩展名不对哦>_<\n文件扩展名必须是csv、html或wakeup_schedule", Toast.LENGTH_LONG).show()
                     val intent = Intent(this@LoginWebActivity, SplashActivity::class.java)
                     intent.flags = Intent.FLAG_ACTIVITY_CLEAR_TASK or Intent.FLAG_ACTIVITY_NEW_TASK
                     startActivity(intent)

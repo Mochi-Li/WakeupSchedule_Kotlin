@@ -10,8 +10,7 @@ import com.suda.yzune.wakeupschedule.bean.TableSelectBean
 class WidgetTableListAdapter(layoutResId: Int, data: MutableList<TableSelectBean>) :
         BaseQuickAdapter<TableSelectBean, BaseViewHolder>(layoutResId, data) {
 
-    override fun convert(helper: BaseViewHolder, item: TableSelectBean?) {
-        if (item == null) return
+    override fun convert(helper: BaseViewHolder, item: TableSelectBean) {
         helper.setVisible(R.id.ib_share, false)
         helper.setVisible(R.id.ib_edit, false)
         helper.setVisible(R.id.ib_delete, false)

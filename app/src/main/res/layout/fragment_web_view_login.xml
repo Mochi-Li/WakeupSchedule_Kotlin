@@ -189,7 +189,7 @@
                 </com.google.android.material.chip.ChipGroup>
 
                 <com.google.android.material.chip.ChipGroup
-                    android:id="@+id/cg_old_qz"
+                    android:id="@+id/cg_new_urp"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:layout_marginStart="16dp"
@@ -202,20 +202,20 @@
                     tools:visibility="visible">
 
                     <com.google.android.material.chip.Chip
-                        android:id="@+id/chip_old_qz1"
+                        android:id="@+id/chip_new_urp"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:checkable="true"
-                        android:text="缩小"
+                        android:text="方式1"
                         android:textColor="@android:color/white"
                         app:chipBackgroundColor="@color/red" />
 
                     <com.google.android.material.chip.Chip
-                        android:id="@+id/chip_old_qz2"
+                        android:id="@+id/chip_new_urp_ajax"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:checkable="true"
-                        android:text="放大"
+                        android:text="方式2"
                         android:textColor="@android:color/white"
                         app:chipBackgroundColor="@color/pink" />
 

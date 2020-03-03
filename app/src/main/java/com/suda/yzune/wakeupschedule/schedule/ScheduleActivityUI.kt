@@ -9,7 +9,6 @@ import android.view.Gravity
 import android.view.View
 import android.view.ViewGroup
 import android.widget.FrameLayout
-import android.widget.HorizontalScrollView
 import android.widget.ImageView
 import androidx.appcompat.widget.AppCompatImageView
 import androidx.appcompat.widget.AppCompatTextView
@@ -17,16 +16,17 @@ import androidx.constraintlayout.widget.ConstraintLayout
 import androidx.constraintlayout.widget.ConstraintSet.PARENT_ID
 import androidx.coordinatorlayout.widget.CoordinatorLayout
 import androidx.core.content.res.ResourcesCompat
+import androidx.core.view.ViewCompat
 import androidx.core.view.setMargins
-import androidx.drawerlayout.widget.DrawerLayout
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import androidx.viewpager.widget.ViewPager
+import com.google.android.material.bottomnavigation.BottomNavigationView
+import com.google.android.material.bottomnavigation.LabelVisibilityMode
 import com.google.android.material.bottomsheet.BottomSheetBehavior
 import com.google.android.material.button.MaterialButton
-import com.google.android.material.button.MaterialButtonToggleGroup
 import com.google.android.material.card.MaterialCardView
-import com.google.android.material.navigation.NavigationView
+import com.google.android.material.slider.Slider
 import com.suda.yzune.wakeupschedule.R
 import com.suda.yzune.wakeupschedule.base_view.Ui
 import com.suda.yzune.wakeupschedule.utils.Const
@@ -206,32 +206,12 @@ class ScheduleActivityUI(override val ctx: Context) : Ui {
 
     }
 
-    val navViewStart = NavigationView(ctx).apply {
-        id = R.id.anko_nv
-        setBackgroundColor(styledColor(R.attr.colorSurface))
-        fitsSystemWindows = false
-        inflateHeaderView(R.layout.nav_header)
-        inflateMenu(R.menu.main_navigation_menu)
-        itemIconTintList = ViewUtils.createColorStateList(styledColor(R.attr.colorOnBackground))
-    }
-
     val rvTableName = RecyclerView(ctx).apply {
         id = R.id.bottom_sheet_rv_table
         overScrollMode = View.OVER_SCROLL_NEVER
         layoutManager = LinearLayoutManager(context).apply {
             orientation = RecyclerView.HORIZONTAL
         }
-    }
-
-    val drawerLayout = DrawerLayout(ctx).apply {
-        id = R.id.anko_drawer_layout
-        addView(content, DrawerLayout.LayoutParams(DrawerLayout.LayoutParams.MATCH_PARENT,
-                DrawerLayout.LayoutParams.MATCH_PARENT))
-
-        addView(navViewStart, DrawerLayout.LayoutParams(DrawerLayout.LayoutParams.MATCH_PARENT,
-                DrawerLayout.LayoutParams.MATCH_PARENT).apply {
-            gravity = Gravity.START
-        })
     }
 
     val changeWeekBtn = createTextButton().apply {
@@ -258,54 +238,54 @@ class ScheduleActivityUI(override val ctx: Context) : Ui {
         textSize = 12f
     }
 
-    val weekToggleGroup = MaterialButtonToggleGroup(ctx).apply {
-        id = R.id.bottom_sheet_cg_week
-        isSingleSelection = true
-        isSelectionRequired = true
+    val weekSlider = Slider(ctx).apply {
+        id = R.id.bottom_sheet_slider_week
+        stepSize = 1f
+        setLabelFormatter {
+            "第 ${it.toInt()} 周"
+        }
+        haloRadius = 0
+        thumbRadius = dip(8)
+        thumbElevation = 0f
+        thumbColor = ViewUtils.createColorStateList(Color.WHITE)
+        trackHeight = dip(24)
+        tickColor = ViewUtils.createColorStateList(Color.TRANSPARENT)
     }
 
-    val weekScrollView = HorizontalScrollView(ctx).apply {
-        id = R.id.bottom_sheet_sv_week
-        overScrollMode = View.OVER_SCROLL_NEVER
-        isHorizontalScrollBarEnabled = false
-        addView(weekToggleGroup)
-    }
-
-    val timeBtn = createTextButton().apply {
-        id = R.id.bottom_sheet_modify_time_btn
-        text = "上课时间"
-        minWidth = 0
-        minimumWidth = 0
+    private val shortCutTitle = AppCompatTextView(ctx).apply {
+        id = R.id.bottom_sheet_title_shortcut
+        text = "捷径"
         textSize = 12f
     }
 
-    val changeBgBtn = createTextButton().apply {
-        id = R.id.bottom_sheet_bg_btn
-        text = "更换背景"
-        minWidth = 0
-        minimumWidth = 0
-        textSize = 12f
+    val bottomNavigationView = BottomNavigationView(ctx).apply {
+        id = R.id.bottom_sheet_nav_view
+        elevation = 0f
+        setBackgroundColor(Color.TRANSPARENT)
+        inflateMenu(R.menu.bottom_nav_menu)
+        val color = shortCutTitle.textColors
+        itemTextColor = color
+        itemIconTintList = color
+        labelVisibilityMode = LabelVisibilityMode.LABEL_VISIBILITY_LABELED
+        itemTextAppearanceActive = R.style.BottomNavigationViewText
+        itemTextAppearanceInactive = R.style.BottomNavigationViewText
     }
 
-    val courseBtn = createTextButton().apply {
-        id = R.id.bottom_sheet_check_course_btn
-        text = "已添课程"
-        minWidth = 0
-        minimumWidth = 0
-        textSize = 12f
-    }
-
-    val qaBtn = createTextButton().apply {
-        id = R.id.bottom_sheet_question_btn
-        text = "常见问题"
-        minWidth = 0
-        minimumWidth = 0
-        textSize = 12f
+    val bottomNavigationView2 = BottomNavigationView(ctx).apply {
+        id = R.id.bottom_sheet_nav_view2
+        elevation = 0f
+        setBackgroundColor(Color.TRANSPARENT)
+        inflateMenu(R.menu.bottom_nav_menu2)
+        val color = shortCutTitle.textColors
+        itemTextColor = color
+        itemIconTintList = color
+        labelVisibilityMode = LabelVisibilityMode.LABEL_VISIBILITY_LABELED
+        itemTextAppearanceActive = R.style.BottomNavigationViewText
+        itemTextAppearanceInactive = R.style.BottomNavigationViewText
     }
 
     val cardContent = ConstraintLayout(ctx).apply {
         val space = dip(16)
-        setPadding(space, 0, space, 0)
         isMotionEventSplittingEnabled = false
         addView(AppCompatTextView(context).apply {
             id = R.id.bottom_sheet_title_week
@@ -314,18 +294,21 @@ class ScheduleActivityUI(override val ctx: Context) : Ui {
         }, ConstraintLayout.LayoutParams(ConstraintLayout.LayoutParams.WRAP_CONTENT, ConstraintLayout.LayoutParams.WRAP_CONTENT).apply {
             startToStart = PARENT_ID
             topToTop = PARENT_ID
-            topMargin = dip(16)
+            topMargin = space
+            marginStart = space
         })
         addView(changeWeekBtn, ConstraintLayout.LayoutParams(ConstraintLayout.LayoutParams.WRAP_CONTENT, ConstraintLayout.LayoutParams.WRAP_CONTENT).apply {
             endToEnd = PARENT_ID
             topToTop = R.id.bottom_sheet_title_week
             bottomToBottom = R.id.bottom_sheet_title_week
+            marginEnd = space
         })
-        addView(weekScrollView, ConstraintLayout.LayoutParams(ConstraintLayout.LayoutParams.MATCH_PARENT, ConstraintLayout.LayoutParams.WRAP_CONTENT).apply {
+        addView(weekSlider, ConstraintLayout.LayoutParams(ConstraintLayout.LayoutParams.MATCH_PARENT, ConstraintLayout.LayoutParams.WRAP_CONTENT).apply {
             startToStart = PARENT_ID
             endToEnd = PARENT_ID
             topToBottom = R.id.bottom_sheet_title_week
-            topMargin = dip(8)
+            marginStart = space
+            marginEnd = space
         })
         addView(AppCompatTextView(context).apply {
             id = R.id.bottom_sheet_title_schedule
@@ -333,61 +316,62 @@ class ScheduleActivityUI(override val ctx: Context) : Ui {
             textSize = 12f
         }, ConstraintLayout.LayoutParams(ConstraintLayout.LayoutParams.WRAP_CONTENT, ConstraintLayout.LayoutParams.WRAP_CONTENT).apply {
             startToStart = PARENT_ID
-            topToBottom = R.id.bottom_sheet_sv_week
+            topToBottom = R.id.bottom_sheet_slider_week
             topMargin = dip(8)
+            marginStart = space
         })
         addView(rvTableName, ConstraintLayout.LayoutParams(ConstraintLayout.LayoutParams.MATCH_PARENT, ConstraintLayout.LayoutParams.WRAP_CONTENT).apply {
             startToStart = PARENT_ID
             endToEnd = PARENT_ID
             topToBottom = R.id.bottom_sheet_title_schedule
             topMargin = dip(16)
+            marginStart = space
+            marginEnd = space
         })
         addView(manageScheduleBtn, ConstraintLayout.LayoutParams(ConstraintLayout.LayoutParams.WRAP_CONTENT, ConstraintLayout.LayoutParams.WRAP_CONTENT).apply {
             endToEnd = PARENT_ID
             topToTop = R.id.bottom_sheet_title_schedule
             bottomToBottom = R.id.bottom_sheet_title_schedule
+            marginEnd = space
         })
         addView(createScheduleBtn, ConstraintLayout.LayoutParams(ConstraintLayout.LayoutParams.WRAP_CONTENT, ConstraintLayout.LayoutParams.WRAP_CONTENT).apply {
             endToStart = R.id.bottom_sheet_manage_schedule_btn
             topToTop = R.id.bottom_sheet_title_schedule
             bottomToBottom = R.id.bottom_sheet_title_schedule
         })
-        addView(AppCompatTextView(context).apply {
-            id = R.id.bottom_sheet_title_shortcut
-            text = "捷径"
-            textSize = 12f
-        }, ConstraintLayout.LayoutParams(ConstraintLayout.LayoutParams.WRAP_CONTENT, ConstraintLayout.LayoutParams.WRAP_CONTENT).apply {
+        addView(shortCutTitle, ConstraintLayout.LayoutParams(ConstraintLayout.LayoutParams.WRAP_CONTENT, ConstraintLayout.LayoutParams.WRAP_CONTENT).apply {
             startToStart = PARENT_ID
             topToBottom = R.id.bottom_sheet_rv_table
+            bottomToTop = R.id.bottom_sheet_nav_view
             topMargin = dip(16)
+            marginStart = space
         })
-        addView(timeBtn, ConstraintLayout.LayoutParams(ConstraintLayout.LayoutParams.WRAP_CONTENT, ConstraintLayout.LayoutParams.WRAP_CONTENT).apply {
+        addView(bottomNavigationView, ConstraintLayout.LayoutParams(ConstraintLayout.LayoutParams.MATCH_PARENT, dip(64)).apply {
             startToStart = PARENT_ID
-            topToBottom = R.id.bottom_sheet_title_shortcut
-            endToStart = R.id.bottom_sheet_bg_btn
-        })
-        addView(changeBgBtn, ConstraintLayout.LayoutParams(ConstraintLayout.LayoutParams.WRAP_CONTENT, ConstraintLayout.LayoutParams.WRAP_CONTENT).apply {
-            startToEnd = R.id.bottom_sheet_modify_time_btn
-            topToBottom = R.id.bottom_sheet_title_shortcut
-            endToStart = R.id.bottom_sheet_check_course_btn
-        })
-        addView(courseBtn, ConstraintLayout.LayoutParams(ConstraintLayout.LayoutParams.WRAP_CONTENT, ConstraintLayout.LayoutParams.WRAP_CONTENT).apply {
-            startToEnd = R.id.bottom_sheet_bg_btn
-            topToBottom = R.id.bottom_sheet_title_shortcut
-            endToStart = R.id.bottom_sheet_question_btn
-        })
-        addView(qaBtn, ConstraintLayout.LayoutParams(ConstraintLayout.LayoutParams.WRAP_CONTENT, ConstraintLayout.LayoutParams.WRAP_CONTENT).apply {
-            startToEnd = R.id.bottom_sheet_check_course_btn
+            endToEnd = PARENT_ID
+            bottomToTop = R.id.bottom_sheet_nav_view2
             topToBottom = R.id.bottom_sheet_title_shortcut
         })
+        addView(bottomNavigationView2, ConstraintLayout.LayoutParams(ConstraintLayout.LayoutParams.MATCH_PARENT, dip(64)).apply {
+            startToStart = PARENT_ID
+            endToEnd = PARENT_ID
+            bottomToBottom = PARENT_ID
+            topToBottom = R.id.bottom_sheet_nav_view
+            bottomMargin = dip(8)
+        })
+        if (context.getPrefer().getBoolean(Const.KEY_HIDE_NAV_BAR, false)) {
+            ViewCompat.setOnApplyWindowInsetsListener(this) { _, insets ->
+                insets.consumeSystemWindowInsets()
+            }
+        }
     }
 
     val bottomSheet = FrameLayout(ctx).apply {
         addView(MaterialCardView(context).apply {
             setCardBackgroundColor(styledColor(R.attr.colorSurface))
             cardElevation = dp(8)
-            addView(cardContent, ViewGroup.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT))
-        }, FrameLayout.LayoutParams(FrameLayout.LayoutParams.MATCH_PARENT, dip(320)).apply {
+            addView(cardContent, ViewGroup.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT))
+        }, FrameLayout.LayoutParams(FrameLayout.LayoutParams.MATCH_PARENT, FrameLayout.LayoutParams.WRAP_CONTENT).apply {
             gravity = Gravity.BOTTOM
             setMargins(dip(16))
             if (context.getPrefer().getBoolean(Const.KEY_HIDE_NAV_BAR, false)) {
@@ -398,7 +382,7 @@ class ScheduleActivityUI(override val ctx: Context) : Ui {
 
     override val root = CoordinatorLayout(ctx).apply {
 
-        addView(drawerLayout, CoordinatorLayout.LayoutParams(
+        addView(content, CoordinatorLayout.LayoutParams(
                 CoordinatorLayout.LayoutParams.MATCH_PARENT,
                 CoordinatorLayout.LayoutParams.MATCH_PARENT)
         )
@@ -422,11 +406,6 @@ class ScheduleActivityUI(override val ctx: Context) : Ui {
         rippleColor = colorSL(R.color.mtrl_btn_text_btn_ripple_color)
         elevation = 0f
         stateListAnimator = StateListAnimator()
-    }
-
-    fun createOutlineButton() = createTextButton().apply {
-        strokeColor = colorSL(R.color.mtrl_btn_stroke_color_selector)
-        strokeWidth = dip(1)
     }
 
 }

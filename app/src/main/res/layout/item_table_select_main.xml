@@ -13,19 +13,18 @@
     <androidx.appcompat.widget.AppCompatImageView
         android:id="@+id/iv_table_bg"
         android:layout_width="48dp"
-        android:layout_height="72dp"
+        android:layout_height="48dp"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent" />
 
-    <androidx.appcompat.widget.AppCompatTextView
+    <androidx.appcompat.widget.AppCompatImageView
         android:id="@+id/menu_setting"
-        style="@style/IconTextViewStyle"
         android:layout_width="48dp"
-        android:layout_height="72dp"
-        android:text=""
-        android:textAlignment="center"
-        android:textColor="@android:color/white"
+        android:layout_height="48dp"
+        android:padding="12dp"
+        app:srcCompat="@drawable/ic_outline_settings_24"
+        app:tint="@android:color/white"
         android:background="@drawable/mask_with_radius"
         app:layout_constraintBottom_toBottomOf="@id/iv_table_bg"
         app:layout_constraintEnd_toEndOf="@id/iv_table_bg"

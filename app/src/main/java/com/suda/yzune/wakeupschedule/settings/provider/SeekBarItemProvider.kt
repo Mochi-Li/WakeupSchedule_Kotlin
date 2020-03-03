@@ -65,8 +65,7 @@ class SeekBarItemProvider : BaseItemProvider<BaseSettingItem>() {
         return BaseViewHolder(view)
     }
 
-    override fun convert(helper: BaseViewHolder, data: BaseSettingItem?) {
-        if (data == null) return
+    override fun convert(helper: BaseViewHolder, data: BaseSettingItem) {
         val item = data as SeekBarItem
         helper.setText(R.id.anko_text_view, item.title)
         if (item.valueInt > item.max || item.valueInt < item.min) {

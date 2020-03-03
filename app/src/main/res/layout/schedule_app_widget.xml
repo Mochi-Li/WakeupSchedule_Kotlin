@@ -35,7 +35,7 @@
             android:id="@+id/tv_title0"
             style="@style/ScheduleHeaderStyle"
             android:layout_width="0dp"
-            android:layout_weight="0.5"
+            android:layout_weight="0.64"
             android:textStyle="bold" />
 
         <TextView

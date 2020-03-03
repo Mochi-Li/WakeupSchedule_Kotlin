@@ -5,26 +5,20 @@
     android:layout_height="wrap_content"
     android:background="?android:attr/selectableItemBackground">
 
-    <View
-        android:id="@+id/v_selected"
-        android:layout_width="4dp"
-        android:layout_height="56dp"
-        android:background="@color/colorAccent"
-        android:visibility="visible"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintStart_toStartOf="parent" />
-
     <androidx.appcompat.widget.AppCompatTextView
         android:id="@+id/tv_time_name"
         android:layout_width="0dp"
         android:layout_height="64dp"
+        android:layout_marginStart="16dp"
+        android:layout_marginEnd="16dp"
         android:gravity="center_vertical"
-        android:padding="8dp"
         android:text="默认"
         android:textSize="16sp"
         app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toStartOf="@id/ib_edit"
-        app:layout_constraintStart_toEndOf="@id/v_selected" />
+        app:layout_constraintEnd_toStartOf="@id/ib_delete"
+        app:layout_constraintHorizontal_chainStyle="spread"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
 
     <androidx.appcompat.widget.AppCompatTextView
         android:id="@+id/ib_edit"
@@ -32,7 +26,7 @@
         android:layout_width="40dp"
         android:layout_height="64dp"
         android:layout_marginStart="16dp"
-        android:layout_marginEnd="8dp"
+        android:layout_marginEnd="16dp"
         android:fontFamily="@font/iconfont"
         android:gravity="center"
         android:includeFontPadding="false"
@@ -40,22 +34,24 @@
         android:textColor="@color/blue"
         android:textSize="23sp"
         app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toStartOf="@id/ib_delete"
-        app:layout_constraintStart_toEndOf="@id/tv_time_name" />
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toEndOf="@id/ib_delete"
+        app:layout_constraintTop_toTopOf="parent" />
 
     <androidx.appcompat.widget.AppCompatTextView
         android:id="@+id/ib_delete"
         style="@style/ButtonBackground"
         android:layout_width="40dp"
         android:layout_height="64dp"
-        android:layout_marginEnd="8dp"
         android:fontFamily="@font/iconfont"
         android:gravity="center"
         android:includeFontPadding="false"
-        android:text=""
+        android:text="@string/icon_delete"
         android:textColor="@color/red"
         android:textSize="23sp"
         app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toEndOf="parent" />
+        app:layout_constraintEnd_toStartOf="@id/ib_edit"
+        app:layout_constraintStart_toEndOf="@id/tv_time_name"
+        app:layout_constraintTop_toTopOf="parent" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>

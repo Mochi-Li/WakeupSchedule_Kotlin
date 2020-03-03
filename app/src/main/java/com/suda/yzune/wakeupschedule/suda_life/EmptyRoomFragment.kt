@@ -7,7 +7,7 @@ import android.view.ViewGroup
 import android.widget.AdapterView
 import android.widget.ArrayAdapter
 import android.widget.TextView
-import androidx.lifecycle.ViewModelProviders
+import androidx.fragment.app.activityViewModels
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.suda.yzune.wakeupschedule.R
 import com.suda.yzune.wakeupschedule.base_view.BaseFragment
@@ -17,12 +17,7 @@ import splitties.dimensions.dip
 
 class EmptyRoomFragment : BaseFragment() {
 
-    private lateinit var viewModel: SudaLifeViewModel
-
-    override fun onCreate(savedInstanceState: Bundle?) {
-        super.onCreate(savedInstanceState)
-        viewModel = ViewModelProviders.of(activity!!).get(SudaLifeViewModel::class.java)
-    }
+    private val viewModel by activityViewModels<SudaLifeViewModel>()
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?,
                               savedInstanceState: Bundle?): View? {
@@ -38,7 +33,11 @@ class EmptyRoomFragment : BaseFragment() {
         initData()
         initEvent()
 
-        rv_room.adapter = RoomAdapter(R.layout.item_suda_room, viewModel.roomData)
+        rv_room.adapter = RoomAdapter(R.layout.item_suda_room, viewModel.roomData).apply {
+            addFooterView(View(activity).apply {
+                layoutParams = ViewGroup.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, dip(240))
+            })
+        }
         rv_room.layoutManager = LinearLayoutManager(activity!!)
     }
 

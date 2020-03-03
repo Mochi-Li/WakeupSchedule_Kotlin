@@ -8,8 +8,7 @@ import com.suda.yzune.wakeupschedule.bean.TimeDetailBean
 class TimeSettingsAdapter(layoutResId: Int, val list: MutableList<TimeDetailBean>) :
         BaseQuickAdapter<TimeDetailBean, BaseViewHolder>(layoutResId, list) {
 
-    override fun convert(helper: BaseViewHolder, item: TimeDetailBean?) {
-        if (item == null) return
+    override fun convert(helper: BaseViewHolder, item: TimeDetailBean) {
         val name = "第 ${item.node} 节"
         helper.setText(R.id.tv_time_name, name)
         helper.setText(R.id.tv_start, item.startTime)

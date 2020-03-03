@@ -54,8 +54,7 @@ class HorizontalItemProvider : BaseItemProvider<BaseSettingItem>() {
         return BaseViewHolder(view)
     }
 
-    override fun convert(helper: BaseViewHolder, data: BaseSettingItem?) {
-        if (data == null) return
+    override fun convert(helper: BaseViewHolder, data: BaseSettingItem) {
         val item = data as HorizontalItem
         helper.setText(R.id.anko_text_view, item.title)
         helper.setText(R.id.anko_tv_value, item.value)

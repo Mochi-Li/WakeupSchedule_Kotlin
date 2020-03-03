@@ -132,8 +132,8 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginStart="48dp"
-                android:layout_marginEnd="48dp"
                 android:layout_marginTop="16dp"
+                android:layout_marginEnd="48dp"
                 android:layout_marginBottom="56dp"
                 android:orientation="horizontal">
 
@@ -177,9 +177,10 @@
         android:visibility="gone"
         app:chipSpacingHorizontal="16dp"
         app:chipSpacingVertical="16dp"
-        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintBottom_toBottomOf="@id/fab_import"
         app:layout_constraintEnd_toStartOf="@id/fab_import"
         app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="@id/fab_import"
         app:lineSpacing="20dp"
         app:singleSelection="true"
         tools:visibility="visible">
@@ -232,9 +233,10 @@
         android:visibility="gone"
         app:chipSpacingHorizontal="16dp"
         app:chipSpacingVertical="16dp"
-        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintBottom_toBottomOf="@id/fab_import"
         app:layout_constraintEnd_toStartOf="@id/fab_import"
         app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="@id/fab_import"
         app:lineSpacing="20dp"
         app:singleSelection="true"
         tools:visibility="visible">

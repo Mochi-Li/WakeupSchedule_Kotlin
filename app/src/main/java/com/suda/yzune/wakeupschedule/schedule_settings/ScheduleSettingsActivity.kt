@@ -33,9 +33,15 @@ import com.suda.yzune.wakeupschedule.settings.items.*
 import com.suda.yzune.wakeupschedule.utils.AppWidgetUtils
 import com.suda.yzune.wakeupschedule.widget.colorpicker.ColorPickerFragment
 import es.dmoral.toasty.Toasty
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.withContext
+import okio.BufferedSink
+import okio.BufferedSource
+import okio.Okio
 import splitties.activities.start
 import splitties.dimensions.dip
 import splitties.snackbar.longSnack
+import java.io.File
 
 private const val TITLE_COLOR = 1
 private const val COURSE_TEXT_COLOR = 2
@@ -193,8 +199,8 @@ class ScheduleSettingsActivity : BaseListActivity(), ColorPickerFragment.ColorPi
         items.add(SeekBarItem("小部件格子高度", viewModel.table.widgetItemHeight, 32, 96, "dp", keys = listOf("格子", "高度", "格子高度", "显示", "小部件", "小", "插件", "桌面")))
         items.add(SeekBarItem("小部件格子不透明度", viewModel.table.widgetItemAlpha, 0, 100, "%", keys = listOf("格子", "透明", "格子高度", "显示", "小部件", "小", "插件", "桌面")))
         items.add(SeekBarItem("小部件显示文字大小", viewModel.table.widgetItemTextSize, 8, 16, "sp", keys = listOf("文字", "大小", "文字大小", "小部件", "小", "插件", "桌面")))
-        items.add(VerticalItem("小部件标题颜色", "指标题等字体的颜色\n对于日视图则是全部文字的颜色\n还可以调颜色的透明度哦 (●ﾟωﾟ●)", keys = listOf("颜色", "显示", "文字", "文字颜色", "小部件", "小", "插件", "桌面")))
-        items.add(VerticalItem("小部件课程颜色", "指课程格子内的文字颜色\n还可以调颜色的透明度哦 (●ﾟωﾟ●)", keys = listOf("颜色", "显示", "文字", "文字颜色", "小部件", "小", "插件", "桌面")))
+        items.add(VerticalItem("小部件标题颜色", "指标题等字体的颜色\n还可以调颜色的透明度哦 (●ﾟωﾟ●)", keys = listOf("颜色", "显示", "文字", "文字颜色", "小部件", "小", "插件", "桌面")))
+        items.add(VerticalItem("小部件课程颜色", "指课程格子内的文字颜色\n或者日视图课程文字的颜色\n还可以调颜色的透明度哦 (●ﾟωﾟ●)", keys = listOf("颜色", "显示", "文字", "文字颜色", "小部件", "小", "插件", "桌面")))
         items.add(VerticalItem("小部件格子边框颜色", "将不透明度调到最低就可以隐藏边框了哦~", keys = listOf("边框", "显示", "边框颜色", "格子", "边", "小部件", "小", "插件", "桌面")))
 
         items.add(CategoryItem("高级", false))
@@ -416,7 +422,31 @@ class ScheduleSettingsActivity : BaseListActivity(), ColorPickerFragment.ColorPi
             //viewModel.table.background = Matisse.obtainResult(data)[0].toString()
             val uri = data?.data
             if (uri != null) {
-                viewModel.table.background = uri.toString()
+                launch {
+                    var bufferedSource: BufferedSource? = null
+                    var bufferedSink: BufferedSink? = null
+                    val path = withContext(Dispatchers.IO) {
+                        try {
+                            val inputStream = contentResolver.openInputStream(uri)
+                            bufferedSource = Okio.buffer(Okio.source(inputStream))
+                            val out = File(filesDir, "${System.currentTimeMillis()}_${uri.lastPathSegment}")
+                            bufferedSink = Okio.buffer(Okio.sink(out))
+                            bufferedSink?.writeAll(bufferedSource)
+                            bufferedSink?.close()
+                            bufferedSource?.close()
+                            out.path
+                        } catch (e: Exception) {
+                            bufferedSink?.close()
+                            bufferedSource?.close()
+                            null
+                        }
+                    }
+                    if (path != null) {
+                        viewModel.table.background = path
+                    } else {
+                        Toasty.error(this@ScheduleSettingsActivity, "图片读取失败>_<").show()
+                    }
+                }
             }
         }
         if (requestCode == REQUEST_CODE_CHOOSE_TABLE && resultCode == RESULT_OK) {

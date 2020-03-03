@@ -54,8 +54,7 @@ class VerticalItemProvider : BaseItemProvider<BaseSettingItem>() {
         return BaseViewHolder(view)
     }
 
-    override fun convert(helper: BaseViewHolder, data: BaseSettingItem?) {
-        if (data == null) return
+    override fun convert(helper: BaseViewHolder, data: BaseSettingItem) {
         val item = data as VerticalItem
         helper.setText(R.id.anko_text_view, item.title)
         val desc = helper.getView<AppCompatTextView>(R.id.anko_tv_description)

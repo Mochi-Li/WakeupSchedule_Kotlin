@@ -15,7 +15,6 @@ import com.suda.yzune.wakeupschedule.base_view.BaseListActivity
 import com.suda.yzune.wakeupschedule.schedule_import.LoginWebActivity
 import es.dmoral.toasty.Toasty
 import splitties.activities.start
-import splitties.dimensions.dip
 import splitties.snackbar.action
 import splitties.snackbar.longSnack
 
@@ -76,8 +75,6 @@ class ApplyInfoActivity : BaseListActivity() {
     }
 
     private fun initHeaderView(): View {
-        val view = LayoutInflater.from(this).inflate(R.layout.item_apply_info_header, null)
-        view.setPadding(0, getStatusBarHeight() + dip(48), 0, 0)
-        return view
+        return LayoutInflater.from(this).inflate(R.layout.item_apply_info_header, null)
     }
 }

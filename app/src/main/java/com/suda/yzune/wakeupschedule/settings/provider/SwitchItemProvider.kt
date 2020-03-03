@@ -78,8 +78,7 @@ class SwitchItemProvider : BaseItemProvider<BaseSettingItem>() {
         return BaseViewHolder(view)
     }
 
-    override fun convert(helper: BaseViewHolder, data: BaseSettingItem?) {
-        if (data == null) return
+    override fun convert(helper: BaseViewHolder, data: BaseSettingItem) {
         val item = data as SwitchItem
         helper.setText(R.id.anko_text_view, item.title)
         helper.getView<AppCompatCheckBox>(R.id.anko_check_box).apply {

@@ -3,7 +3,6 @@ package com.suda.yzune.wakeupschedule.settings.provider
 import android.graphics.Color
 import android.graphics.Typeface
 import android.view.Gravity
-import android.view.View
 import android.view.ViewGroup
 import androidx.appcompat.widget.AppCompatTextView
 import androidx.appcompat.widget.LinearLayoutCompat
@@ -14,7 +13,6 @@ import com.suda.yzune.wakeupschedule.settings.items.BaseSettingItem
 import com.suda.yzune.wakeupschedule.settings.items.CategoryItem
 import com.suda.yzune.wakeupschedule.settings.items.SettingType
 import com.suda.yzune.wakeupschedule.utils.Const
-import com.suda.yzune.wakeupschedule.utils.ViewUtils
 import com.suda.yzune.wakeupschedule.utils.getPrefer
 import splitties.dimensions.dip
 import splitties.resources.color
@@ -31,10 +29,6 @@ class CategoryItemProvider : BaseItemProvider<BaseSettingItem>() {
         val view = LinearLayoutCompat(parent.context).apply {
             id = R.id.anko_layout
             orientation = LinearLayoutCompat.VERTICAL
-            addView(View(context).apply {
-                id = R.id.anko_view
-            }, LinearLayoutCompat.LayoutParams(LinearLayoutCompat.LayoutParams.MATCH_PARENT, ViewUtils.getStatusBarHeight(context) + dip(48)))
-
             addView(LinearLayoutCompat(context).apply {
                 setPadding(dip(16), dip(2), dip(16), dip(2))
                 setBackgroundColor(context.getPrefer().getInt(Const.KEY_THEME_COLOR, color(R.color.colorAccent)))
@@ -58,11 +52,9 @@ class CategoryItemProvider : BaseItemProvider<BaseSettingItem>() {
         return BaseViewHolder(view)
     }
 
-    override fun convert(helper: BaseViewHolder, data: BaseSettingItem?) {
-        if (data == null) return
+    override fun convert(helper: BaseViewHolder, data: BaseSettingItem) {
         val item = data as CategoryItem
         helper.setText(R.id.anko_text_view, item.name)
-        helper.setGone(R.id.anko_view, !item.hasMarginTop)
     }
 
 }

@@ -7,6 +7,9 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.Toast
+import androidx.constraintlayout.widget.ConstraintLayout
+import androidx.core.view.ViewCompat
+import androidx.core.view.updateLayoutParams
 import androidx.fragment.app.activityViewModels
 import com.google.android.material.chip.Chip
 import com.suda.yzune.wakeupschedule.R
@@ -16,10 +19,12 @@ import com.suda.yzune.wakeupschedule.schedule_import.Common.TYPE_ZF
 import com.suda.yzune.wakeupschedule.utils.Const
 import com.suda.yzune.wakeupschedule.utils.Utils
 import com.suda.yzune.wakeupschedule.utils.ViewUtils
+import com.suda.yzune.wakeupschedule.utils.getPrefer
 import es.dmoral.toasty.Toasty
 import kotlinx.android.synthetic.main.fragment_html_import.*
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
+import splitties.dimensions.dip
 import splitties.snackbar.longSnack
 import java.nio.charset.Charset
 
@@ -36,7 +41,14 @@ class HtmlImportFragment : BaseFragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         ViewUtils.resizeStatusBar(context!!.applicationContext, v_status)
-
+        if (activity!!.getPrefer().getBoolean(Const.KEY_HIDE_NAV_BAR, false)) {
+            ViewCompat.setOnApplyWindowInsetsListener(fab_import) { v, insets ->
+                v.updateLayoutParams<ConstraintLayout.LayoutParams> {
+                    bottomMargin = insets.systemWindowInsets.bottom + v.dip(16)
+                }
+                insets
+            }
+        }
         tv_way.setOnClickListener {
             Utils.openUrl(activity!!, "https://www.jianshu.com/p/4cd071697fed")
         }

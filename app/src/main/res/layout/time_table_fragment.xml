@@ -1,9 +1,54 @@
 <?xml version="1.0" encoding="utf-8"?>
 
-<androidx.recyclerview.widget.RecyclerView xmlns:android="http://schemas.android.com/apk/res/android"
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
-    android:id="@+id/rv_time_table"
     android:layout_width="match_parent"
-    android:layout_height="wrap_content"
-    tools:context=".settings.TimeTableFragment"
-    tools:listitem="@layout/item_time_table" />
+    android:layout_height="match_parent"
+    tools:context=".settings.TimeTableFragment">
+
+    <com.google.android.material.textfield.TextInputLayout
+        android:id="@+id/text_input_layout"
+        style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox.ExposedDropdownMenu"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_margin="16dp"
+        android:hint="当前选择的时间表"
+        app:layout_constraintBottom_toTopOf="@id/rv_time_table"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent">
+
+        <com.google.android.material.textview.MaterialAutoCompleteTextView
+            android:id="@+id/tv_time_table"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:editable="false" />
+
+    </com.google.android.material.textfield.TextInputLayout>
+
+    <androidx.recyclerview.widget.RecyclerView
+        android:id="@+id/rv_time_table"
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:overScrollMode="never"
+        android:splitMotionEvents="false"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/text_input_layout" />
+
+    <com.google.android.material.button.MaterialButton
+        android:id="@+id/fab_add"
+        android:layout_width="56dp"
+        android:layout_height="67dp"
+        android:layout_margin="16dp"
+        android:fontFamily="@font/iconfont"
+        android:includeFontPadding="false"
+        android:text="@string/icon_add"
+        android:textSize="25sp"
+        app:cornerRadius="48dp"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent" />
+
+</androidx.constraintlayout.widget.ConstraintLayout>

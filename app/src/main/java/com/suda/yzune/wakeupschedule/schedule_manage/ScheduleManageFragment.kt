@@ -6,6 +6,9 @@ import android.view.View
 import android.view.ViewGroup
 import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.widget.AppCompatTextView
+import androidx.constraintlayout.widget.ConstraintLayout
+import androidx.core.view.ViewCompat
+import androidx.core.view.updateLayoutParams
 import androidx.fragment.app.activityViewModels
 import androidx.navigation.Navigation
 import androidx.recyclerview.widget.LinearLayoutManager
@@ -17,6 +20,8 @@ import com.suda.yzune.wakeupschedule.R
 import com.suda.yzune.wakeupschedule.base_view.BaseFragment
 import com.suda.yzune.wakeupschedule.bean.TableSelectBean
 import com.suda.yzune.wakeupschedule.schedule_settings.ScheduleSettingsActivity
+import com.suda.yzune.wakeupschedule.utils.Const
+import com.suda.yzune.wakeupschedule.utils.getPrefer
 import es.dmoral.toasty.Toasty
 import kotlinx.android.synthetic.main.fragment_list_manage.*
 import splitties.activities.start
@@ -39,6 +44,14 @@ class ScheduleManageFragment : BaseFragment() {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
+        if (activity!!.getPrefer().getBoolean(Const.KEY_HIDE_NAV_BAR, false)) {
+            ViewCompat.setOnApplyWindowInsetsListener(fab_add) { v, insets ->
+                v.updateLayoutParams<ConstraintLayout.LayoutParams> {
+                    bottomMargin = insets.systemWindowInsets.bottom + v.dip(16)
+                }
+                insets
+            }
+        }
         fab_add.setOnClickListener {
             val dialog = MaterialAlertDialogBuilder(context)
                     .setTitle(R.string.setting_schedule_name)

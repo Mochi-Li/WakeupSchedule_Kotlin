@@ -40,7 +40,6 @@ class ImportViewModel(application: Application) : AndroidViewModel(application) 
     var isUrp = false
     var zfType = 0
     var qzType = 0
-    var oldQzType = 0
     var htmlUri: Uri? = null
 
     var sudaXK: SudaXK? = null
@@ -62,7 +61,7 @@ class ImportViewModel(application: Application) : AndroidViewModel(application) 
             Common.TYPE_ZF_1 -> ZhengFangParser(source, 1)
             Common.TYPE_ZF_NEW -> NewZFParser(source)
             Common.TYPE_URP -> UrpParser(source)
-            Common.TYPE_URP_NEW -> NewUrpParser(source)
+            Common.TYPE_URP_NEW, Common.TYPE_URP_NEW_AJAX -> NewUrpParser(source)
             Common.TYPE_QZ -> {
                 when (qzType) {
                     0 -> QzParser(source)
@@ -79,7 +78,7 @@ class ImportViewModel(application: Application) : AndroidViewModel(application) 
             Common.TYPE_PKU -> PekingParser(source)
             Common.TYPE_BNUZ -> BNUZParser(source)
             Common.TYPE_HNIU -> HNIUParser(source)
-            Common.TYPE_HNUST -> HNUSTParser(source, oldQzType)
+            Common.TYPE_HNUST -> HNUSTParser(source)
             else -> null
         }
         return parser?.saveCourse(getApplication(), importId) { baseList, detailList ->

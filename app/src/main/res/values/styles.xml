@@ -17,6 +17,12 @@
         <item name="verticalRecyclerViewStyle">@style/VerticalRecyclerView</item>
         <item name="android:windowSoftInputMode">adjustPan</item>
         <item name="windowActionModeOverlay">true</item>
+        <item name="windowActionBar">false</item>
+        <item name="windowNoTitle">true</item>
+    </style>
+
+    <style name="BottomNavigationViewText" parent="TextAppearance.AppCompat">
+        <item name="android:textSize">10sp</item>
     </style>
 
     <style name="ShapeAppearance.MyApp.SmallComponent" parent="ShapeAppearance.MaterialComponents.SmallComponent">

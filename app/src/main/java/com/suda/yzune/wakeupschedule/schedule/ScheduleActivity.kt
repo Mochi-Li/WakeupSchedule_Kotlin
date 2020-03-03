@@ -2,44 +2,37 @@ package com.suda.yzune.wakeupschedule.schedule
 
 import android.appwidget.AppWidgetManager
 import android.content.Intent
-import android.graphics.drawable.Drawable
 import android.net.Uri
 import android.os.Build
 import android.os.Bundle
 import android.view.View
 import android.view.ViewGroup
-import android.view.WindowManager
 import android.widget.TextView
 import androidx.activity.viewModels
 import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.widget.AppCompatImageButton
 import androidx.appcompat.widget.AppCompatTextView
+import androidx.appcompat.widget.PopupMenu
 import androidx.core.app.ShareCompat
 import androidx.core.content.edit
-import androidx.core.view.GravityCompat
 import androidx.lifecycle.Observer
 import androidx.viewpager.widget.ViewPager
 import com.bumptech.glide.Glide
-import com.bumptech.glide.load.DataSource
-import com.bumptech.glide.load.engine.GlideException
 import com.bumptech.glide.load.resource.drawable.DrawableTransitionOptions
-import com.bumptech.glide.request.RequestListener
-import com.bumptech.glide.request.target.Target
 import com.google.android.material.bottomsheet.BottomSheetBehavior
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
+import com.google.android.material.slider.Slider
 import com.google.android.material.textfield.TextInputEditText
 import com.google.android.material.textfield.TextInputLayout
 import com.google.gson.Gson
 import com.suda.yzune.wakeupschedule.R
 import com.suda.yzune.wakeupschedule.UpdateFragment
-import com.suda.yzune.wakeupschedule.apply_info.ApplyInfoActivity
 import com.suda.yzune.wakeupschedule.base_view.BaseActivity
 import com.suda.yzune.wakeupschedule.bean.TableBean
 import com.suda.yzune.wakeupschedule.bean.TableSelectBean
 import com.suda.yzune.wakeupschedule.bean.UpdateInfoBean
 import com.suda.yzune.wakeupschedule.course_add.AddCourseActivity
 import com.suda.yzune.wakeupschedule.intro.AboutActivity
-import com.suda.yzune.wakeupschedule.intro.IntroYoungActivity
 import com.suda.yzune.wakeupschedule.schedule_manage.ScheduleManageActivity
 import com.suda.yzune.wakeupschedule.schedule_settings.ScheduleSettingsActivity
 import com.suda.yzune.wakeupschedule.settings.SettingsActivity
@@ -48,7 +41,6 @@ import com.suda.yzune.wakeupschedule.utils.*
 import com.suda.yzune.wakeupschedule.utils.UpdateUtils.getVersionCode
 import es.dmoral.toasty.Toasty
 import it.sephiroth.android.library.xtooltip.Tooltip
-import kotlinx.coroutines.delay
 import okhttp3.ResponseBody
 import retrofit2.Call
 import retrofit2.Callback
@@ -56,8 +48,6 @@ import retrofit2.Response
 import splitties.activities.start
 import splitties.dimensions.dip
 import splitties.resources.styledDimenPxSize
-import splitties.snackbar.action
-import splitties.snackbar.longSnack
 import java.text.ParseException
 import kotlin.math.roundToInt
 
@@ -75,9 +65,6 @@ class ScheduleActivity : BaseActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        if (getPrefer().getBoolean(Const.KEY_HIDE_NAV_BAR, false)) {
-            window.addFlags(WindowManager.LayoutParams.FLAG_TRANSLUCENT_NAVIGATION)
-        }
         ui = ScheduleActivityUI(this)
         setContentView(ui.root)
 
@@ -102,7 +89,6 @@ class ScheduleActivity : BaseActivity() {
         }, 500)
 
         initView()
-        initNavView()
 
         val openTimes = getPrefer().getInt(Const.KEY_OPEN_TIMES, 0)
         if (openTimes < 10) {
@@ -154,36 +140,28 @@ class ScheduleActivity : BaseActivity() {
         })
 
         initBottomSheetAction()
-        //DonateFragment.newInstance().show(supportFragmentManager, "AfterImportTipFragment")
     }
 
     private fun initTheme() {
         if (viewModel.table.background != "") {
+            //ui.bg.clearColorFilter()
             val x = (ViewUtils.getRealSize(this).x * 0.5).toInt()
             val y = (ViewUtils.getRealSize(this).y * 0.5).toInt()
             Glide.with(this)
                     .load(viewModel.table.background)
                     .override(x, y)
                     .transition(DrawableTransitionOptions.withCrossFade())
-                    .listener(object : RequestListener<Drawable> {
-                        override fun onLoadFailed(e: GlideException?, model: Any?, target: Target<Drawable>?, isFirstResource: Boolean): Boolean {
-                            Toasty.error(this@ScheduleActivity, "无法检索背景图片，可能是它为某个应用私有所致，可以尝试在文件管理器中将它移动到其他位置，或是选择其它图片", Toasty.LENGTH_LONG).show()
-                            return false
-                        }
-
-                        override fun onResourceReady(resource: Drawable?, model: Any?, target: Target<Drawable>?, dataSource: DataSource?, isFirstResource: Boolean): Boolean {
-                            return false
-                        }
-                    })
                     .error(R.drawable.main_background_2020_1)
                     .into(ui.bg)
-            Glide.with(this)
-                    .load(viewModel.table.background)
-                    .override((x * 0.8).toInt(), (y * 0.8).toInt())
-                    .transition(DrawableTransitionOptions.withCrossFade())
-                    .error(R.drawable.main_background_2020_1)
-                    .into(ui.navViewStart.getHeaderView(0).findViewById(R.id.iv_header))
         } else {
+//            val mode = resources.configuration.uiMode and Configuration.UI_MODE_NIGHT_MASK
+//            if (mode == Configuration.UI_MODE_NIGHT_YES) {
+//                val lum = 0.50f
+//                val lumMatrix = ColorMatrix().apply {
+//                    setScale(lum, lum, lum, 1f)
+//                }
+//                ui.bg.colorFilter = ColorMatrixColorFilter(lumMatrix)
+//            }
             val x = (ViewUtils.getRealSize(this).x * 0.5).toInt()
             val y = (ViewUtils.getRealSize(this).y * 0.5).toInt()
             Glide.with(this)
@@ -191,11 +169,6 @@ class ScheduleActivity : BaseActivity() {
                     .override(x, y)
                     .transition(DrawableTransitionOptions.withCrossFade())
                     .into(ui.bg)
-            Glide.with(this)
-                    .load(R.drawable.main_background_2020_1)
-                    .override((x * 0.8).toInt(), (y * 0.8).toInt())
-                    .transition(DrawableTransitionOptions.withCrossFade())
-                    .into(ui.navViewStart.getHeaderView(0).findViewById(R.id.iv_header))
         }
 
         for (i in 0 until ui.content.childCount) {
@@ -206,13 +179,24 @@ class ScheduleActivity : BaseActivity() {
             }
         }
 
-        if (ViewUtils.judgeColorIsLight(viewModel.table.textColor)) {
-            window.decorView.systemUiVisibility = (View.SYSTEM_UI_FLAG_LAYOUT_FULLSCREEN
-                    or View.SYSTEM_UI_FLAG_LAYOUT_STABLE)
+        if (getPrefer().getBoolean(Const.KEY_HIDE_NAV_BAR, false)) {
+            val decorView = window.decorView
+            val currentStatusBar = if (!ViewUtils.judgeColorIsLight(viewModel.table.textColor) && Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+                View.SYSTEM_UI_FLAG_LAYOUT_FULLSCREEN or View.SYSTEM_UI_FLAG_LAYOUT_STABLE or View.SYSTEM_UI_FLAG_LIGHT_STATUS_BAR
+            } else {
+                View.SYSTEM_UI_FLAG_LAYOUT_FULLSCREEN or View.SYSTEM_UI_FLAG_LAYOUT_STABLE
+            }
+            val systemUiVisibility = View.SYSTEM_UI_FLAG_LAYOUT_HIDE_NAVIGATION or View.SYSTEM_UI_FLAG_LAYOUT_STABLE or currentStatusBar
+            decorView.systemUiVisibility = systemUiVisibility
         } else {
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+            if (ViewUtils.judgeColorIsLight(viewModel.table.textColor)) {
                 window.decorView.systemUiVisibility = (View.SYSTEM_UI_FLAG_LAYOUT_FULLSCREEN
-                        or View.SYSTEM_UI_FLAG_LAYOUT_STABLE or View.SYSTEM_UI_FLAG_LIGHT_STATUS_BAR)
+                        or View.SYSTEM_UI_FLAG_LAYOUT_STABLE)
+            } else {
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+                    window.decorView.systemUiVisibility = (View.SYSTEM_UI_FLAG_LAYOUT_FULLSCREEN
+                            or View.SYSTEM_UI_FLAG_LAYOUT_STABLE or View.SYSTEM_UI_FLAG_LIGHT_STATUS_BAR)
+                }
             }
         }
 
@@ -261,11 +245,20 @@ class ScheduleActivity : BaseActivity() {
 
             override fun onStateChanged(bottomSheet: View, newState: Int) {
                 if (newState == BottomSheetBehavior.STATE_EXPANDED) {
-                    ui.weekScrollView.smoothScrollTo(if (viewModel.selectedWeek > 4) (viewModel.selectedWeek - 4) * dip(56) else 0, 0)
-                    if (ui.weekToggleGroup.checkedButtonId != viewModel.selectedWeek) {
-                        ui.weekToggleGroup.check(viewModel.selectedWeek)
-                    }
+                    ui.weekSlider.value = viewModel.selectedWeek.toFloat()
                 }
+            }
+        })
+        ui.weekSlider.addOnChangeListener { _, value, fromUser ->
+            if (fromUser) {
+                viewModel.selectedWeek = value.toInt()
+            }
+        }
+        ui.weekSlider.addOnSliderTouchListener(object : Slider.OnSliderTouchListener {
+            override fun onStartTrackingTouch(slider: Slider) {}
+
+            override fun onStopTrackingTouch(slider: Slider) {
+                ui.viewPager.currentItem = viewModel.selectedWeek - 1
             }
         })
         ui.createScheduleBtn.setOnClickListener {
@@ -307,34 +300,78 @@ class ScheduleActivity : BaseActivity() {
                 putExtra("settingItem", "当前周")
             }, Const.REQUEST_CODE_SCHEDULE_SETTING)
         }
-        ui.timeBtn.setOnClickListener {
-            startActivityForResult(Intent(this,
-                    ScheduleSettingsActivity::class.java).apply {
-                putExtra("tableData", viewModel.table)
-                putExtra("settingItem", "上课时间")
-            }, Const.REQUEST_CODE_SCHEDULE_SETTING)
-        }
-        ui.changeBgBtn.setOnClickListener {
-            startActivityForResult(Intent(this,
-                    ScheduleSettingsActivity::class.java).apply {
-                putExtra("tableData", viewModel.table)
-                putExtra("settingItem", "课程表背景")
-            }, Const.REQUEST_CODE_SCHEDULE_SETTING)
-        }
-        ui.courseBtn.setOnClickListener {
-            start<ScheduleManageActivity> {
-                putExtra("selectedTable", TableSelectBean(
-                        id = viewModel.table.id,
-                        background = viewModel.table.background,
-                        tableName = viewModel.table.tableName,
-                        maxWeek = viewModel.table.maxWeek,
-                        nodes = viewModel.table.nodes,
-                        type = viewModel.table.type
-                ))
+
+        ui.bottomNavigationView.setOnNavigationItemSelectedListener {
+            when (it.itemId) {
+                R.id.nav_time -> {
+                    startActivityForResult(Intent(this,
+                            ScheduleSettingsActivity::class.java).apply {
+                        putExtra("tableData", viewModel.table)
+                        putExtra("settingItem", "上课时间")
+                    }, Const.REQUEST_CODE_SCHEDULE_SETTING)
+                }
+                R.id.nav_bg -> {
+                    startActivityForResult(Intent(this,
+                            ScheduleSettingsActivity::class.java).apply {
+                        putExtra("tableData", viewModel.table)
+                        putExtra("settingItem", "课程表背景")
+                    }, Const.REQUEST_CODE_SCHEDULE_SETTING)
+                }
+                R.id.nav_course -> {
+                    start<ScheduleManageActivity> {
+                        putExtra("selectedTable", TableSelectBean(
+                                id = viewModel.table.id,
+                                background = viewModel.table.background,
+                                tableName = viewModel.table.tableName,
+                                maxWeek = viewModel.table.maxWeek,
+                                nodes = viewModel.table.nodes,
+                                type = viewModel.table.type
+                        ))
+                    }
+                }
+                R.id.nav_help -> {
+                    Utils.openUrl(this, "https://support.qq.com/embed/97617/faqs-more")
+                }
             }
+            return@setOnNavigationItemSelectedListener true
         }
-        ui.qaBtn.setOnClickListener {
-            Utils.openUrl(this, "https://support.qq.com/embed/97617/faqs-more")
+
+        val sudaMenu = ui.bottomNavigationView2.findViewById<View>(R.id.nav_suda)
+        if (!getPrefer().getBoolean(Const.KEY_SHOW_SUDA_LIFE, true)) {
+            sudaMenu.visibility = View.INVISIBLE
+        }
+        ui.bottomNavigationView2.setOnNavigationItemSelectedListener {
+            when (it.itemId) {
+                R.id.nav_setting -> {
+                    startActivityForResult(Intent(this, SettingsActivity::class.java), Const.REQUEST_CODE_SCHEDULE_SETTING)
+                }
+                R.id.nav_feedback -> {
+                    Utils.openUrl(this, "https://support.qq.com/product/97617")
+                    Toasty.info(this, "吐槽后隔天记得回来看看回复哦~", Toasty.LENGTH_LONG).show()
+                }
+                R.id.nav_about -> {
+                    start<AboutActivity>()
+                }
+                R.id.nav_suda -> {
+                    if (getPrefer().getBoolean(Const.KEY_SHOW_SUDA_LIFE, true)) {
+                        val popup = PopupMenu(this, sudaMenu)
+                        popup.menuInflater.inflate(R.menu.suda_life_menu, popup.menu)
+                        popup.setOnMenuItemClickListener { item ->
+                            when (item.itemId) {
+                                R.id.menu_empty_room -> start<SudaLifeActivity> {
+                                    putExtra("type", "空教室")
+                                }
+                                R.id.menu_bathroom -> start<SudaLifeActivity> {
+                                    putExtra("type", "澡堂")
+                                }
+                            }
+                            return@setOnMenuItemClickListener true
+                        }
+                        popup.show()
+                    }
+                }
+            }
+            return@setOnNavigationItemSelectedListener true
         }
     }
 
@@ -344,7 +381,7 @@ class ScheduleActivity : BaseActivity() {
                 .maxWidth(dip(240))
                 .customView(R.layout.my_tooltip, R.id.tv_tip)
         val navTooltip = builder
-                .text("点这里打开左栏")
+                .text("点这里查看更多功能")
                 .anchor(ui.navBtn)
                 .create()
         val jumpTooltip = builder
@@ -364,7 +401,7 @@ class ScheduleActivity : BaseActivity() {
                 .anchor(ui.shareBtn)
                 .create()
         val moreTooltip = builder
-                .text("点这里查看更多设置")
+                .text("点这里查看更多功能")
                 .anchor(ui.moreBtn)
                 .create()
         navTooltip.doOnHidden {
@@ -411,88 +448,6 @@ class ScheduleActivity : BaseActivity() {
         ui.dateView.text = CourseUtils.getTodayDate()
     }
 
-    private fun initNavView() {
-        ui.navViewStart.menu.findItem(R.id.nav_suda).isVisible = getPrefer().getBoolean(Const.KEY_SHOW_SUDA_LIFE, true)
-        ui.navViewStart.setNavigationItemSelectedListener {
-            when (it.itemId) {
-                R.id.nav_setting -> {
-                    ui.drawerLayout.closeDrawer(GravityCompat.START)
-                    ui.drawerLayout.postDelayed({
-                        startActivityForResult(Intent(this, SettingsActivity::class.java), Const.REQUEST_CODE_SCHEDULE_SETTING)
-                    }, 360)
-                    return@setNavigationItemSelectedListener true
-                }
-                R.id.nav_explore -> {
-                    ui.drawerLayout.closeDrawer(GravityCompat.START)
-                    ui.drawerLayout.postDelayed({
-                        start<ApplyInfoActivity>()
-                    }, 360)
-                    return@setNavigationItemSelectedListener true
-                }
-                R.id.nav_course -> {
-                    ui.drawerLayout.closeDrawer(GravityCompat.START)
-                    ui.drawerLayout.postDelayed({
-                        start<ScheduleManageActivity> {
-                            putExtra("selectedTable", TableSelectBean(
-                                    id = viewModel.table.id,
-                                    background = viewModel.table.background,
-                                    tableName = viewModel.table.tableName,
-                                    maxWeek = viewModel.table.maxWeek,
-                                    nodes = viewModel.table.nodes,
-                                    type = viewModel.table.type
-                            ))
-                        }
-                    }, 360)
-                    return@setNavigationItemSelectedListener true
-                }
-                R.id.nav_feedback -> {
-                    ui.drawerLayout.closeDrawer(GravityCompat.START)
-                    ui.drawerLayout.postDelayed({
-                        Utils.openUrl(this, "https://support.qq.com/product/97617")
-                        Toasty.info(this, "吐槽后隔天记得回来看看回复哦~", Toasty.LENGTH_LONG).show()
-                    }, 360)
-                    return@setNavigationItemSelectedListener true
-                }
-                R.id.nav_about -> {
-                    ui.drawerLayout.closeDrawer(GravityCompat.START)
-                    ui.drawerLayout.postDelayed({
-                        start<AboutActivity>()
-                    }, 360)
-                    return@setNavigationItemSelectedListener true
-                }
-                R.id.nav_young -> {
-                    ui.drawerLayout.closeDrawer(GravityCompat.START)
-                    ui.drawerLayout.postDelayed({
-                        start<IntroYoungActivity>()
-                    }, 360)
-                    return@setNavigationItemSelectedListener true
-                }
-                R.id.nav_empty_room -> {
-                    ui.drawerLayout.closeDrawer(GravityCompat.START)
-                    ui.drawerLayout.postDelayed({
-                        start<SudaLifeActivity> {
-                            putExtra("type", "空教室")
-                        }
-                    }, 360)
-                    return@setNavigationItemSelectedListener true
-                }
-                R.id.nav_bathroom -> {
-                    ui.drawerLayout.closeDrawer(GravityCompat.START)
-                    ui.drawerLayout.postDelayed({
-                        start<SudaLifeActivity> {
-                            putExtra("type", "澡堂")
-                        }
-                    }, 360)
-                    return@setNavigationItemSelectedListener true
-                }
-                else -> {
-                    Toasty.info(this.applicationContext, "敬请期待").show()
-                    return@setNavigationItemSelectedListener true
-                }
-            }
-        }
-    }
-
     private fun initViewPage(maxWeek: Int, table: TableBean) {
         if (mAdapter == null) {
             mAdapter = SchedulePagerAdapter(maxWeek, preLoad, supportFragmentManager)
@@ -518,22 +473,17 @@ class ScheduleActivity : BaseActivity() {
             }
         }
 
+        ui.navBtn.setOnClickListener {
+            showBottomSheetDialog()
+        }
+
         ui.moreBtn.setOnClickListener {
             showBottomSheetDialog()
-            //ui.drawerLayout.openDrawer(Gravity.END)
         }
 
         ui.bottomSheet.setOnClickListener {
             bottomSheetBehavior.state = BottomSheetBehavior.STATE_HIDDEN
         }
-
-        ui.weekToggleGroup.addOnButtonCheckedListener { _, checkedId, isChecked ->
-            if (isChecked) {
-                ui.viewPager.currentItem = checkedId - 1
-            }
-        }
-
-        ui.navBtn.setOnClickListener { ui.drawerLayout.openDrawer(GravityCompat.START) }
 
         ui.shareBtn.setOnClickListener {
             ExportSettingsFragment().show(supportFragmentManager, null)
@@ -587,7 +537,6 @@ class ScheduleActivity : BaseActivity() {
 
     private fun showBottomSheetDialog() {
         bottomSheetBehavior.state = BottomSheetBehavior.STATE_EXPANDED
-
     }
 
     private fun initView() {
@@ -612,29 +561,13 @@ class ScheduleActivity : BaseActivity() {
                             .setNegativeButton(R.string.cancel, null)
                             .show()
                 }
-            } else {
-                ui.weekView.text = "还没有开学哦"
             }
 
-            ui.weekToggleGroup.removeAllViews()
-            ui.weekToggleGroup.clearChecked()
-            for (i in 1..viewModel.table.maxWeek) {
-                ui.weekToggleGroup.addView(ui.createOutlineButton().apply {
-                    id = i
-                    text = i.toString()
-                    textSize = 12f
-                }, dip(48), dip(48))
-            }
-
-            launch {
-                delay(1000)
-                if (ui.weekToggleGroup.checkedButtonId != viewModel.selectedWeek) {
-                    ui.weekToggleGroup.check(viewModel.selectedWeek)
-                }
-                ui.weekScrollView.smoothScrollTo(if (viewModel.selectedWeek > 4) (viewModel.selectedWeek - 4) * dip(56) else 0, 0)
-            }
-
+            ui.weekSlider.value = 1f
             ui.weekDayView.text = CourseUtils.getWeekday()
+            ui.weekSlider.valueTo = viewModel.table.maxWeek.toFloat()
+            ui.weekSlider.valueFrom = 1f
+            ui.weekSlider.value = viewModel.currentWeek.toFloat()
 
             initTheme()
 
@@ -660,11 +593,13 @@ class ScheduleActivity : BaseActivity() {
         if (resultCode != RESULT_OK) {
             when (requestCode) {
                 Const.REQUEST_CODE_EXPORT -> {
-                    ui.content.longSnack("导出是否遇到了问题？") {
-                        action("查看教程") {
-                            Utils.openUrl(this@ScheduleActivity, "https://support.qq.com/embed/phone/97617/faqs/59883")
-                        }
-                    }
+                    MaterialAlertDialogBuilder(this)
+                            .setMessage("导出是否遇到了问题？")
+                            .setPositiveButton("查看教程") { _, _ ->
+                                Utils.openUrl(this@ScheduleActivity, "https://support.qq.com/embed/phone/97617/faqs/59883")
+                            }
+                            .setNegativeButton("取消", null)
+                            .show()
                 }
             }
             super.onActivityResult(requestCode, resultCode, data)
@@ -682,6 +617,7 @@ class ScheduleActivity : BaseActivity() {
                             layoutParams = ViewGroup.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT)
                             val space = styledDimenPxSize(R.attr.dialogPreferredPadding)
                             setPadding(space, dip(8), space, 0)
+                            lineHeight += dip(2)
                         })
                         .setCancelable(false)
                         .setPositiveButton("我知道啦", null)
@@ -733,8 +669,6 @@ class ScheduleActivity : BaseActivity() {
 
     override fun onBackPressed() {
         when {
-            ui.drawerLayout.isDrawerOpen(GravityCompat.START) -> ui.drawerLayout.closeDrawer(GravityCompat.START)
-            ui.drawerLayout.isDrawerOpen(GravityCompat.END) -> ui.drawerLayout.closeDrawer(GravityCompat.END)
             bottomSheetBehavior.state == BottomSheetBehavior.STATE_EXPANDED -> bottomSheetBehavior.state = BottomSheetBehavior.STATE_HIDDEN
             else -> super.onBackPressed()
         }
@@ -742,7 +676,8 @@ class ScheduleActivity : BaseActivity() {
 
     override fun onDestroy() {
         ui.viewPager.clearOnPageChangeListeners()
-        ui.weekToggleGroup.clearOnButtonCheckedListeners()
+        ui.weekSlider.clearOnChangeListeners()
+        ui.weekSlider.clearOnSliderTouchListeners()
         AppWidgetUtils.updateWidget(applicationContext)
         super.onDestroy()
     }

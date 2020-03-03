@@ -1,6 +1,5 @@
 package com.suda.yzune.wakeupschedule.dao
 
-import androidx.lifecycle.LiveData
 import androidx.room.*
 import com.suda.yzune.wakeupschedule.bean.TimeDetailBean
 import com.suda.yzune.wakeupschedule.bean.TimeTableBean
@@ -9,7 +8,7 @@ import com.suda.yzune.wakeupschedule.bean.TimeTableBean
 interface TimeTableDao {
 
     @Transaction
-    suspend fun initTimeTable(timeTableBean: TimeTableBean) {
+    suspend fun initTimeTable(timeTableBean: TimeTableBean): Int {
         val id = insertTimeTable(timeTableBean).toInt()
         val timeList = listOf(
                 TimeDetailBean(1, "08:00", "08:50", id),
@@ -44,6 +43,7 @@ interface TimeTableDao {
                 TimeDetailBean(30, "00:00", "00:00", id)
         )
         insertTimeList(timeList)
+        return id
     }
 
     @Insert
@@ -53,7 +53,7 @@ interface TimeTableDao {
     suspend fun insertTimeTable(timeTableBean: TimeTableBean): Long
 
     @Query("select * from timetablebean")
-    fun getTimeTableList(): LiveData<List<TimeTableBean>>
+    suspend fun getTimeTableList(): List<TimeTableBean>
 
     @Query("select max(id) from timetablebean")
     suspend fun getMaxId(): Int

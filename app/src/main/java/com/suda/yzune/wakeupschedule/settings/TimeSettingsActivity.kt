@@ -12,13 +12,11 @@ import androidx.navigation.NavController
 import androidx.navigation.NavType
 import androidx.navigation.Navigation
 import androidx.navigation.fragment.NavHostFragment
+import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import com.suda.yzune.wakeupschedule.R
 import com.suda.yzune.wakeupschedule.base_view.BaseTitleActivity
 import es.dmoral.toasty.Toasty
-import kotlinx.android.synthetic.main.activity_time_settings.*
-import kotlinx.coroutines.delay
 import splitties.resources.color
-import splitties.snackbar.longSnack
 
 class TimeSettingsActivity : BaseTitleActivity() {
     override val layoutId: Int
@@ -29,31 +27,13 @@ class TimeSettingsActivity : BaseTitleActivity() {
         tvButton.typeface = Typeface.DEFAULT_BOLD
         tvButton.setTextColor(color(R.color.colorAccent))
         tvButton.setOnClickListener {
-            when (navController.currentDestination?.id) {
-                R.id.timeTableFragment -> {
-                    setResult(Activity.RESULT_OK, Intent().putExtra("selectedId", viewModel.selectedId))
-                    finish()
-                }
-                R.id.timeSettingsFragment -> {
-                    launch {
-                        try {
-                            viewModel.saveDetailData(viewModel.entryPosition)
-                            navController.navigateUp()
-                            Toasty.success(applicationContext, "保存成功").show()
-                        } catch (e: Exception) {
-                            Toasty.error(applicationContext, "出现错误>_<${e.message}", Toast.LENGTH_LONG).show()
-                        }
-                    }
-
-                }
-            }
+            saveAndExit()
         }
         return tvButton
     }
 
     private val viewModel by viewModels<TimeSettingsViewModel>()
     private lateinit var navController: NavController
-    private var isExit: Boolean = false
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -76,28 +56,44 @@ class TimeSettingsActivity : BaseTitleActivity() {
         }
     }
 
-    private fun exitBy2Click() {
-        if (!isExit) {
-            isExit = true // 准备退出
-            ll_root.longSnack("真的不保存吗？那再按一次退出编辑哦，就不保存啦。")
-            launch {
-                delay(2000)
-                isExit = false
+    private fun saveAndExit() {
+        when (navController.currentDestination?.id) {
+            R.id.timeTableFragment -> {
+                setResult(Activity.RESULT_OK, Intent().putExtra("selectedId", viewModel.selectedId))
+                finish()
             }
-        } else {
-            when (navController.currentDestination?.id) {
-                R.id.timeTableFragment -> {
-                    finish()
+            R.id.timeSettingsFragment -> {
+                launch {
+                    try {
+                        viewModel.saveDetailData(viewModel.entryPosition)
+                        navController.navigateUp()
+                        Toasty.success(applicationContext, "保存成功").show()
+                    } catch (e: Exception) {
+                        Toasty.error(applicationContext, "出现错误>_<${e.message}", Toast.LENGTH_LONG).show()
+                    }
                 }
-                R.id.timeSettingsFragment -> {
-                    navController.navigateUp()
-                }
+
             }
         }
     }
 
     override fun onBackPressed() {
-        exitBy2Click()
+        MaterialAlertDialogBuilder(this)
+                .setMessage("需要保存以使设置生效吗？")
+                .setPositiveButton("保存") { _, _ ->
+                    saveAndExit()
+                }
+                .setNegativeButton("离开") { _, _ ->
+                    when (navController.currentDestination?.id) {
+                        R.id.timeTableFragment -> {
+                            finish()
+                        }
+                        R.id.timeSettingsFragment -> {
+                            navController.navigateUp()
+                        }
+                    }
+                }
+                .show()
     }
 
 }

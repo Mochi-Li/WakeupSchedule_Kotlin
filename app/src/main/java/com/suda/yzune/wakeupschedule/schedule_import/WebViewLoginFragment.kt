@@ -1,10 +1,14 @@
 package com.suda.yzune.wakeupschedule.schedule_import
 
 import android.app.Activity.RESULT_OK
+import android.graphics.Color
 import android.net.http.SslError
 import android.os.Build
 import android.os.Bundle
 import android.text.InputType
+import android.text.Spannable
+import android.text.SpannableStringBuilder
+import android.text.style.ForegroundColorSpan
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -13,6 +17,8 @@ import android.webkit.*
 import android.widget.Toast
 import androidx.appcompat.app.AlertDialog
 import androidx.core.content.edit
+import androidx.core.view.ViewCompat
+import androidx.core.view.updatePadding
 import androidx.fragment.app.activityViewModels
 import com.google.android.material.chip.Chip
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
@@ -22,6 +28,7 @@ import com.suda.yzune.wakeupschedule.BuildConfig
 import com.suda.yzune.wakeupschedule.R
 import com.suda.yzune.wakeupschedule.apply_info.ApplyInfoActivity
 import com.suda.yzune.wakeupschedule.base_view.BaseFragment
+import com.suda.yzune.wakeupschedule.schedule_import.Common.TYPE_QZ
 import com.suda.yzune.wakeupschedule.utils.Const
 import com.suda.yzune.wakeupschedule.utils.Utils
 import com.suda.yzune.wakeupschedule.utils.ViewUtils
@@ -37,7 +44,20 @@ class WebViewLoginFragment : BaseFragment() {
     private val viewModel by activityViewModels<ImportViewModel>()
     private var isRefer = false
     private val hostRegex = Regex("""(http|https)://.*?/""")
-    private var tips = "1. 在上方输入教务网址，部分学校需要连接校园网\n2. 登录后点击到个人课表的页面，注意选择自己需要导入的学期\n3. 点击右下角的按钮完成导入\n4. 如果遇到总是提示密码错误或者网页错位等问题，可以取消底栏的「电脑模式」或者调节字体缩放"
+    private fun foregroundColorSpan() = ForegroundColorSpan(Color.RED)
+    private var tips = SpannableStringBuilder()
+            .append("1. 在上方输入教务网址，部分学校需要连接校园网\n")
+            .append("2. 登录后点击到个人课表的页面，注意选择自己需要导入的学期，一般首页的课表都是不可导入的！\n")
+            .append("3. 点击右下角的按钮完成导入\n")
+            .append("4. 如果遇到总是提示密码错误或者网页错位等问题，可以取消底栏的「电脑模式」或者调节字体缩放")
+            .apply {
+                val text1 = "个人课表"
+                val index1 = this.indexOf(text1)
+                val text2 = "一般首页的课表都是不可导入的！"
+                val index2 = this.indexOf(text2)
+                setSpan(foregroundColorSpan(), index1, index1 + text1.length, Spannable.SPAN_EXCLUSIVE_INCLUSIVE)
+                setSpan(foregroundColorSpan(), index2, index2 + text2.length, Spannable.SPAN_EXCLUSIVE_INCLUSIVE)
+            }
     private var zoom = 100
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -56,7 +76,10 @@ class WebViewLoginFragment : BaseFragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         ViewUtils.resizeStatusBar(context!!.applicationContext, view.findViewById(R.id.v_status))
-
+        ViewCompat.setOnApplyWindowInsetsListener(view) { v, insets ->
+            v.updatePadding(bottom = insets.systemWindowInsets.bottom)
+            insets
+        }
         if (url != "") {
             et_url.setText(url)
             startVisit()
@@ -71,12 +94,29 @@ class WebViewLoginFragment : BaseFragment() {
         }
 
         if (viewModel.importType == "apply") {
-            tips = "1. 在上方输入教务网址，部分学校需要连接校园网\n2. 登录后点击到个人课表或者相关的页面\n3. 点击右下角的按钮抓取源码，并上传到服务器"
+            tips = SpannableStringBuilder()
+                    .append("1. 在上方输入教务网址，部分学校需要连接校园网\n")
+                    .append("2. 登录后点击到个人课表或者相关的页面\n")
+                    .append("3. 点击右下角的按钮抓取源码，并上传到服务器\n")
+                    .append("4. 如果遇到总是提示密码错误或者网页错位等问题，可以取消底栏的「电脑模式」或者调节字体缩放")
         }
 
-        if (viewModel.school == "强智教务") {
+        if (viewModel.school == "强智教务" || viewModel.importType == TYPE_QZ) {
             cg_qz.visibility = View.VISIBLE
             chip_qz1.isChecked = true
+            tips = SpannableStringBuilder()
+                    .append("1. 在上方输入教务网址，部分学校需要连接校园网\n")
+                    .append("2. 登录后点击到「学期理论课表」的页面，注意不是「首页的课表」！注意选择自己需要导入的学期\n")
+                    .append("3. 点击右下角的按钮完成导入\n")
+                    .append("4. 如果遇到总是提示密码错误或者网页错位等问题，可以取消底栏的「电脑模式」或者调节字体缩放")
+                    .apply {
+                        val text1 = "「学期理论课表」"
+                        val index1 = this.indexOf(text1)
+                        val text2 = "不是「首页的课表」"
+                        val index2 = this.indexOf(text2)
+                        setSpan(foregroundColorSpan(), index1, index1 + text1.length, Spannable.SPAN_EXCLUSIVE_INCLUSIVE)
+                        setSpan(foregroundColorSpan(), index2, index2 + text2.length, Spannable.SPAN_EXCLUSIVE_INCLUSIVE)
+                    }
         } else {
             cg_qz.visibility = View.GONE
         }
@@ -84,18 +124,28 @@ class WebViewLoginFragment : BaseFragment() {
         if (viewModel.school == "正方教务") {
             cg_zf.visibility = View.VISIBLE
             chip_zf1.isChecked = true
-            tips = "1. 在上方输入教务网址，部分学校需要连接校园网\n2. 登录后点击到「个人课表」的页面，注意不是「班级课表」！注意选择自己需要导入的学期。正方教务目前仅支持个人课表的导入\n3. 点击右下角的按钮完成导入\n" +
-                    "4. 如果遇到总是提示密码错误或者网页错位等问题，可以取消底栏的「电脑模式」或者调节字体缩放"
+            tips = SpannableStringBuilder()
+                    .append("1. 在上方输入教务网址，部分学校需要连接校园网\n")
+                    .append("2. 登录后点击到「个人课表」的页面，注意不是「班级课表」！注意选择自己需要导入的学期。正方教务目前仅支持个人课表的导入\n")
+                    .append("3. 点击右下角的按钮完成导入\n")
+                    .append("4. 如果遇到总是提示密码错误或者网页错位等问题，可以取消底栏的「电脑模式」或者调节字体缩放")
+                    .apply {
+                        val text1 = "「个人课表」"
+                        val index1 = this.indexOf(text1)
+                        val text2 = "不是「班级课表」"
+                        val index2 = this.indexOf(text2)
+                        setSpan(foregroundColorSpan(), index1, index1 + text1.length, Spannable.SPAN_EXCLUSIVE_INCLUSIVE)
+                        setSpan(foregroundColorSpan(), index2, index2 + text2.length, Spannable.SPAN_EXCLUSIVE_INCLUSIVE)
+                    }
         } else {
             cg_zf.visibility = View.GONE
         }
 
-        if (viewModel.importType == Common.TYPE_HNUST) {
-            cg_old_qz.visibility = View.VISIBLE
-            chip_old_qz2.isChecked = true
-            viewModel.oldQzType = 1
+        if (viewModel.importType == Common.TYPE_URP_NEW) {
+            cg_new_urp.visibility = View.VISIBLE
+            chip_new_urp.isChecked = true
         } else {
-            cg_old_qz.visibility = View.GONE
+            cg_new_urp.visibility = View.GONE
         }
 
         MaterialAlertDialogBuilder(activity)
@@ -253,19 +303,22 @@ class WebViewLoginFragment : BaseFragment() {
             }
         }
 
-        var oldQZChipId = R.id.chip_old_qz2
-        cg_old_qz.setOnCheckedChangeListener { chipGroup, id ->
+        var newUrpChipId = R.id.chip_new_urp
+        cg_new_urp.setOnCheckedChangeListener { chipGroup, id ->
+            if (cg_new_urp.visibility != View.VISIBLE) return@setOnCheckedChangeListener
             when (id) {
-                R.id.chip_old_qz1 -> {
-                    oldQZChipId = id
-                    viewModel.oldQzType = 0
+                R.id.chip_new_urp -> {
+                    newUrpChipId = id
+                    viewModel.importType = Common.TYPE_URP_NEW
+                    isRefer = false
                 }
-                R.id.chip_old_qz2 -> {
-                    oldQZChipId = id
-                    viewModel.oldQzType = 1
+                R.id.chip_new_urp_ajax -> {
+                    newUrpChipId = id
+                    viewModel.importType = Common.TYPE_URP_NEW_AJAX
+                    isRefer = false
                 }
                 else -> {
-                    chipGroup.findViewById<Chip>(oldQZChipId).isChecked = true
+                    chipGroup.findViewById<Chip>(newUrpChipId).isChecked = true
                 }
             }
         }
@@ -328,6 +381,15 @@ class WebViewLoginFragment : BaseFragment() {
             } else if (viewModel.importType == Common.TYPE_URP_NEW) {
                 if (!isRefer) {
                     val referUrl = getHostUrl() + "student/courseSelect/thisSemesterCurriculum/callback"
+                    wv_course.loadUrl(referUrl)
+                    it.longSnack("请在看到网页加载完成后，再点一次右下角按钮")
+                    isRefer = true
+                } else {
+                    wv_course.loadUrl("javascript:window.local_obj.showSource(document.getElementsByTagName('html')[0].innerText);")
+                }
+            } else if (viewModel.importType == Common.TYPE_URP_NEW_AJAX) {
+                if (!isRefer) {
+                    val referUrl = getHostUrl() + "student/courseSelect/thisSemesterCurriculum/ajaxStudentSchedule/callback"
                     wv_course.loadUrl(referUrl)
                     it.longSnack("请在看到网页加载完成后，再点一次右下角按钮")
                     isRefer = true
