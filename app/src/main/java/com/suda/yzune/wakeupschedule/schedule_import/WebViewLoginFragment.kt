@@ -59,6 +59,7 @@ class WebViewLoginFragment : BaseFragment() {
                 setSpan(foregroundColorSpan(), index2, index2 + text2.length, Spannable.SPAN_EXCLUSIVE_INCLUSIVE)
             }
     private var zoom = 100
+    private var countClick = 0
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -395,6 +396,23 @@ class WebViewLoginFragment : BaseFragment() {
                     isRefer = true
                 } else {
                     wv_course.loadUrl("javascript:window.local_obj.showSource(document.getElementsByTagName('html')[0].innerText);")
+                }
+            } else if (viewModel.importType == Common.TYPE_JNU) {
+                if (countClick == 0) {
+                    val referUrl = getHostUrl() + "Secure/TeachingPlan/wfrm_Prt_Report.aspx"
+                    wv_course.loadUrl(referUrl)
+                    it.longSnack("请在看到网页加载完成后，再点一次右下角按钮")
+                    countClick++
+                } else if(countClick == 1){
+//                    val jnujs = "javascript:window.local_obj.jump2DespairingUrl(document.getElementById(\"ReportFrameReportViewer1\").src);"
+                    val jnujs = "javascript:window.location.href = document.getElementById(\"ReportFrameReportViewer1\").src;"
+                    wv_course.loadUrl(jnujs)
+//                    wv_course.loadUrl(despairingUrl)
+                    it.longSnack("请再点一次右下角按钮")
+                    countClick++
+                }else{
+                    wv_course.loadUrl(js)
+                    countClick = 0
                 }
             } else {
                 wv_course.loadUrl(js)
