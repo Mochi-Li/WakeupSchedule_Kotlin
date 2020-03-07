@@ -55,6 +55,7 @@ class TodayColorfulService : RemoteViewsService() {
         private val timeList = arrayListOf<TimeDetailBean>()
         private val courseList = arrayListOf<CourseBean>()
         private var showColor = false
+        private var screenInfo = arrayOf(1080, 1920)
 
         override fun onCreate() {
 
@@ -76,6 +77,7 @@ class TodayColorfulService : RemoteViewsService() {
             timeList.clear()
             timeList.addAll(timeDao.getTimeListSync(table.timeTable))
             showColor = getPrefer().getBoolean(Const.KEY_DAY_WIDGET_COLOR, false)
+            screenInfo = ViewUtils.getScreenInfo(applicationContext)
         }
 
         override fun onDestroy() {
@@ -96,11 +98,16 @@ class TodayColorfulService : RemoteViewsService() {
             if (!this::table.isInitialized) {
                 table = tableDao.getDefaultTableSync()
             }
+            if (position < 0) return mRemoteViews
             if (courseList.isNotEmpty()) {
+                if (position >= courseList.size) return mRemoteViews
                 val view = initView(applicationContext, position)
                 val contentView = view.findViewById<LinearLayout>(R.id.anko_layout)
-                val info = ViewUtils.getScreenInfo(applicationContext)
-                ViewUtils.layoutView(contentView, info[0], info[1])
+                if (screenInfo[0] < screenInfo[1]) {
+                    ViewUtils.layoutView(contentView, screenInfo[0], screenInfo[1])
+                } else {
+                    ViewUtils.layoutView(contentView, screenInfo[1], screenInfo[0])
+                }
                 val bitmap = ViewUtils.getViewBitmap(contentView, true, dip(2))
                 mRemoteViews.setImageViewBitmap(R.id.iv_schedule, bitmap)
                 contentView.removeAllViews()
@@ -128,8 +135,11 @@ class TodayColorfulService : RemoteViewsService() {
                         topMargin = dip(16)
                     })
                 }
-                val info = ViewUtils.getScreenInfo(applicationContext)
-                ViewUtils.layoutView(view, info[0], info[1])
+                if (screenInfo[0] < screenInfo[1]) {
+                    ViewUtils.layoutView(view, screenInfo[0], screenInfo[1])
+                } else {
+                    ViewUtils.layoutView(view, screenInfo[1], screenInfo[0])
+                }
                 mRemoteViews.setImageViewBitmap(R.id.iv_schedule, view.drawToBitmap(Bitmap.Config.ARGB_4444))
             }
             return mRemoteViews

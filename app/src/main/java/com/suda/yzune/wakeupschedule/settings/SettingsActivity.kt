@@ -35,7 +35,7 @@ class SettingsActivity : BaseListActivity() {
     private val mAdapter = SettingItemAdapter()
 
     override fun onSetupSubButton(tvButton: AppCompatTextView): AppCompatTextView? {
-        return if (BuildConfig.CHANNEL == "google" || BuildConfig.CHANNEL == "huawei") {
+        return if (BuildConfig.CHANNEL == "google" || (BuildConfig.CHANNEL == "huawei" && !getPrefer().getBoolean(Const.KEY_SHOW_DONATE, false))) {
             null
         } else {
             tvButton.text = "捐赠"
@@ -77,10 +77,16 @@ class SettingsActivity : BaseListActivity() {
 
     private fun onItemsCreated(items: MutableList<BaseSettingItem>) {
         items.add(CategoryItem("高级", true))
-        when (BuildConfig.CHANNEL) {
-            "google" -> items.add(VerticalItem("看看都有哪些高级功能", "如果想支持一下社团和开发者\n请去支付宝18862196504\n高级功能会持续更新~\n采用诚信授权模式ヾ(=･ω･=)o"))
-            "huawei" -> items.add(VerticalItem("看看都有哪些高级功能", "高级功能会持续更新~"))
-            else -> items.add(VerticalItem("解锁高级功能", "解锁赞助一下社团和开发者ヾ(=･ω･=)o\n高级功能会持续更新~\n采用诚信授权模式"))
+        when {
+            BuildConfig.CHANNEL == "google" -> {
+                items.add(VerticalItem("看看都有哪些高级功能", "如果想支持一下社团和开发者\n请去支付宝18862196504\n高级功能会持续更新~\n采用诚信授权模式ヾ(=･ω･=)o", keys = listOf("高级")))
+            }
+            BuildConfig.CHANNEL == "huawei" && !getPrefer().getBoolean(Const.KEY_SHOW_DONATE, false) -> {
+                items.add(VerticalItem("看看都有哪些高级功能", "高级功能会持续更新~", keys = listOf("高级")))
+            }
+            else -> {
+                items.add(VerticalItem("解锁高级功能", "解锁赞助一下社团和开发者ヾ(=･ω･=)o\n高级功能会持续更新~\n采用诚信授权模式", keys = listOf("高级")))
+            }
         }
 
         items.add(CategoryItem("常规", false))

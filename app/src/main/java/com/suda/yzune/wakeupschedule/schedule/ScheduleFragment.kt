@@ -35,6 +35,9 @@ class ScheduleFragment : BaseFragment() {
     private lateinit var ui: ScheduleUI
     private var isLoaded = false
     private lateinit var showCourseNumber: LiveData<Int>
+    private val showTeacher by lazy(LazyThreadSafetyMode.NONE) {
+        context?.getPrefer()?.getBoolean(Const.KEY_SCHEDULE_TEACHER, true) ?: true
+    }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -169,6 +172,7 @@ class ScheduleFragment : BaseFragment() {
             var isError = false
 
             val strBuilder = StringBuilder()
+            val detailBuilder = StringBuilder()
             if (c.step <= 0) {
                 c.step = 1
                 isError = true
@@ -202,23 +206,21 @@ class ScheduleFragment : BaseFragment() {
                 c.color = "#${Integer.toHexString(ViewUtils.getCustomizedColor(activity!!, c.id % 9))}"
             }
 
-            strBuilder.append(c.courseName)
-
-            if (c.room != "") {
-                strBuilder.append("\n@${c.room}")
+            if (showTeacher && c.teacher != "") {
+                detailBuilder.append("\n${c.teacher}")
             }
 
             if (isOtherWeek) {
                 when (c.type) {
-                    1 -> strBuilder.append("\n单周")
-                    2 -> strBuilder.append("\n双周")
+                    1 -> detailBuilder.append("\n单周")
+                    2 -> detailBuilder.append("\n双周")
                 }
-                strBuilder.append("[非本周]")
+                detailBuilder.append("\n[非本周]")
                 textView.visibility = View.VISIBLE
             } else {
                 when (c.type) {
-                    1 -> strBuilder.append("\n单周")
-                    2 -> strBuilder.append("\n双周")
+                    1 -> detailBuilder.append("\n单周")
+                    2 -> detailBuilder.append("\n双周")
                 }
             }
 
@@ -255,11 +257,19 @@ class ScheduleFragment : BaseFragment() {
             }
 
             if (table.showTime && viewModel.timeList.isNotEmpty()) {
-                strBuilder.insert(0, viewModel.timeList[c.startNode - 1].startTime + "\n")
+                strBuilder.append(viewModel.timeList[c.startNode - 1].startTime + "\n")
+            }
+            strBuilder.append(c.courseName)
+            if (c.room != "") {
+                strBuilder.append("\n@${c.room}")
+            }
+            if (!showTeacher) {
+                strBuilder.append(detailBuilder)
             }
 
             textView.init(
                     text = strBuilder.toString(),
+                    detail = if (showTeacher) detailBuilder.toString() else "",
                     txtSize = table.itemTextSize,
                     txtColor = table.courseTextColor,
                     bgColor = Color.parseColor(c.color),
@@ -273,7 +283,7 @@ class ScheduleFragment : BaseFragment() {
                     detailFragment.show(parentFragmentManager, "courseDetail")
                 } catch (e: Exception) {
                     //TODO: 提示是否要删除异常的数据
-                    Toasty.error(activity!!.applicationContext, "哎呀>_<差点崩溃了").show()
+                    Toasty.error(activity!!, "哎呀>_<差点崩溃了").show()
                 }
             }
 

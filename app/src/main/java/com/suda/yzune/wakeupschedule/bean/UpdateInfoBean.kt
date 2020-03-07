@@ -5,7 +5,15 @@ import kotlinx.android.parcel.Parcelize
 
 @Parcelize
 data class UpdateInfoBean(
-        val id: Int,
-        val VersionName: String,
-        val VersionInfo: String
-) : Parcelable
+        val `data`: Data,
+        val message: String,
+        val status: String
+) : Parcelable {
+    @Parcelize
+    data class Data(
+            val donate: Boolean,
+            val id: Int,
+            val versionInfo: String,
+            val versionName: String
+    ) : Parcelable
+}

@@ -694,8 +694,14 @@ class ImportViewModel(application: Application) : AndroidViewModel(application) 
     }
 
     suspend fun importFromFile(uri: Uri?) {
-        if (uri == null) throw Exception("读取文件失败")
-        if (!uri.path!!.contains("wakeup_schedule")) throw Exception("请确保文件类型正确")
+        if (uri == null) throw IllegalStateException("读取文件失败")
+        if (!uri.path!!.contains("wakeup_schedule", true)) {
+            if (uri.toString().startsWith("content://com.android.providers")) {
+                throw IllegalStateException("请不要从「最近」或「下载」等文件夹中选择，应去具体的路径选择。如果仍有问题，建议分享到QQ，然后在QQ的界面点击文件，选择「导入到课程表」。")
+            } else {
+                throw IllegalStateException("请确保文件类型正确")
+            }
+        }
         val gson = Gson()
         val list = withContext(Dispatchers.IO) {
             getApplication<App>().contentResolver.openInputStream(uri)!!.bufferedReader().readLines()
@@ -729,8 +735,14 @@ class ImportViewModel(application: Application) : AndroidViewModel(application) 
     }
 
     suspend fun importFromExcel(uri: Uri?): Int {
-        if (uri == null) throw Exception("读取文件失败")
-        if (!uri.path!!.endsWith("csv")) throw Exception("请确保选取的是 csv 文件")
+        if (uri == null) throw IllegalStateException("读取文件失败")
+        if (!uri.path!!.endsWith("csv", true)) {
+            if (uri.toString().startsWith("content://com.android.providers")) {
+                throw IllegalStateException("请不要从「最近」或「下载」等文件夹中选择，应去具体的路径选择。如果仍有问题，建议分享到QQ，然后在QQ的界面点击文件，选择「导入到课程表」。")
+            } else {
+                throw IllegalStateException("请确保选取的是 csv 文件")
+            }
+        }
         val source = withContext(Dispatchers.IO) {
             val text = getApplication<App>().contentResolver.openInputStream(uri)!!.bufferedReader(Charset.forName("gbk")).readText()
             if (text.startsWith("课程名称")) {

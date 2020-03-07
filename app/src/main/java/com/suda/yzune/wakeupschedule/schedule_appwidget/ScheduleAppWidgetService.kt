@@ -12,9 +12,11 @@ import com.suda.yzune.wakeupschedule.bean.CourseBean
 import com.suda.yzune.wakeupschedule.bean.TableBean
 import com.suda.yzune.wakeupschedule.bean.TimeDetailBean
 import com.suda.yzune.wakeupschedule.schedule.ScheduleUI
+import com.suda.yzune.wakeupschedule.utils.Const
 import com.suda.yzune.wakeupschedule.utils.CourseUtils
 import com.suda.yzune.wakeupschedule.utils.CourseUtils.countWeek
 import com.suda.yzune.wakeupschedule.utils.ViewUtils
+import com.suda.yzune.wakeupschedule.utils.getPrefer
 import com.suda.yzune.wakeupschedule.widget.TipTextView
 import splitties.dimensions.dip
 import java.text.ParseException
@@ -52,6 +54,7 @@ class ScheduleAppWidgetService : RemoteViewsService() {
         private val timeList = arrayListOf<TimeDetailBean>()
         private val weekDay = CourseUtils.getWeekdayInt()
         private val allCourseList = Array(7) { listOf<CourseBean>() }
+        private var showTeacher = true
 
         override fun onCreate() {}
 
@@ -71,7 +74,7 @@ class ScheduleAppWidgetService : RemoteViewsService() {
             if (week <= 0) {
                 week = 1
             }
-
+            showTeacher = getPrefer().getBoolean(Const.KEY_SCHEDULE_TEACHER, true)
             widgetItemHeight = dip(table.widgetItemHeight)
             marTop = resources.getDimensionPixelSize(R.dimen.weekItemMarTop)
             alphaInt = (255 * (table.widgetItemAlpha.toFloat() / 100)).roundToInt()
@@ -130,7 +133,11 @@ class ScheduleAppWidgetService : RemoteViewsService() {
             }
             val scrollView = ui.scrollView
             val info = ViewUtils.getScreenInfo(applicationContext)
-            ViewUtils.layoutView(scrollView, info[0], info[1])
+            if (info[0] < info[1]) {
+                ViewUtils.layoutView(scrollView, info[0], info[1])
+            } else {
+                ViewUtils.layoutView(scrollView, info[1], info[0])
+            }
             views.setBitmap(R.id.iv_schedule, "setImageBitmap", ViewUtils.getViewBitmap(scrollView))
             scrollView.removeAllViews()
         }
@@ -158,6 +165,7 @@ class ScheduleAppWidgetService : RemoteViewsService() {
                 var isError = false
 
                 val strBuilder = StringBuilder()
+                val detailBuilder = StringBuilder()
                 if (c.step <= 0) {
                     c.step = 1
                     isError = true
@@ -187,23 +195,20 @@ class ScheduleAppWidgetService : RemoteViewsService() {
                     c.color = "#${Integer.toHexString(ViewUtils.getCustomizedColor(applicationContext, c.id % 9))}"
                 }
 
-                strBuilder.append(c.courseName)
-
-                if (c.room != "") {
-                    strBuilder.append("\n@${c.room}")
+                if (showTeacher && c.teacher != "") {
+                    detailBuilder.append("\n${c.teacher}")
                 }
-
                 if (isOtherWeek) {
                     when (c.type) {
-                        1 -> strBuilder.append("\n单周")
-                        2 -> strBuilder.append("\n双周")
+                        1 -> detailBuilder.append("\n单周")
+                        2 -> detailBuilder.append("\n双周")
                     }
-                    strBuilder.append("[非本周]")
+                    detailBuilder.append("\n[非本周]")
                     textView.visibility = View.VISIBLE
                 } else {
                     when (c.type) {
-                        1 -> strBuilder.append("\n单周")
-                        2 -> strBuilder.append("\n双周")
+                        1 -> detailBuilder.append("\n单周")
+                        2 -> detailBuilder.append("\n双周")
                     }
                 }
 
@@ -237,11 +242,18 @@ class ScheduleAppWidgetService : RemoteViewsService() {
                 }
 
                 if (table.showTime && timeList.isNotEmpty()) {
-                    strBuilder.insert(0, timeList[c.startNode - 1].startTime + "\n")
+                    strBuilder.append(timeList[c.startNode - 1].startTime + "\n")
                 }
-
+                strBuilder.append(c.courseName)
+                if (c.room != "") {
+                    strBuilder.append("\n${c.room}")
+                }
+                if (!showTeacher) {
+                    strBuilder.append(detailBuilder)
+                }
                 textView.init(
                         text = strBuilder.toString(),
+                        detail = if (showTeacher) detailBuilder.toString() else "",
                         txtSize = table.widgetItemTextSize,
                         txtColor = table.widgetCourseTextColor,
                         bgColor = Color.parseColor(c.color),

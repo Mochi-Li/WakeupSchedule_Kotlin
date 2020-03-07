@@ -145,7 +145,7 @@ class SelectWeekFragment : BaseDialogFragment() {
 
         btn_save.setOnClickListener {
             if (result.size == 0) {
-                Toasty.error(context!!.applicationContext, "请至少选择一周").show()
+                Toasty.error(context!!, "请至少选择一周").show()
             } else {
                 viewModel.editList[position].weekList.value = result
                 dismiss()

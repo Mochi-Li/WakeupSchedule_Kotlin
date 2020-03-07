@@ -152,7 +152,7 @@ class AddCourseActivity : BaseListActivity(), ColorPickerFragment.ColorPickerDia
 
     private fun saveAndExit() {
         if (viewModel.baseBean.courseName == "") {
-            Toasty.error(this.applicationContext, "请填写课程名称").show()
+            Toasty.error(this, "请填写课程名称").show()
         } else {
             if (viewModel.baseBean.id == -1 || !viewModel.updateFlag) {
                 launch {
@@ -186,7 +186,7 @@ class AddCourseActivity : BaseListActivity(), ColorPickerFragment.ColorPickerDia
                 }
                 R.id.ib_delete -> {
                     if (adapter.data.size == 1) {
-                        Toasty.error(this.applicationContext, "至少要保留一个时间段").show()
+                        Toasty.error(this, "至少要保留一个时间段").show()
                     } else {
                         adapter.remove(position)
                     }
@@ -320,13 +320,13 @@ class AddCourseActivity : BaseListActivity(), ColorPickerFragment.ColorPickerDia
                         1 -> appWidgetManager.notifyAppWidgetViewDataChanged(it.id, R.id.lv_course)
                     }
                 }
-                Toasty.success(applicationContext, "保存成功").show()
+                Toasty.success(this@AddCourseActivity, "保存成功").show()
                 if (!viewModel.updateFlag) {
                     setResult(Activity.RESULT_OK, Intent().putExtra("course", viewModel.baseBean))
                 }
                 finish()
             } catch (e: Exception) {
-                Toasty.error(applicationContext, e.message ?: "发生异常", Toast.LENGTH_LONG).show()
+                Toasty.error(this@AddCourseActivity, e.message ?: "发生异常", Toast.LENGTH_LONG).show()
             }
         }
     }

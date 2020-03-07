@@ -243,6 +243,7 @@ class ColorPickerFragment : BaseDialogFragment(), ColorPickerView.OnColorChanged
             args.putBoolean("alpha", showAlphaSlider)
             args.putInt("id", dialogId)
             dialog.arguments = args
+            dialog.isCancelable = false
             return dialog
         }
 

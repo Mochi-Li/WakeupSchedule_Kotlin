@@ -9,8 +9,10 @@ import androidx.fragment.app.BaseDialogFragment
 import com.suda.yzune.wakeupschedule.BuildConfig
 import com.suda.yzune.wakeupschedule.DonateActivity
 import com.suda.yzune.wakeupschedule.R
+import com.suda.yzune.wakeupschedule.utils.Const
 import com.suda.yzune.wakeupschedule.utils.CourseUtils
 import com.suda.yzune.wakeupschedule.utils.DonateUtils
+import com.suda.yzune.wakeupschedule.utils.getPrefer
 import es.dmoral.toasty.Toasty
 import kotlinx.android.synthetic.main.fragment_donate.*
 import splitties.activities.start
@@ -24,10 +26,10 @@ class DonateFragment : BaseDialogFragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         initEvent()
-        if (BuildConfig.CHANNEL == "google" || BuildConfig.CHANNEL == "huawei") {
+        if (BuildConfig.CHANNEL == "google" || (BuildConfig.CHANNEL == "huawei" && !context!!.getPrefer().getBoolean(Const.KEY_SHOW_DONATE, false))) {
             tv_donate.visibility = View.GONE
         }
-        if (BuildConfig.CHANNEL == "huawei") {
+        if (BuildConfig.CHANNEL == "huawei" && !context!!.getPrefer().getBoolean(Const.KEY_SHOW_DONATE, false)) {
             tv_donate_list.visibility = View.GONE
         }
     }
@@ -44,7 +46,7 @@ class DonateFragment : BaseDialogFragment() {
                 intent.data = Uri.parse("sinaweibo://userinfo?uid=6970231444")
                 activity!!.startActivity(intent)
             } catch (e: Exception) {
-                Toasty.info(context!!.applicationContext, "没有检测到微博客户端o(╥﹏╥)o").show()
+                Toasty.info(context!!, "没有检测到微博客户端o(╥﹏╥)o").show()
             }
         }
 
@@ -55,7 +57,7 @@ class DonateFragment : BaseDialogFragment() {
                 intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
                 activity!!.startActivity(intent)
             } catch (e: Exception) {
-                Toasty.info(context!!.applicationContext, "没有检测到应用商店o(╥﹏╥)o").show()
+                Toasty.info(context!!, "没有检测到应用商店o(╥﹏╥)o").show()
             }
         }
 
@@ -68,9 +70,9 @@ class DonateFragment : BaseDialogFragment() {
                     intent.data = qrCodeUrl
                     intent.setClassName("com.eg.android.AlipayGphone", "com.alipay.mobile.quinox.LauncherActivity")
                     startActivity(intent)
-                    Toasty.success(context!!.applicationContext, "非常感谢(*^▽^*)").show()
+                    Toasty.success(context!!, "非常感谢(*^▽^*)").show()
                 } else {
-                    Toasty.info(context!!.applicationContext, "没有检测到支付宝客户端o(╥﹏╥)o").show()
+                    Toasty.info(context!!, "没有检测到支付宝客户端o(╥﹏╥)o").show()
                 }
             }
         }
@@ -79,13 +81,13 @@ class DonateFragment : BaseDialogFragment() {
             val c = Calendar.getInstance()
             val hour = c.get(Calendar.HOUR_OF_DAY)
             if (hour !in 8..21) {
-                Toasty.info(activity!!.applicationContext, "开发者在休息哦(～﹃～)~zZ请换个时间反馈吧").show()
+                Toasty.info(activity!!, "开发者在休息哦(～﹃～)~zZ请换个时间反馈吧").show()
             } else {
                 if (CourseUtils.isQQClientAvailable(context!!.applicationContext)) {
                     val qqUrl = "mqqwpa://im/chat?chat_type=wpa&uin=1055614742&version=1"
                     startActivity(Intent(Intent.ACTION_VIEW, Uri.parse(qqUrl)))
                 } else {
-                    Toasty.info(context!!.applicationContext, "手机上没有安装QQ，无法启动聊天窗口:-(", Toast.LENGTH_LONG).show()
+                    Toasty.info(context!!, "手机上没有安装QQ，无法启动聊天窗口:-(", Toast.LENGTH_LONG).show()
                 }
             }
         }

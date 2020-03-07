@@ -13,8 +13,10 @@ import com.suda.yzune.wakeupschedule.BuildConfig
 import com.suda.yzune.wakeupschedule.DonateActivity
 import com.suda.yzune.wakeupschedule.R
 import com.suda.yzune.wakeupschedule.base_view.BaseBlurTitleActivity
+import com.suda.yzune.wakeupschedule.utils.Const
 import com.suda.yzune.wakeupschedule.utils.UpdateUtils
 import com.suda.yzune.wakeupschedule.utils.Utils
+import com.suda.yzune.wakeupschedule.utils.getPrefer
 import es.dmoral.toasty.Toasty
 import kotlinx.android.synthetic.main.activity_about.*
 import splitties.activities.start
@@ -32,7 +34,7 @@ class AboutActivity : BaseBlurTitleActivity() {
     }
 
     override fun onSetupSubButton(tvButton: AppCompatTextView): AppCompatTextView? {
-        return if (BuildConfig.CHANNEL == "google" || BuildConfig.CHANNEL == "huawei") {
+        return if (BuildConfig.CHANNEL == "google" || (BuildConfig.CHANNEL == "huawei" && !getPrefer().getBoolean(Const.KEY_SHOW_DONATE, false))) {
             null
         } else {
             tvButton.text = "捐赠"

@@ -62,7 +62,7 @@ class WeekScheduleAppWidgetConfigActivity : BaseBlurTitleActivity() {
                     val table = viewModel.getTableById(list[position].id)
 
                     if (table == null) {
-                        Toasty.error(applicationContext, "该课表读取错误>_<").show()
+                        Toasty.error(this@WeekScheduleAppWidgetConfigActivity, "该课表读取错误>_<").show()
                         finish()
                     } else {
                         AppWidgetUtils.refreshScheduleWidget(applicationContext, appWidgetManager, mAppWidgetId, table)

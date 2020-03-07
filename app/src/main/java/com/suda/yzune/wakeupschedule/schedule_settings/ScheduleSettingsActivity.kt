@@ -13,6 +13,7 @@ import androidx.activity.viewModels
 import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.widget.AppCompatCheckBox
 import androidx.appcompat.widget.AppCompatTextView
+import androidx.core.content.edit
 import androidx.core.content.res.ResourcesCompat
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
@@ -31,6 +32,8 @@ import com.suda.yzune.wakeupschedule.settings.SettingItemAdapter
 import com.suda.yzune.wakeupschedule.settings.TimeSettingsActivity
 import com.suda.yzune.wakeupschedule.settings.items.*
 import com.suda.yzune.wakeupschedule.utils.AppWidgetUtils
+import com.suda.yzune.wakeupschedule.utils.Const
+import com.suda.yzune.wakeupschedule.utils.getPrefer
 import com.suda.yzune.wakeupschedule.widget.colorpicker.ColorPickerFragment
 import es.dmoral.toasty.Toasty
 import kotlinx.coroutines.Dispatchers
@@ -68,7 +71,7 @@ class ScheduleSettingsActivity : BaseListActivity(), ColorPickerFragment.ColorPi
         tvButton.typeface = iconFont
         tvButton.textSize = 20f
         tvButton.text = getString(R.string.icon_heart)
-        if (BuildConfig.CHANNEL == "google" || BuildConfig.CHANNEL == "huawei") {
+        if (BuildConfig.CHANNEL == "google" || (BuildConfig.CHANNEL == "huawei" && !getPrefer().getBoolean(Const.KEY_SHOW_DONATE, false))) {
             tvButton.setOnClickListener {
                 val dialog = DonateFragment.newInstance()
                 dialog.show(supportFragmentManager, "donateDialog")
@@ -152,7 +155,7 @@ class ScheduleSettingsActivity : BaseListActivity(), ColorPickerFragment.ColorPi
         viewModel.mMonth = Integer.parseInt(viewModel.termStartList[1])
         viewModel.mDay = Integer.parseInt(viewModel.termStartList[2])
         val settingItem = intent?.extras?.getString("settingItem")
-        if (settingItem != null) {
+        if (settingItem != null && savedInstanceState == null) {
             mRecyclerView.postDelayed({
                 try {
                     val i = showItems.indexOfFirst {
@@ -186,6 +189,8 @@ class ScheduleSettingsActivity : BaseListActivity(), ColorPickerFragment.ColorPi
 
         items.add(CategoryItem("课表外观", false))
         items.add(SwitchItem("在格子内显示上课时间", viewModel.table.showTime, keys = listOf("时间", "显示", "格子", "上课时间")))
+        items.add(SwitchItem("在格子内显示授课老师",
+                getPrefer().getBoolean(Const.KEY_SCHEDULE_TEACHER, true), keys = listOf("显示", "格子", "老师", "教师")))
         items.add(VerticalItem("课程表背景", "长按可以恢复默认哦~", keys = listOf("背景", "显示", "图片")))
         items.add(VerticalItem("界面文字颜色", "指标题等字体的颜色\n还可以调颜色的透明度哦 (●ﾟωﾟ●)", keys = listOf("颜色", "显示", "文字", "文字颜色")))
         items.add(VerticalItem("课程文字颜色", "指课程格子内的颜色\n还可以调颜色的透明度哦 (●ﾟωﾟ●)", keys = listOf("颜色", "显示", "文字", "文字颜色")))
@@ -204,10 +209,16 @@ class ScheduleSettingsActivity : BaseListActivity(), ColorPickerFragment.ColorPi
         items.add(VerticalItem("小部件格子边框颜色", "将不透明度调到最低就可以隐藏边框了哦~", keys = listOf("边框", "显示", "边框颜色", "格子", "边", "小部件", "小", "插件", "桌面")))
 
         items.add(CategoryItem("高级", false))
-        when (BuildConfig.CHANNEL) {
-            "google" -> items.add(VerticalItem("看看都有哪些高级功能", "如果想支持一下社团和开发者\n请去支付宝18862196504\n高级功能会持续更新~\n采用诚信授权模式ヾ(=･ω･=)o", keys = listOf("高级")))
-            "huawei" -> items.add(VerticalItem("看看都有哪些高级功能", "高级功能会持续更新~", keys = listOf("高级")))
-            else -> items.add(VerticalItem("解锁高级功能", "解锁赞助一下社团和开发者ヾ(=･ω･=)o\n高级功能会持续更新~\n采用诚信授权模式", keys = listOf("高级")))
+        when {
+            BuildConfig.CHANNEL == "google" -> {
+                items.add(VerticalItem("看看都有哪些高级功能", "如果想支持一下社团和开发者\n请去支付宝18862196504\n高级功能会持续更新~\n采用诚信授权模式ヾ(=･ω･=)o", keys = listOf("高级")))
+            }
+            BuildConfig.CHANNEL == "huawei" && !getPrefer().getBoolean(Const.KEY_SHOW_DONATE, false) -> {
+                items.add(VerticalItem("看看都有哪些高级功能", "高级功能会持续更新~", keys = listOf("高级")))
+            }
+            else -> {
+                items.add(VerticalItem("解锁高级功能", "解锁赞助一下社团和开发者ヾ(=･ω･=)o\n高级功能会持续更新~\n采用诚信授权模式", keys = listOf("高级")))
+            }
         }
 
         items.add(VerticalItem("", "\n\n\n"))
@@ -219,6 +230,9 @@ class ScheduleSettingsActivity : BaseListActivity(), ColorPickerFragment.ColorPi
             "显示周六" -> viewModel.table.showSat = isChecked
             "显示周日" -> viewModel.table.showSun = isChecked
             "在格子内显示上课时间" -> viewModel.table.showTime = isChecked
+            "在格子内显示授课老师" -> getPrefer().edit {
+                putBoolean(Const.KEY_SCHEDULE_TEACHER, isChecked)
+            }
             "显示非本周课程" -> viewModel.table.showOtherWeekCourse = isChecked
         }
         item.checked = isChecked
@@ -401,7 +415,7 @@ class ScheduleSettingsActivity : BaseListActivity(), ColorPickerFragment.ColorPi
         return when (item.title) {
             "课程表背景" -> {
                 viewModel.table.background = ""
-                Toasty.success(applicationContext, "恢复默认壁纸成功~").show()
+                Toasty.success(this, "恢复默认壁纸成功~").show()
                 true
             }
             else -> false
@@ -429,7 +443,7 @@ class ScheduleSettingsActivity : BaseListActivity(), ColorPickerFragment.ColorPi
                         try {
                             val inputStream = contentResolver.openInputStream(uri)
                             bufferedSource = Okio.buffer(Okio.source(inputStream))
-                            val out = File(filesDir, "${System.currentTimeMillis()}_${uri.lastPathSegment}")
+                            val out = File(filesDir, "table${viewModel.table.id}_bg_${System.currentTimeMillis()}")
                             bufferedSink = Okio.buffer(Okio.sink(out))
                             bufferedSink?.writeAll(bufferedSource)
                             bufferedSink?.close()

@@ -47,6 +47,9 @@ class CSVParser(source: String) : Parser(source) {
                 }
                 val startNode = line[2].trim().toInt()
                 val endNode = line[3].trim().toInt()
+                if (startNode > 30 || endNode > 30 || startNode < 1 || endNode < 1) {
+                    throw Exception("第 ${i + 1} 行中开始节 $startNode 或结束节 $endNode 不在合理范围 1~30")
+                }
                 courseList.add(
                         Course(
                                 name = line[0], day = line[1].trim().toInt(),

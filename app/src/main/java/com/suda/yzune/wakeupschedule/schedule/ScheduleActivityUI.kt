@@ -250,6 +250,7 @@ class ScheduleActivityUI(override val ctx: Context) : Ui {
         thumbColor = ViewUtils.createColorStateList(Color.WHITE)
         trackHeight = dip(24)
         tickColor = ViewUtils.createColorStateList(Color.TRANSPARENT)
+        isSaveEnabled = false
     }
 
     private val shortCutTitle = AppCompatTextView(ctx).apply {

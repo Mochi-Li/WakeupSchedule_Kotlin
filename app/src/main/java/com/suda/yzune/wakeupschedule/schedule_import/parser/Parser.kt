@@ -27,6 +27,15 @@ abstract class Parser(val source: String) {
                         )
                 )
             }
+            if (course.startNode > course.endNode) {
+                course.startNode = course.endNode
+            }
+            if (course.startNode > 30) {
+                course.startNode = 1
+            }
+            if (course.endNode > 30) {
+                course.endNode = 1
+            }
             var step = course.endNode - course.startNode + 1
             if (step < 1) step = 1
             _detailList.add(CourseDetailBean(

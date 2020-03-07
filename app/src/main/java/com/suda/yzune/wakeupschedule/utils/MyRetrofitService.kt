@@ -2,10 +2,7 @@ package com.suda.yzune.wakeupschedule.utils
 
 import okhttp3.ResponseBody
 import retrofit2.Call
-import retrofit2.http.Field
-import retrofit2.http.FormUrlEncoded
-import retrofit2.http.GET
-import retrofit2.http.HTTP
+import retrofit2.http.*
 
 interface MyRetrofitService {
     @GET("count")
@@ -15,7 +12,9 @@ interface MyRetrofitService {
     fun getDonateList(): Call<ResponseBody>
 
     @GET("getupdate")
-    fun getUpdateInfo(): Call<ResponseBody>
+    fun getUpdateInfo(
+            @Header("version") version: Int
+    ): Call<ResponseBody>
 
     @GET("count_html")
     fun getHtmlCount(): Call<ResponseBody>

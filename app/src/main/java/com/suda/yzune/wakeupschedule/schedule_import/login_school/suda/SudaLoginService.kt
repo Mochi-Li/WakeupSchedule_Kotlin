@@ -5,8 +5,15 @@ import retrofit2.Call
 import retrofit2.http.*
 
 interface SudaLoginService {
-    @GET("/CheckCode.aspx")
-    fun getCheckCode(): Call<ResponseBody>
+    @POST("/ajaxRequest/Handler1.ashx")
+    @FormUrlEncoded
+    fun getCheckCode(
+            @Field("FunMode") mode: String = "GETYZM",
+            @Field("datas") datas: String = ""
+    ): Call<ResponseBody>
+
+    @GET
+    fun getCheckCodeImg(@Url url: String, @Header("Cookie") cookies: String): Call<ResponseBody>
 
     @POST("/default2.aspx")
     @FormUrlEncoded

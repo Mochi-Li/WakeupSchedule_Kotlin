@@ -73,9 +73,9 @@ class ScheduleActivity : BaseActivity() {
             launch {
                 try {
                     viewModel.updateFromOldVer(json)
-                    Toasty.success(applicationContext, "升级成功~").show()
+                    Toasty.success(this@ScheduleActivity, "升级成功~").show()
                 } catch (e: Exception) {
-                    Toasty.error(applicationContext, "出现异常>_<\n${e.message}").show()
+                    Toasty.error(this@ScheduleActivity, "出现异常>_<\n${e.message}").show()
                 }
             }
         }
@@ -83,8 +83,14 @@ class ScheduleActivity : BaseActivity() {
         bottomSheetBehavior = BottomSheetBehavior.from(ui.bottomSheet)
 
         ui.content.postDelayed({
-            if (!getPrefer().getBoolean(Const.KEY_HAS_INTRO, false)) {
-                initIntro()
+            try {
+                if (!getPrefer().getBoolean(Const.KEY_HAS_INTRO, false)) {
+                    initIntro()
+                }
+            } catch (e: Exception) {
+                getPrefer().edit {
+                    putBoolean(Const.KEY_HAS_INTRO, true)
+                }
             }
         }, 500)
 
@@ -108,25 +114,33 @@ class ScheduleActivity : BaseActivity() {
             MyRetrofitUtils.instance.addCount(applicationContext)
         }
 
-        if (getPrefer().getBoolean(Const.KEY_CHECK_UPDATE, true)) {
-            MyRetrofitUtils.instance.getService().getUpdateInfo().enqueue(object : Callback<ResponseBody> {
-                override fun onFailure(call: Call<ResponseBody>?, t: Throwable?) {}
+        val versionCode = getVersionCode(this@ScheduleActivity)
+        MyRetrofitUtils.instance.getService().getUpdateInfo(versionCode).enqueue(object : Callback<ResponseBody> {
+            override fun onFailure(call: Call<ResponseBody>?, t: Throwable?) {
+                getPrefer().edit {
+                    putBoolean(Const.KEY_SHOW_DONATE, false)
+                }
+            }
 
-                override fun onResponse(call: Call<ResponseBody>?, response: Response<ResponseBody>?) {
-                    if (response!!.body() != null) {
-                        val gson = Gson()
-                        try {
-                            val updateInfo = gson.fromJson<UpdateInfoBean>(response.body()!!.string(), UpdateInfoBean::class.java)
-                            if (updateInfo.id > getVersionCode(this@ScheduleActivity.applicationContext)) {
-                                UpdateFragment.newInstance(updateInfo).show(supportFragmentManager, "updateDialog")
-                            }
-                        } catch (e: Exception) {
-
+            override fun onResponse(call: Call<ResponseBody>?, response: Response<ResponseBody>?) {
+                if (response?.body() != null) {
+                    val gson = Gson()
+                    try {
+                        val updateInfo = gson.fromJson(response.body()!!.string(), UpdateInfoBean::class.java)
+                        getPrefer().edit {
+                            putBoolean(Const.KEY_SHOW_DONATE, updateInfo.data.donate)
+                        }
+                        if (getPrefer().getBoolean(Const.KEY_CHECK_UPDATE, true) && updateInfo.data.id > versionCode) {
+                            UpdateFragment.newInstance(updateInfo).show(supportFragmentManager, "updateDialog")
+                        }
+                    } catch (e: Exception) {
+                        getPrefer().edit {
+                            putBoolean(Const.KEY_SHOW_DONATE, false)
                         }
                     }
                 }
-            })
-        }
+            }
+        })
 
         viewModel.initTableSelectList().observe(this, Observer {
             if (it == null) return@Observer
@@ -565,8 +579,13 @@ class ScheduleActivity : BaseActivity() {
 
             ui.weekSlider.value = 1f
             ui.weekDayView.text = CourseUtils.getWeekday()
-            ui.weekSlider.valueTo = viewModel.table.maxWeek.toFloat()
-            ui.weekSlider.valueFrom = 1f
+            if (viewModel.table.maxWeek > 1) {
+                ui.weekSlider.valueTo = viewModel.table.maxWeek.toFloat()
+                ui.weekSlider.valueFrom = 1f
+            } else {
+                ui.weekSlider.valueFrom = 0f
+                ui.weekSlider.valueTo = 1f
+            }
             ui.weekSlider.value = viewModel.currentWeek.toFloat()
 
             initTheme()
@@ -630,7 +649,12 @@ class ScheduleActivity : BaseActivity() {
                         viewModel.exportData(uri)
                         showShareDialog("分享课程文件", uri!!)
                     } catch (e: Exception) {
-                        Toasty.error(this@ScheduleActivity, "导出失败>_<${e.message}")
+                        MaterialAlertDialogBuilder(this@ScheduleActivity)
+                                .setTitle("导出失败>_<")
+                                .setMessage(e.message)
+                                .setPositiveButton(R.string.sure, null)
+                                .setCancelable(false)
+                                .show()
                     }
                 }
             }
@@ -641,7 +665,12 @@ class ScheduleActivity : BaseActivity() {
                         viewModel.exportICS(uri)
                         showShareDialog("分享日历文件", uri!!)
                     } catch (e: Exception) {
-                        Toasty.error(this@ScheduleActivity, "导出失败>_<${e.message}")
+                        MaterialAlertDialogBuilder(this@ScheduleActivity)
+                                .setTitle("导出失败>_<")
+                                .setMessage(e.message)
+                                .setPositiveButton(R.string.sure, null)
+                                .setCancelable(false)
+                                .show()
                     }
                 }
             }

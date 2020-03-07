@@ -67,9 +67,9 @@ class TimeSettingsActivity : BaseTitleActivity() {
                     try {
                         viewModel.saveDetailData(viewModel.entryPosition)
                         navController.navigateUp()
-                        Toasty.success(applicationContext, "保存成功").show()
+                        Toasty.success(this@TimeSettingsActivity, "保存成功").show()
                     } catch (e: Exception) {
-                        Toasty.error(applicationContext, "出现错误>_<${e.message}", Toast.LENGTH_LONG).show()
+                        Toasty.error(this@TimeSettingsActivity, "出现错误>_<${e.message}", Toast.LENGTH_LONG).show()
                     }
                 }
 

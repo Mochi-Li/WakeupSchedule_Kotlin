@@ -95,9 +95,9 @@ class TimeTableFragment : BaseFragment() {
                             val id = viewModel.addNewTimeTable(value.toString())
                             adapter.addData(TimeTableBean(id, value.toString()))
                             arrayAdapter.add(TimeTableBean(id, value.toString()))
-                            Toasty.success(activity!!.applicationContext, "新建成功~").show()
+                            Toasty.success(activity!!, "新建成功~").show()
                         } catch (e: Exception) {
-                            Toasty.error(activity!!.applicationContext, "发生异常>_<${e.message}").show()
+                            Toasty.error(activity!!, "发生异常>_<${e.message}").show()
                         }
                         dialog.dismiss()
                     }
@@ -122,7 +122,7 @@ class TimeTableFragment : BaseFragment() {
                     Navigation.findNavController(fragmentView).navigate(R.id.timeTableFragment_to_timeSettingsFragment, bundle)
                 }
                 R.id.ib_delete -> {
-                    Toasty.info(activity!!.applicationContext, "长按确认删除哦~").show()
+                    Toasty.info(activity!!, "长按确认删除哦~").show()
                 }
             }
         }

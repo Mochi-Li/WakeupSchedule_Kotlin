@@ -26,16 +26,17 @@ import com.google.android.material.textfield.TextInputEditText
 import com.google.android.material.textfield.TextInputLayout
 import com.suda.yzune.wakeupschedule.BuildConfig
 import com.suda.yzune.wakeupschedule.R
-import com.suda.yzune.wakeupschedule.apply_info.ApplyInfoActivity
 import com.suda.yzune.wakeupschedule.base_view.BaseFragment
 import com.suda.yzune.wakeupschedule.schedule_import.Common.TYPE_QZ
+import com.suda.yzune.wakeupschedule.schedule_import.Common.TYPE_QZ_BR
+import com.suda.yzune.wakeupschedule.schedule_import.Common.TYPE_QZ_CRAZY
+import com.suda.yzune.wakeupschedule.schedule_import.Common.TYPE_QZ_WITH_NODE
 import com.suda.yzune.wakeupschedule.utils.Const
 import com.suda.yzune.wakeupschedule.utils.Utils
 import com.suda.yzune.wakeupschedule.utils.ViewUtils
 import com.suda.yzune.wakeupschedule.utils.getPrefer
 import es.dmoral.toasty.Toasty
 import kotlinx.android.synthetic.main.fragment_web_view_login.*
-import splitties.activities.start
 import splitties.snackbar.longSnack
 
 class WebViewLoginFragment : BaseFragment() {
@@ -102,9 +103,13 @@ class WebViewLoginFragment : BaseFragment() {
                     .append("4. 如果遇到总是提示密码错误或者网页错位等问题，可以取消底栏的「电脑模式」或者调节字体缩放")
         }
 
-        if (viewModel.school == "强智教务" || viewModel.importType == TYPE_QZ) {
-            cg_qz.visibility = View.VISIBLE
-            chip_qz1.isChecked = true
+        if (viewModel.school == "强智教务" || viewModel.importType in arrayOf(TYPE_QZ, TYPE_QZ_BR, TYPE_QZ_CRAZY, TYPE_QZ_WITH_NODE)) {
+            if (viewModel.importType == TYPE_QZ) {
+                cg_qz.visibility = View.VISIBLE
+                chip_qz1.isChecked = true
+            } else {
+                cg_qz.visibility = View.GONE
+            }
             tips = SpannableStringBuilder()
                     .append("1. 在上方输入教务网址，部分学校需要连接校园网\n")
                     .append("2. 登录后点击到「学期理论课表」的页面，注意不是「首页的课表」！注意选择自己需要导入的学期\n")
@@ -474,11 +479,11 @@ class WebViewLoginFragment : BaseFragment() {
                                 type = if (viewModel.isUrp) "URP" else viewModel.schoolInfo[1],
                                 qq = viewModel.schoolInfo[2],
                                 html = html)
-                        Toasty.success(activity!!.applicationContext, "上传源码成功~请等待适配哦", Toast.LENGTH_LONG).show()
-                        activity!!.start<ApplyInfoActivity>()
+                        Toasty.success(activity!!, "上传源码成功~请等待适配哦", Toast.LENGTH_LONG).show()
+                        //activity!!.start<ApplyInfoActivity>()
                         activity!!.finish()
                     } catch (e: Exception) {
-                        Toasty.error(activity!!.applicationContext, "上传失败>_<\n" + e.message, Toast.LENGTH_LONG).show()
+                        Toasty.error(activity!!, "上传失败>_<\n" + e.message, Toast.LENGTH_LONG).show()
                     }
                 }
             }

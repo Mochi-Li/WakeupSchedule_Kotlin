@@ -227,7 +227,7 @@ class LoginWebFragment : BaseFragment() {
                 }
             }
             "西北工业大学" -> {
-                Toasty.info(activity!!.applicationContext, "年份为学年的起始年，学期[秋、春、夏]分别对应[1、2、3]\n例如[2019-2020春] 选择[2019 2]", Toast.LENGTH_LONG).show()
+                Toasty.info(activity!!, "年份为学年的起始年，学期[秋、春、夏]分别对应[1、2、3]\n例如[2019-2020春] 选择[2019 2]", Toast.LENGTH_LONG).show()
                 pb_loading.visibility = View.INVISIBLE
                 fab_login.isExpanded = true
                 val year = Calendar.getInstance().get(Calendar.YEAR)

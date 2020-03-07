@@ -38,7 +38,8 @@ class SchoolImportListAdapter(data: MutableList<SchoolInfo>) :
             Common.TYPE_HNUST to "", // 湖南科技大学
             Common.TYPE_JNU to "by @Jiuh-star", // 暨南大学
             Common.TYPE_LOGIN to "", // 模拟登录方式
-            Common.TYPE_MAINTAIN to "不可用" // 维护状态，暂不可用
+            Common.TYPE_MAINTAIN to "不可用", // 维护状态，暂不可用
+            Common.TYPE_JNU to "by @FrancisWhalen-star"
     )
 
     private val thanksMap = mapOf(

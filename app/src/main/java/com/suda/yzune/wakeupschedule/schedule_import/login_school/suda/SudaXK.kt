@@ -33,9 +33,15 @@ class SudaXK {
         return withContext(Dispatchers.IO) {
             val response = importService.getCheckCode().execute()
             if (response.isSuccessful) {
-                val verificationCode = response.body()?.bytes()
                 loginCookieStr = response.headers().values("Set-Cookie").joinToString("; ")
-                BitmapFactory.decodeByteArray(verificationCode, 0, verificationCode!!.size)
+                if (response.body() == null) throw NetworkErrorException("请检查是否连接校园网")
+                val imgResponse = importService.getCheckCodeImg(response.body()!!.string(), loginCookieStr).execute()
+                if (imgResponse.isSuccessful) {
+                    val verificationCode = imgResponse.body()?.bytes()
+                    BitmapFactory.decodeByteArray(verificationCode, 0, verificationCode!!.size)
+                } else {
+                    throw NetworkErrorException("请检查是否连接校园网")
+                }
             } else {
                 throw NetworkErrorException("请检查是否连接校园网")
             }

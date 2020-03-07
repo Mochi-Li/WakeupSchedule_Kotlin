@@ -23,7 +23,6 @@ import com.suda.yzune.wakeupschedule.dao.AppWidgetDao
 import com.suda.yzune.wakeupschedule.settings.items.*
 import com.suda.yzune.wakeupschedule.utils.AppWidgetUtils
 import com.suda.yzune.wakeupschedule.utils.Const
-import com.suda.yzune.wakeupschedule.utils.DonateUtils
 import com.suda.yzune.wakeupschedule.utils.getPrefer
 import com.suda.yzune.wakeupschedule.widget.colorpicker.ColorPickerFragment
 import es.dmoral.toasty.Toasty
@@ -46,7 +45,7 @@ class AdvancedSettingsActivity : BaseListActivity(), ColorPickerFragment.ColorPi
     private val mAdapter = SettingItemAdapter()
 
     override fun onSetupSubButton(tvButton: AppCompatTextView): AppCompatTextView? {
-        return if (BuildConfig.CHANNEL == "google" || BuildConfig.CHANNEL == "huawei") {
+        return if (BuildConfig.CHANNEL == "google" || (BuildConfig.CHANNEL == "huawei" && !getPrefer().getBoolean(Const.KEY_SHOW_DONATE, false))) {
             null
         } else {
             tvButton.text = "捐赠"
@@ -88,13 +87,19 @@ class AdvancedSettingsActivity : BaseListActivity(), ColorPickerFragment.ColorPi
     private fun onItemsCreated(items: MutableList<BaseSettingItem>) {
         val colorStr = getPrefer().getInt(Const.KEY_THEME_COLOR, color(R.color.colorAccent))
                 .toString(16)
-        if (BuildConfig.CHANNEL == "google" || BuildConfig.CHANNEL == "huawei") {
-            items.add(CategoryItem("外观", true))
-        } else {
-            items.add(CategoryItem("愿意为之付费吗？", true))
-            items.add(VerticalItem("如何解锁？", "高级功能理论上是可以直接使用的，但是，像无人看守的小卖部，付费后再使用是诚信的表现哦~<br>朋友、校友、亲人，以及在此之前已经捐赠过的用户，已经解锁了高级功能，<b><font color='#$colorStr'>无需再花钱</font></b>。<br>其他用户的解锁方式如下，<b><font color='#$colorStr'>二选一即可：</font></b><br>1. 应用商店5星 + 支付宝付款2元<br>2. 支付宝付款5元<br><b><font color='#$colorStr'>点击此处进行付款，谢谢:)</font></b><br>", true))
-            items.add(VerticalItem("解锁后", "解锁后，你可以在你自用的任何设备上安装使用，并且免费使用后续更新的高级功能。<br><b><font color='#$colorStr'>放心，无论什么版本，App不会有任何形式的广告。</font></b>", true))
-            items.add(CategoryItem("外观", false))
+        when {
+            BuildConfig.CHANNEL == "google" -> {
+                items.add(CategoryItem("外观", true))
+            }
+            BuildConfig.CHANNEL == "huawei" && !getPrefer().getBoolean(Const.KEY_SHOW_DONATE, false) -> {
+                items.add(CategoryItem("外观", true))
+            }
+            else -> {
+                items.add(CategoryItem("愿意为之付费吗？", true))
+                items.add(VerticalItem("如何解锁？", "高级功能理论上是可以直接使用的，但是，像无人看守的小卖部，付费后再使用是诚信的表现哦~<br>朋友、校友、亲人，以及在此之前已经捐赠过的用户，已经解锁了高级功能，<b><font color='#$colorStr'>无需再花钱</font></b>。<br>其他用户的解锁方式如下，<b><font color='#$colorStr'>二选一即可：</font></b><br>1. 应用商店5星 + 支付宝付款2元<br>2. 支付宝付款5元<br><b><font color='#$colorStr'>点击此处进行付款，谢谢:)</font></b><br>", true))
+                items.add(VerticalItem("解锁后", "解锁后，你可以在你自用的任何设备上安装使用，并且免费使用后续更新的高级功能。<br><b><font color='#$colorStr'>放心，无论什么版本，App不会有任何形式的广告。</font></b>", true))
+                items.add(CategoryItem("外观", false))
+            }
         }
 
         items.add(VerticalItem("主题颜色", "调整大部分标签的颜色"))
@@ -163,16 +168,16 @@ class AdvancedSettingsActivity : BaseListActivity(), ColorPickerFragment.ColorPi
     private fun onVerticalItemClick(item: VerticalItem) {
         when (item.title) {
             "如何解锁？" -> {
-                if (DonateUtils.isAppInstalled(applicationContext, "com.eg.android.AlipayGphone")) {
+                try {
                     val intent = Intent()
                     intent.action = "android.intent.action.VIEW"
                     val qrCodeUrl = Uri.parse("alipayqr://platformapi/startapp?saId=10000007&clientVersion=3.7.0.0718&qrcode=HTTPS://QR.ALIPAY.COM/FKX09148M0LN2VUUZENO9B?_s=web-other")
                     intent.data = qrCodeUrl
                     intent.setClassName("com.eg.android.AlipayGphone", "com.alipay.mobile.quinox.LauncherActivity")
                     startActivity(intent)
-                    Toasty.success(applicationContext, "非常感谢(*^▽^*)").show()
-                } else {
-                    Toasty.info(applicationContext, "没有检测到支付宝客户端o(╥﹏╥)o").show()
+                    Toasty.success(this, "非常感谢(*^▽^*)").show()
+                } catch (e: Exception) {
+                    Toasty.info(this, "没有检测到支付宝客户端o(╥﹏╥)o").show()
                 }
             }
             "主题颜色" -> {

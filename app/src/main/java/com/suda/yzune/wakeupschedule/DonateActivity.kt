@@ -12,8 +12,10 @@ import com.google.gson.Gson
 import com.google.gson.reflect.TypeToken
 import com.suda.yzune.wakeupschedule.base_view.BaseBlurTitleActivity
 import com.suda.yzune.wakeupschedule.bean.DonateBean
+import com.suda.yzune.wakeupschedule.utils.Const
 import com.suda.yzune.wakeupschedule.utils.DonateUtils
 import com.suda.yzune.wakeupschedule.utils.MyRetrofitUtils
+import com.suda.yzune.wakeupschedule.utils.getPrefer
 import es.dmoral.toasty.Toasty
 import kotlinx.android.synthetic.main.activity_donate.*
 import okhttp3.ResponseBody
@@ -38,7 +40,7 @@ class DonateActivity : BaseBlurTitleActivity() {
 
     override fun onResume() {
         super.onResume()
-        if (BuildConfig.CHANNEL == "google" || BuildConfig.CHANNEL == "huawei") {
+        if (BuildConfig.CHANNEL == "google" || (BuildConfig.CHANNEL == "huawei" && !getPrefer().getBoolean(Const.KEY_SHOW_DONATE, false))) {
             tv_donate.visibility = View.GONE
         }
         initData()
@@ -108,9 +110,9 @@ class DonateActivity : BaseBlurTitleActivity() {
                     intent.data = qrCodeUrl
                     intent.setClassName("com.eg.android.AlipayGphone", "com.alipay.mobile.quinox.LauncherActivity")
                     startActivity(intent)
-                    Toasty.success(applicationContext, "非常感谢(*^▽^*)").show()
+                    Toasty.success(this, "非常感谢(*^▽^*)").show()
                 } else {
-                    Toasty.info(applicationContext, "没有检测到支付宝客户端o(╥﹏╥)o").show()
+                    Toasty.info(this, "没有检测到支付宝客户端o(╥﹏╥)o").show()
                 }
             }
         }

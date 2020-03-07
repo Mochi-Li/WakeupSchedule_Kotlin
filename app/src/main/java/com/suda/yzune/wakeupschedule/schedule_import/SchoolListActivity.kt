@@ -256,7 +256,7 @@ class SchoolListActivity : BaseTitleActivity(), OnQuickSideBarTouchListener {
             add(SchoolInfo("H", "华南农业大学", "http://jwxt.scau.edu.cn/", TYPE_QZ))
             add(SchoolInfo("H", "华南理工大学", "http://xsjw2018.jw.scut.edu.cn/", TYPE_ZF_NEW))
             add(SchoolInfo("H", "哈尔滨商业大学", "http://jwxsd.hrbcu.edu.cn/", TYPE_QZ))
-            add(SchoolInfo("H", "哈尔滨工程大学", "", TYPE_QZ_CRAZY))
+            add(SchoolInfo("H", "哈尔滨工程大学", "", TYPE_QZ_WITH_NODE))
             add(SchoolInfo("H", "海南大学", "http://jxgl.hainu.edu.cn/", TYPE_QZ_WITH_NODE))
             add(SchoolInfo("H", "海南师范大学", "http://210.37.0.16/", TYPE_ZF))
             add(SchoolInfo("H", "杭州医学院", "http://edu.hmc.edu.cn/", TYPE_ZF))
@@ -305,7 +305,7 @@ class SchoolListActivity : BaseTitleActivity(), OnQuickSideBarTouchListener {
             add(SchoolInfo("J", "江苏建筑职业技术学院", "", TYPE_ZF_NEW))
             add(SchoolInfo("J", "江苏科技大学", "http://jwgl.just.edu.cn:8080/jsxsd/", TYPE_QZ))
             add(SchoolInfo("J", "江西中医药大学", "http://jwxt.jxutcm.edu.cn/jwglxt/xtgl/", TYPE_ZF_NEW))
-            add(SchoolInfo("J", "江西农业大学南昌商学院", "http://223.83.249.67:8080/jsxsd/", TYPE_QZ_BR))
+            add(SchoolInfo("J", "江西农业大学南昌商学院", "http://223.82.35.198:8888/jsxsd/", TYPE_QZ_BR))
             add(SchoolInfo("J", "暨南大学", "https://jwxt.jnu.edu.cn/", TYPE_JNU))
             add(SchoolInfo("J", "济南大学", "http://jwgl4.ujn.edu.cn/jwglxt", TYPE_ZF_NEW))
             add(SchoolInfo("J", "济南工程职业技术学院", "", TYPE_ZF_NEW))
@@ -364,6 +364,7 @@ class SchoolListActivity : BaseTitleActivity(), OnQuickSideBarTouchListener {
             add(SchoolInfo("S", "绍兴文理学院元培学院", "http://www.ypc.edu.cn/jwgl.htm", TYPE_ZF))
             add(SchoolInfo("S", "苏州农业职业技术学院", "", TYPE_ZF_NEW))
             add(SchoolInfo("S", "苏州大学", "", TYPE_LOGIN))
+            add(SchoolInfo("S", "苏州大学（备用）", "http://xk.suda.edu.cn", TYPE_ZF))
             add(SchoolInfo("S", "苏州科技大学", "http://jw.usts.edu.cn/default2.aspx", TYPE_ZF))
             add(SchoolInfo("S", "苏州科技大学天平学院", "http://tpjw.usts.edu.cn/default2.aspx", TYPE_ZF))
             add(SchoolInfo("S", "韶关学院", "http://jwc.sgu.edu.cn/", TYPE_QZ))
@@ -593,7 +594,7 @@ class SchoolListActivity : BaseTitleActivity(), OnQuickSideBarTouchListener {
             } else {
                 launch {
                     if (showList[position].type == Common.TYPE_MAINTAIN) {
-                        Toasty.info(this@SchoolListActivity, "处于维护中哦").show()
+                        Toasty.info(this@SchoolListActivity, "处于维护中哦", Toasty.LENGTH_LONG).show()
                         return@launch
                     }
                     getPrefer().edit {

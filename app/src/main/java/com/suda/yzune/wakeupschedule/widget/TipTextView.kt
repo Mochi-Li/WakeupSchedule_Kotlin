@@ -20,8 +20,11 @@ class TipTextView(context: Context) : View(context) {
         }
 
     private var text = ""
+    private var detail = ""
     private var mStaticLayout: StaticLayout? = null
+    private var detailStaticLayout: StaticLayout? = null
     private lateinit var mTextPaint: TextPaint
+    private lateinit var mDetailPaint: TextPaint
     private lateinit var mPaint: Paint
     private lateinit var bgPaint: Paint
     private lateinit var strokePaint: Paint
@@ -32,12 +35,18 @@ class TipTextView(context: Context) : View(context) {
     private var otherWeekBgAlpha = 255
     private var otherWeekStrokeAlpha = 255
 
-    fun init(text: String, txtSize: Int, txtColor: Int, bgColor: Int, bgAlpha: Int, stroke: Int) {
+    fun init(text: String, detail: String, txtSize: Int, txtColor: Int, bgColor: Int, bgAlpha: Int, stroke: Int) {
         this.text = text
+        this.detail = detail
         mTextPaint = TextPaint(Paint.ANTI_ALIAS_FLAG).apply {
             // textSize = mSize * resources.displayMetrics.scaledDensity
             textSize = txtSize * dpUnit
             typeface = Typeface.DEFAULT_BOLD
+            color = txtColor
+        }
+        mDetailPaint = TextPaint(Paint.ANTI_ALIAS_FLAG).apply {
+            // textSize = mSize * resources.displayMetrics.scaledDensity
+            textSize = (txtSize - 1) * dpUnit
             color = txtColor
         }
         mPaint = Paint(Paint.ANTI_ALIAS_FLAG).apply {
@@ -62,9 +71,9 @@ class TipTextView(context: Context) : View(context) {
             strokeCap = Paint.Cap.ROUND
             strokeJoin = Paint.Join.ROUND
         }
-        otherWeekTextAlpha = (mTextPaint.alpha * 0.3).toInt()
-        otherWeekBgAlpha = (bgPaint.alpha * 0.3).toInt()
-        otherWeekStrokeAlpha = (strokePaint.alpha * 0.3).toInt()
+        otherWeekTextAlpha = (mTextPaint.alpha * 0.2).toInt()
+        otherWeekBgAlpha = (bgPaint.alpha * 0.2).toInt()
+        otherWeekStrokeAlpha = (strokePaint.alpha * 0.2).toInt()
     }
 
     override fun onMeasure(widthMeasureSpec: Int, heightMeasureSpec: Int) {
@@ -88,6 +97,7 @@ class TipTextView(context: Context) : View(context) {
         if (tipVisibility == TIP_OTHER_WEEK) {
             mTextPaint.alpha = otherWeekTextAlpha
             mPaint.alpha = otherWeekTextAlpha
+            mDetailPaint.alpha = otherWeekTextAlpha
             strokePaint.alpha = otherWeekStrokeAlpha
             bgPaint.alpha = otherWeekBgAlpha
         }
@@ -110,12 +120,33 @@ class TipTextView(context: Context) : View(context) {
                 )
             }
         }
+        if (detailStaticLayout == null) {
+            detailStaticLayout = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+                StaticLayout
+                        .Builder
+                        .obtain(detail, 0, detail.length, mDetailPaint, width - paddingRight - paddingLeft)
+                        .setIncludePad(false)
+                        .build()
+            } else {
+                StaticLayout(
+                        detail,
+                        mDetailPaint,
+                        width - paddingRight - paddingLeft,
+                        Layout.Alignment.ALIGN_NORMAL,
+                        1.0f,
+                        0f,
+                        false
+                )
+            }
+        }
         canvas.drawRoundRect(rect, 4 * dpUnit, 4 * dpUnit, bgPaint)
         canvas.drawRoundRect(rect, 4 * dpUnit, 4 * dpUnit, strokePaint)
         canvas.clipRect(rect)
         canvas.save()
         canvas.translate(paddingLeft.toFloat(), paddingTop.toFloat())
         mStaticLayout!!.draw(canvas)
+        canvas.translate(0f, mStaticLayout!!.height.toFloat() - paddingTop)
+        detailStaticLayout!!.draw(canvas)
         canvas.restore()
         if (tipVisibility == 1) {
             path.moveTo(width - 12 * dpUnit, height - 6 * dpUnit) // 此点为多边形的起点

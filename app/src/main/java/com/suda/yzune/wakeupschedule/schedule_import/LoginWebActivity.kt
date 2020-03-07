@@ -3,15 +3,15 @@ package com.suda.yzune.wakeupschedule.schedule_import
 import android.app.Activity
 import android.content.Intent
 import android.os.Bundle
-import android.widget.Toast
 import androidx.activity.viewModels
+import com.google.android.material.dialog.MaterialAlertDialogBuilder
+import com.suda.yzune.wakeupschedule.R
 import com.suda.yzune.wakeupschedule.SplashActivity
 import com.suda.yzune.wakeupschedule.base_view.BaseActivity
 import com.suda.yzune.wakeupschedule.utils.Const
 import com.suda.yzune.wakeupschedule.utils.getPrefer
-import es.dmoral.toasty.Toasty
 import kotlinx.android.synthetic.main.fragment_login_web.*
-import splitties.activities.start
+import java.io.FileNotFoundException
 
 class LoginWebActivity : BaseActivity() {
 
@@ -21,9 +21,7 @@ class LoginWebActivity : BaseActivity() {
         super.onCreate(savedInstanceState)
 
         if (!getPrefer().getBoolean(Const.KEY_HAS_INTRO, false)) {
-            start<SplashActivity>()
-            Toasty.info(this, "安装后请先打开App一次再导入", Toasty.LENGTH_LONG).show()
-            finish()
+            showResultDialog("提示", "首次安装后请先打开App一次再导入。", true)
         }
 
         intent.extras?.getString("import_type")?.let {
@@ -79,11 +77,9 @@ class LoginWebActivity : BaseActivity() {
                     else -> ""
                 }
                 if (type.isEmpty()) {
-                    Toasty.error(this@LoginWebActivity, "文件的扩展名不对哦>_<\n文件扩展名必须是csv、html或wakeup_schedule", Toast.LENGTH_LONG).show()
-                    val intent = Intent(this@LoginWebActivity, SplashActivity::class.java)
-                    intent.flags = Intent.FLAG_ACTIVITY_CLEAR_TASK or Intent.FLAG_ACTIVITY_NEW_TASK
-                    startActivity(intent)
-                    finish()
+                    showResultDialog("导入失败>_<",
+                            "文件扩展名必须是csv、html或wakeup_schedule。其中csv文件一定是要按照模板的要求填写的，不是说随便一个Excel文件转成的都可以。",
+                            true)
                     return@launch
                 }
                 val transaction = supportFragmentManager.beginTransaction()
@@ -101,17 +97,43 @@ class LoginWebActivity : BaseActivity() {
                             "file" -> viewModel.importFromFile(uri)
                             "csv" -> viewModel.importFromExcel(uri)
                         }
-                        Toasty.success(this@LoginWebActivity, "导入成功(ﾟ▽ﾟ)/请在右侧栏切换后查看", Toast.LENGTH_LONG).show()
-                        val intent = Intent(this@LoginWebActivity, SplashActivity::class.java)
-                        intent.flags = Intent.FLAG_ACTIVITY_CLEAR_TASK or Intent.FLAG_ACTIVITY_NEW_TASK
-                        startActivity(intent)
-                        finish()
+                        showResultDialog("导入成功(ﾟ▽ﾟ)/",
+                                "请记得要打开多课表面板来查看哦~",
+                                true)
                     } catch (e: Exception) {
-                        Toasty.error(this@LoginWebActivity, "发生异常>_<\n${e.message}", Toast.LENGTH_LONG).show()
+                        showResultDialog("发生异常>_<",
+                                if (e is IllegalStateException || e is FileNotFoundException) {
+                                    "读取文件失败。建议分享到QQ，然后在QQ的界面点击文件，选择「导入到课程表」。具体错误信息：${e.message}"
+                                } else {
+                                    if (type == "csv") {
+                                        "导入失败，请严格按照模板的格式进行填写，如「周数」使用 中文顿号 分隔而不是逗号。具体错误信息：${e.message}"
+                                    } else {
+                                        "导入失败。具体错误信息：${e.message}"
+                                    }
+                                },
+                                true)
                     }
                 }
             }
         }
+    }
+
+    private fun showResultDialog(title: CharSequence, msg: CharSequence, needStartActivity: Boolean, otherAction: () -> Unit = {}) {
+        MaterialAlertDialogBuilder(this@LoginWebActivity)
+                .setTitle(title)
+                .setMessage(msg)
+                .setCancelable(false)
+                .setPositiveButton(R.string.sure) { _, _ ->
+                    if (needStartActivity) {
+                        val intent = Intent(this@LoginWebActivity, SplashActivity::class.java)
+                        intent.flags = Intent.FLAG_ACTIVITY_CLEAR_TASK or Intent.FLAG_ACTIVITY_NEW_TASK
+                        startActivity(intent)
+                        finish()
+                    } else {
+                        otherAction.invoke()
+                    }
+                }
+                .show()
     }
 
     private fun showImportSettingDialog() {
@@ -128,11 +150,12 @@ class LoginWebActivity : BaseActivity() {
                 launch {
                     try {
                         viewModel.importFromFile(data?.data)
-                        Toasty.success(this@LoginWebActivity, "导入成功(ﾟ▽ﾟ)/请在右侧栏切换后查看", Toast.LENGTH_LONG).show()
-                        setResult(RESULT_OK)
-                        finish()
+                        showResultDialog("导入成功(ﾟ▽ﾟ)/", "请记得要打开多课表面板来查看哦~", false) {
+                            setResult(RESULT_OK)
+                            finish()
+                        }
                     } catch (e: Exception) {
-                        Toasty.error(this@LoginWebActivity, "发生异常>_<\n${e.message}", Toast.LENGTH_LONG).show()
+                        showResultDialog("发生异常>_<", "导入失败。建议分享到QQ，然后在QQ的界面点击文件，选择「导入到课程表」。具体错误信息：${e.message}", false)
                     }
                 }
             }
@@ -140,11 +163,18 @@ class LoginWebActivity : BaseActivity() {
                 launch {
                     try {
                         viewModel.importFromExcel(data?.data)
-                        Toasty.success(this@LoginWebActivity, "导入成功(ﾟ▽ﾟ)/请在右侧栏切换后查看", Toast.LENGTH_LONG).show()
-                        setResult(RESULT_OK)
-                        finish()
+                        showResultDialog("导入成功(ﾟ▽ﾟ)/", "请记得要打开多课表面板来查看哦~", false) {
+                            setResult(RESULT_OK)
+                            finish()
+                        }
                     } catch (e: Exception) {
-                        Toasty.error(this@LoginWebActivity, "发生异常>_<请确保所有应填的格子不为空\n且没有更改模板的属性\n${e.message}", Toast.LENGTH_LONG).show()
+                        showResultDialog("发生异常>_<",
+                                if (e is IllegalStateException || e is FileNotFoundException) {
+                                    "读取文件失败。建议分享到QQ，然后在QQ的界面点击文件，选择「导入到课程表」。具体错误信息：${e.message}"
+                                } else {
+                                    "导入失败，请严格按照模板的格式进行填写，如「周数」使用 中文顿号 分隔而不是逗号。具体错误信息：${e.message}"
+                                },
+                                false)
                     }
                 }
             }

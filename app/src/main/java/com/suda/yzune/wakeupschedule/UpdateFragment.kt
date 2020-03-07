@@ -27,8 +27,8 @@ class UpdateFragment : BaseDialogFragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         tv_old_version.text = "当前版本：" + UpdateUtils.getVersionName(context!!.applicationContext)
-        tv_new_version.text = "最新版本：" + updateInfo.VersionName
-        tv_info.text = updateInfo.VersionInfo
+        tv_new_version.text = "最新版本：" + updateInfo.data.versionName
+        tv_info.text = updateInfo.data.versionInfo
         tv_visit.setOnClickListener {
             if (BuildConfig.CHANNEL == "google") {
                 try {
@@ -37,7 +37,7 @@ class UpdateFragment : BaseDialogFragment() {
                     intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
                     activity!!.startActivity(intent)
                 } catch (e: Exception) {
-                    Toasty.info(context!!.applicationContext, "没有检测到应用商店o(╥﹏╥)o").show()
+                    Toasty.info(context!!, "没有检测到应用商店o(╥﹏╥)o").show()
                 }
             } else {
                 val intent = Intent()

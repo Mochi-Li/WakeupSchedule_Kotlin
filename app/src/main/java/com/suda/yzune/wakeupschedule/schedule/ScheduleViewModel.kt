@@ -143,7 +143,6 @@ class ScheduleViewModel(application: Application) : AndroidViewModel(application
 
     suspend fun exportData(uri: Uri?) {
         if (uri == null) throw Exception("无法获取文件")
-        val outputStream = getApplication<App>().contentResolver.openOutputStream(uri)
         val gson = Gson()
         val strBuilder = StringBuilder()
         strBuilder.append(gson.toJson(timeTableDao.getTimeTable(table.timeTable)))
@@ -151,8 +150,13 @@ class ScheduleViewModel(application: Application) : AndroidViewModel(application
         strBuilder.append("\n${gson.toJson(table)}")
         strBuilder.append("\n${gson.toJson(courseDao.getCourseBaseBeanOfTable(table.id))}")
         strBuilder.append("\n${gson.toJson(courseDao.getDetailOfTable(table.id))}")
-        withContext(Dispatchers.IO) {
-            outputStream?.write(strBuilder.toString().toByteArray())
+        try {
+            withContext(Dispatchers.IO) {
+                val outputStream = getApplication<App>().contentResolver.openOutputStream(uri)
+                outputStream?.write(strBuilder.toString().toByteArray())
+            }
+        } catch (e: Exception) {
+            throw Exception("请选择其他「具体的」位置，不要在「下载」或「文档」等文件夹导出")
         }
     }
 
@@ -177,9 +181,13 @@ class ScheduleViewModel(application: Application) : AndroidViewModel(application
         }
         val warnings = ical.validate(ICalVersion.V2_0)
         Log.d("日历", warnings.toString())
-        val outputStream = getApplication<App>().contentResolver.openOutputStream(uri)
-        withContext(Dispatchers.IO) {
-            Biweekly.write(ical).go(outputStream)
+        try {
+            withContext(Dispatchers.IO) {
+                val outputStream = getApplication<App>().contentResolver.openOutputStream(uri)
+                Biweekly.write(ical).go(outputStream)
+            }
+        } catch (e: Exception) {
+            throw Exception("请选择其他「具体的」位置，不要在「下载」或「文档」等文件夹导出")
         }
     }
 }

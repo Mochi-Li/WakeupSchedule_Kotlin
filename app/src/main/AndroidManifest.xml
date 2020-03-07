@@ -21,9 +21,6 @@
         tools:ignore="GoogleAppIndexingWarning"
         tools:replace="android:allowBackup"
         tools:targetApi="n">
-        <service
-            android:name=".today_appwidget.TodayWidgetIntentService"
-            android:exported="false"></service>
 
         <activity android:name=".settings.SettingsHostActivity" />
         <activity
@@ -139,7 +136,7 @@
 
         <receiver
             android:name=".today_appwidget.TodayCourseAppWidget"
-            android:label="当天课程">
+            android:label="日视图">
             <intent-filter>
                 <action android:name="android.appwidget.action.APPWIDGET_UPDATE" />
             </intent-filter>

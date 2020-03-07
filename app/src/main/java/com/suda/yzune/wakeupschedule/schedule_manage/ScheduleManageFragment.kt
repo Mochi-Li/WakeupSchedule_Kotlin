@@ -104,12 +104,12 @@ class ScheduleManageFragment : BaseFragment() {
                                 putExtra("tableData", task)
                             }
                         } else {
-                            Toasty.error(context!!.applicationContext, "读取课表异常>_<")
+                            Toasty.error(context!!, "读取课表异常>_<")
                         }
                     }
                 }
                 R.id.ib_delete -> {
-                    Toasty.info(activity!!.applicationContext, "长按删除课程表哦~").show()
+                    Toasty.info(activity!!, "长按删除课程表哦~").show()
                 }
             }
         }

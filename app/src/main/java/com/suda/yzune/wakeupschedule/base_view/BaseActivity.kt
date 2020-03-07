@@ -61,6 +61,7 @@ abstract class BaseActivity : AppCompatActivity() {
             val systemUiVisibility = View.SYSTEM_UI_FLAG_LAYOUT_HIDE_NAVIGATION or View.SYSTEM_UI_FLAG_LAYOUT_STABLE or currentStatusBar
             decorView.systemUiVisibility = systemUiVisibility
         }
+        savedInstanceState?.remove("android:support:fragments")
         super.onCreate(savedInstanceState)
     }
 

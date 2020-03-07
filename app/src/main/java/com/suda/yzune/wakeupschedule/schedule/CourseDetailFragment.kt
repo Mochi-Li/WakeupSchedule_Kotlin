@@ -128,7 +128,7 @@ class CourseDetailFragment : BaseDialogFragment() {
                 launch {
                     try {
                         viewModel.deleteCourseBean(course)
-                        Toasty.success(context!!.applicationContext, "删除成功").show()
+                        Toasty.success(context!!, "删除成功").show()
                         val appWidgetManager = AppWidgetManager.getInstance(activity!!.applicationContext)
                         val list = viewModel.getScheduleWidgetIds()
                         list.forEach {
@@ -139,7 +139,7 @@ class CourseDetailFragment : BaseDialogFragment() {
                         }
                         dismiss()
                     } catch (e: Exception) {
-                        Toasty.error(context!!.applicationContext, "出现异常>_<\n" + e.message).show()
+                        Toasty.error(context!!, "出现异常>_<\n" + e.message).show()
                     }
                 }
             }
@@ -149,7 +149,7 @@ class CourseDetailFragment : BaseDialogFragment() {
             launch {
                 try {
                     viewModel.deleteCourseBaseBean(course.id, course.tableId)
-                    Toasty.success(context!!.applicationContext, "删除成功").show()
+                    Toasty.success(context!!, "删除成功").show()
                     val appWidgetManager = AppWidgetManager.getInstance(activity!!.applicationContext)
                     val list = viewModel.getScheduleWidgetIds()
                     list.forEach {
@@ -160,7 +160,7 @@ class CourseDetailFragment : BaseDialogFragment() {
                     }
                     dismiss()
                 } catch (e: Exception) {
-                    Toasty.error(context!!.applicationContext, "出现异常>_<\n" + e.message).show()
+                    Toasty.error(context!!, "出现异常>_<\n" + e.message).show()
                 }
             }
             return@setOnLongClickListener true

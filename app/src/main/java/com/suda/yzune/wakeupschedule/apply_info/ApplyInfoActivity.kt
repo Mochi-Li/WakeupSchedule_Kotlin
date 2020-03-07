@@ -67,7 +67,7 @@ class ApplyInfoActivity : BaseListActivity() {
                     mRecyclerView.adapter?.notifyDataSetChanged()
                 }
                 "error" -> {
-                    Toasty.error(applicationContext, "网络错误").show()
+                    Toasty.error(this, "网络错误").show()
                 }
             }
         })

@@ -42,5 +42,6 @@ object Const {
     const val KEY_SCHEDULE_PRE_LOAD = "schedule_pre_load"
     const val KEY_SCHEDULE_BLANK_AREA = "schedule_blank_area"
     const val KEY_SCHEDULE_DETAIL_TIME = "schedule_detail_time"
-
+    const val KEY_SCHEDULE_TEACHER = "schedule_teacher"
+    const val KEY_SHOW_DONATE = "show_donate"
 }
