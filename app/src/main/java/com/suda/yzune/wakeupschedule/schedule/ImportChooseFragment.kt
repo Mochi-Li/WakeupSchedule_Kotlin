@@ -42,6 +42,15 @@ class ImportChooseFragment : BaseDialogFragment() {
             }
         }
 
+        tv_share_import.setOnClickListener {
+            activity!!.startActivityForResult(
+                    Intent(activity, LoginWebActivity::class.java).apply {
+                        putExtra("import_type", "code")
+                    },
+                    Const.REQUEST_CODE_IMPORT)
+            dismiss()
+        }
+
         tv_html.setOnClickListener {
             showSAFTips {
                 activity!!.startActivityForResult(

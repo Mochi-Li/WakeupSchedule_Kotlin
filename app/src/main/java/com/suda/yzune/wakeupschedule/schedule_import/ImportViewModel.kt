@@ -14,10 +14,7 @@ import com.suda.yzune.wakeupschedule.schedule_import.exception.PasswordErrorExce
 import com.suda.yzune.wakeupschedule.schedule_import.exception.UserNameErrorException
 import com.suda.yzune.wakeupschedule.schedule_import.login_school.suda.SudaXK
 import com.suda.yzune.wakeupschedule.schedule_import.parser.*
-import com.suda.yzune.wakeupschedule.schedule_import.parser.qz.QzBrParser
-import com.suda.yzune.wakeupschedule.schedule_import.parser.qz.QzCrazyParser
-import com.suda.yzune.wakeupschedule.schedule_import.parser.qz.QzParser
-import com.suda.yzune.wakeupschedule.schedule_import.parser.qz.QzWithNodeParser
+import com.suda.yzune.wakeupschedule.schedule_import.parser.qz.*
 import com.suda.yzune.wakeupschedule.utils.MyRetrofitUtils
 import com.suda.yzune.wakeupschedule.utils.ViewUtils
 import kotlinx.coroutines.Dispatchers
@@ -67,19 +64,27 @@ class ImportViewModel(application: Application) : AndroidViewModel(application) 
                     0 -> QzParser(source)
                     1 -> QzBrParser(source)
                     2 -> QzWithNodeParser(source)
-                    else -> QzCrazyParser(source)
+                    3 -> QzCrazyParser(source)
+                    else -> Qz2017Parser(source)
                 }
             }
             Common.TYPE_QZ_OLD -> OldQzParser(source)
             Common.TYPE_QZ_CRAZY -> QzCrazyParser(source)
             Common.TYPE_QZ_BR -> QzBrParser(source)
             Common.TYPE_QZ_WITH_NODE -> QzWithNodeParser(source)
+            Common.TYPE_QZ_2017 -> Qz2017Parser(source)
             Common.TYPE_CF -> ChengFangParser(source)
             Common.TYPE_PKU -> PekingParser(source)
             Common.TYPE_BNUZ -> BNUZParser(source)
             Common.TYPE_HNIU -> HNIUParser(source)
             Common.TYPE_HNUST -> HNUSTParser(source)
             Common.TYPE_JNU -> JNUParser(source)
+            Common.TYPE_JZ -> JinZhiParser(source)
+            Common.TYPE_HUNNU -> HUNNUParser(source)
+            Common.TYPE_WHU -> WHUParser(source)
+            Common.TYPE_ECJTU -> ECJTUParser(source)
+            Common.TYPE_UMOOC -> UMoocParser(source)
+            Common.TYPE_SHU -> SHUParser(source)
             else -> null
         }
         return parser?.saveCourse(getApplication(), importId) { baseList, detailList ->
@@ -172,117 +177,6 @@ class ImportViewModel(application: Application) : AndroidViewModel(application) 
                         }
                     }
                 }
-            }
-        }
-        return write2DB()
-    }
-
-    suspend fun loginShanghai(number: String, psd: String, port: Int): Int {
-        baseList.clear()
-        detailList.clear()
-
-        val course = ArrayList<String>()
-        val connect =
-                if (port == 0) {
-                    Jsoup.connect("https://oauth.shu.edu.cn/oauth/authorize?response_type=code&client_id=yRQLJfUsx326fSeKNUCtooKw&redirect_uri=http%3a%2f%2fxk.autoisp.shu.edu.cn%2fpassport%2freturn")
-                } else {
-                    Jsoup.connect("https://oauth.shu.edu.cn/oauth/authorize?response_type=code&client_id=yRQLJfUsx326fSeKNUCtooKw&redirect_uri=http%3a%2f%2fxk.autoisp.shu.edu.cn%3a8080%2fpassport%2freturn")
-                }
-        var doc = withContext(Dispatchers.IO) { connect.get() }
-
-        var ele = doc.body().select("input[name]")
-
-        val res = withContext(Dispatchers.IO) {
-            Jsoup.connect("https://sso.shu.edu.cn/idp/profile/SAML2/POST/SSO")
-                    .data("SAMLRequest", ele[0].attr("value"), "RelayState", ele[1].attr("value"))
-                    .method(Connection.Method.POST).timeout(10000).execute()
-        }
-        //.followRedirects(false)
-        val userPassword = HashMap<String, String>()
-        userPassword["j_username"] = number
-        userPassword["j_password"] = psd
-
-        doc = withContext(Dispatchers.IO) {
-            Jsoup.connect("https://sso.shu.edu.cn/idp/Authn/UserPassword")
-                    .data(userPassword)
-                    .cookies(res.cookies())
-                    .post()
-        }
-        ele = doc.body().select("input[name]")
-
-        val res2 = withContext(Dispatchers.IO) {
-            Jsoup.connect("http://oauth.shu.edu.cn/oauth/Shibboleth.sso/SAML2/POST")
-                    .data("SAMLResponse", ele[1].attr("value"), "RelayState", ele[0].attr("value"))
-                    .method(Connection.Method.POST).timeout(10000).execute()
-        }
-
-//        doc = Jsoup.connect("http://xk.autoisp.shu.edu.cn/StudentQuery/CtrlViewQueryCourseTable")
-//                .data("studentNo", number)
-//                .cookies(res2.cookies())
-//                .post()
-
-        doc = withContext(Dispatchers.IO) {
-            Jsoup.connect(
-                    if (port == 0) {
-                        "http://xk.autoisp.shu.edu.cn/StudentQuery/CtrlViewQueryCourseTable"
-                    } else {
-                        "http://xk.autoisp.shu.edu.cn:8080/StudentQuery/CtrlViewQueryCourseTable"
-                    })
-                    .data("studentNo", number)
-                    .cookies(res2.cookies())
-                    .post()
-        }
-
-        val ele2 = doc.body().select("tr")
-        for (i in 3 until ele2.size) {
-            if (ele2[i].getElementsByTag("td").text().isBlank()) {
-                break
-            }
-            course.add(ele2[i].getElementsByTag("td").text())
-        }
-
-        fun getInformation(info: String): List<String> {
-            val strList = listOf(*info.split(" ".toRegex()).dropLastWhile { it.isEmpty() }.toTypedArray())
-            val list = ArrayList<String>()
-            list.add(strList[1])
-            list.add(strList[2])
-            list.add(strList[4])
-            list.add(strList[strList.size - 4])
-            val regex = "[一二三四五六七日][0-9]+-[0-9]+"
-            val pattern = Pattern.compile(regex)
-            val matcher = pattern.matcher(info)
-            var courseTime: MutableList<String> = ArrayList()
-            while (matcher.find()) {
-                courseTime.add(matcher.group())
-            }
-            courseTime = courseTime.subList(0, courseTime.size - 1)
-            list.addAll(courseTime)
-            return list
-        }
-
-        for (i in 0 until course.size - 1) {
-            val list = getInformation(course[i])
-            val id = baseList.size
-            baseList.add(CourseBaseBean(
-                    id = id, courseName = list[1],
-                    color = "#${Integer.toHexString(ViewUtils.getCustomizedColor(getApplication(), baseList.size % 9))}",
-                    tableId = importId
-            ))
-            for (j in 4 until list.size) {
-                val day = Common.getNodeInt(list[j][0].toString())
-                val startNode = list[j].substring(1, list[j].indexOf("-")).toInt()
-                val endNode = list[j].substring(list[j].indexOf("-") + 1).toInt()
-                val type = when {
-                    list[j].contains('单') -> 1
-                    list[j].contains('双') -> 2
-                    else -> 0
-                }
-                detailList.add(CourseDetailBean(
-                        id = id, day = day, room = list[3], teacher = list[2],
-                        startWeek = 1, endWeek = 10, startNode = startNode,
-                        step = endNode - startNode + 1,
-                        type = type, tableId = importId
-                ))
             }
         }
         return write2DB()
@@ -702,10 +596,14 @@ class ImportViewModel(application: Application) : AndroidViewModel(application) 
                 throw IllegalStateException("请确保文件类型正确")
             }
         }
-        val gson = Gson()
         val list = withContext(Dispatchers.IO) {
             getApplication<App>().contentResolver.openInputStream(uri)!!.bufferedReader().readLines()
         }
+        importFromExport(list)
+    }
+
+    suspend fun importFromExport(list: List<String>) {
+        val gson = Gson()
         val timeTable = gson.fromJson<TimeTableBean>(list[0], object : TypeToken<TimeTableBean>() {}.type)
         val timeDetails = gson.fromJson<List<TimeDetailBean>>(list[1], object : TypeToken<List<TimeDetailBean>>() {}.type)
         val table = gson.fromJson<TableBean>(list[2], object : TypeToken<TableBean>() {}.type)

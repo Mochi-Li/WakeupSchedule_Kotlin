@@ -1,6 +1,7 @@
 package com.suda.yzune.wakeupschedule.schedule_import
 
 import com.suda.yzune.wakeupschedule.bean.CourseBaseBean
+import com.suda.yzune.wakeupschedule.schedule_import.bean.Course
 import com.suda.yzune.wakeupschedule.schedule_import.bean.WeekBean
 
 object Common {
@@ -10,6 +11,7 @@ object Common {
     const val TYPE_ZF_1 = "zf_1"
     const val TYPE_ZF_NEW = "zf_new"
     const val TYPE_URP = "urp"
+    const val TYPE_UMOOC = "umooc"
     const val TYPE_URP_NEW = "urp_new"
     const val TYPE_URP_NEW_AJAX = "urp_new_ajax"
     const val TYPE_QZ = "qz"
@@ -17,17 +19,24 @@ object Common {
     const val TYPE_QZ_CRAZY = "qz_crazy"
     const val TYPE_QZ_BR = "qz_br"
     const val TYPE_QZ_WITH_NODE = "qz_with_node"
+    const val TYPE_QZ_2017 = "qz_2017" // 华南农业大学
     const val TYPE_CF = "cf"
     const val TYPE_PKU = "pku" // 北京大学
     const val TYPE_BNUZ = "bnuz" // 北京师范大学珠海分校
     const val TYPE_HNIU = "hniu" // 湖南信息职业技术学院
     const val TYPE_HNUST = "hnust" // 湖南科技大学
     const val TYPE_JNU = "jnu" // 暨南大学
+    const val TYPE_WHU = "whu" // 武汉大学
+    const val TYPE_HUNNU = "hunnu" // 湖南师范大学
+    const val TYPE_ECJTU = "ecjtu" // 华东交通大学
+    const val TYPE_SHU = "shu"// 上海大学
+    const val TYPE_JZ = "jz" // 金智教务
     const val TYPE_LOGIN = "login" // 模拟登录方式
     const val TYPE_MAINTAIN = "maintain" // 维护状态，暂不可用
 
     val nodePattern = Regex("""\(\d{1,2}[-]*\d*节""")
     val nodePattern1 = Regex("""\d{1,2}[~]*\d*节""")
+    val nodePattern2 = Regex("""(^\d.*)节""")
 
     val weekPattern = Regex("""\{第\d{1,2}[-]*\d*周""")
     val weekPattern1 = Regex("""\d{1,2}[-]*\d*""")
@@ -82,7 +91,8 @@ object Common {
             "外语",
             "方向",
             "专业必修课",
-            "全选"
+            "全选",
+            "专业"
     )
 
     private val headerNodePattern = Regex("""第.*节""")
@@ -225,6 +235,17 @@ object Common {
             "二十" -> 20
             else -> -1
         }
+    }
+
+    fun judgeContinuousCourse(pre: Course, current: Course): Boolean {
+        return pre.name == current.name
+                && pre.day == current.day
+                && pre.room == current.room
+                && pre.teacher == current.teacher
+                && pre.startWeek == current.startWeek
+                && pre.endWeek == current.endWeek
+                && pre.type == current.type
+                && pre.endNode == current.startNode - 1
     }
 
 }

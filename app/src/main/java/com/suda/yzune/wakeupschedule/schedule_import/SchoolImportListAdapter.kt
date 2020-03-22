@@ -31,15 +31,21 @@ class SchoolImportListAdapter(data: MutableList<SchoolInfo>) :
             Common.TYPE_QZ_CRAZY to "强智教务 4",
             Common.TYPE_QZ_BR to "强智教务 2",
             Common.TYPE_QZ_WITH_NODE to "强智教务 3",
+            Common.TYPE_QZ_2017 to "强智教务 5",
             Common.TYPE_CF to "乘方教务",
+            Common.TYPE_JZ to "金智教务",
+            Common.TYPE_UMOOC to "优慕课在线",
             Common.TYPE_PKU to "", // 北京大学
             Common.TYPE_BNUZ to "", // 北京师范大学珠海分校
             Common.TYPE_HNIU to "", // 湖南信息职业技术学院
             Common.TYPE_HNUST to "", // 湖南科技大学
+            Common.TYPE_WHU to "", // 武汉大学
+            Common.TYPE_ECJTU to "by @Preciously", // 华东交通大学
             Common.TYPE_JNU to "by @Jiuh-star", // 暨南大学
+            Common.TYPE_HUNNU to "by @fearc", // 湖南师范大学
+            Common.TYPE_SHU to "by @Deep Sea", // 上海大学
             Common.TYPE_LOGIN to "", // 模拟登录方式
-            Common.TYPE_MAINTAIN to "不可用", // 维护状态，暂不可用
-            Common.TYPE_JNU to "by @FrancisWhalen-star"
+            Common.TYPE_MAINTAIN to "不可用" // 维护状态，暂不可用
     )
 
     private val thanksMap = mapOf(

@@ -76,7 +76,7 @@ class TodayColorfulService : RemoteViewsService() {
             }
             timeList.clear()
             timeList.addAll(timeDao.getTimeListSync(table.timeTable))
-            showColor = getPrefer().getBoolean(Const.KEY_DAY_WIDGET_COLOR, false)
+            showColor = getPrefer().getBoolean(Const.KEY_DAY_WIDGET_COLOR, true)
             screenInfo = ViewUtils.getScreenInfo(applicationContext)
         }
 

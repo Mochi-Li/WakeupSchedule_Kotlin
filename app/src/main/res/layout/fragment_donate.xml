@@ -61,12 +61,7 @@
     <com.google.android.material.button.MaterialButton
         android:id="@+id/tv_donate_list"
         style="@style/DialogButtonStyle"
-        android:text="查看捐赠名单" />
-
-    <com.google.android.material.button.MaterialButton
-        android:id="@+id/tv_feedback"
-        style="@style/DialogButtonStyle"
         android:layout_marginBottom="8dp"
-        android:text="找开发者唠嗑" />
+        android:text="查看捐赠名单" />
 
 </androidx.appcompat.widget.LinearLayoutCompat>

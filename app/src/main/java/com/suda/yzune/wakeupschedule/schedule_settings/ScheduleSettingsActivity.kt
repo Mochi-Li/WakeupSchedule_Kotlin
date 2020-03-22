@@ -201,12 +201,16 @@ class ScheduleSettingsActivity : BaseListActivity(), ColorPickerFragment.ColorPi
         items.add(SwitchItem("显示非本周课程", viewModel.table.showOtherWeekCourse, keys = listOf("非本周")))
 
         items.add(CategoryItem("桌面小部件外观", false))
+        items.add(VerticalItem("如何添加小部件？", "长按桌面空白处，或者在桌面做双指捏合手势，选择桌面小工具，肯定是有的，仔细找找，实在找不到就重启手机再找。\n" +
+                "P.S. 添加桌面小部件，想要确保它正常工作，最好在系统设置中，手动管理本App的后台，允许本App后台自启和后台运行。"))
         items.add(SeekBarItem("小部件格子高度", viewModel.table.widgetItemHeight, 32, 96, "dp", keys = listOf("格子", "高度", "格子高度", "显示", "小部件", "小", "插件", "桌面")))
         items.add(SeekBarItem("小部件格子不透明度", viewModel.table.widgetItemAlpha, 0, 100, "%", keys = listOf("格子", "透明", "格子高度", "显示", "小部件", "小", "插件", "桌面")))
         items.add(SeekBarItem("小部件显示文字大小", viewModel.table.widgetItemTextSize, 8, 16, "sp", keys = listOf("文字", "大小", "文字大小", "小部件", "小", "插件", "桌面")))
         items.add(VerticalItem("小部件标题颜色", "指标题等字体的颜色\n还可以调颜色的透明度哦 (●ﾟωﾟ●)", keys = listOf("颜色", "显示", "文字", "文字颜色", "小部件", "小", "插件", "桌面")))
         items.add(VerticalItem("小部件课程颜色", "指课程格子内的文字颜色\n或者日视图课程文字的颜色\n还可以调颜色的透明度哦 (●ﾟωﾟ●)", keys = listOf("颜色", "显示", "文字", "文字颜色", "小部件", "小", "插件", "桌面")))
         items.add(VerticalItem("小部件格子边框颜色", "将不透明度调到最低就可以隐藏边框了哦~", keys = listOf("边框", "显示", "边框颜色", "格子", "边", "小部件", "小", "插件", "桌面")))
+        items.add(SwitchItem("显示日视图课程色块", getPrefer().getBoolean(Const.KEY_DAY_WIDGET_COLOR, true)))
+        items.add(SwitchItem("显示小部件背景", getPrefer().getBoolean(Const.KEY_APPWIDGET_BG, false)))
 
         items.add(CategoryItem("高级", false))
         when {
@@ -234,6 +238,18 @@ class ScheduleSettingsActivity : BaseListActivity(), ColorPickerFragment.ColorPi
                 putBoolean(Const.KEY_SCHEDULE_TEACHER, isChecked)
             }
             "显示非本周课程" -> viewModel.table.showOtherWeekCourse = isChecked
+            "显示日视图课程色块" -> {
+                getPrefer().edit {
+                    putBoolean(Const.KEY_DAY_WIDGET_COLOR, isChecked)
+                }
+                mRecyclerView.longSnack("请点击小部件右上角的「切换按钮」查看效果~")
+            }
+            "显示小部件背景" -> {
+                getPrefer().edit {
+                    putBoolean(Const.KEY_APPWIDGET_BG, isChecked)
+                }
+                mRecyclerView.longSnack("请点击小部件右上角的「切换按钮」查看效果~")
+            }
         }
         item.checked = isChecked
     }

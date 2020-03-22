@@ -23,7 +23,7 @@ abstract class AppDatabase : RoomDatabase() {
                 synchronized(AppDatabase::class.java) {
                     if (INSTANCE == null) {
                         INSTANCE = Room.databaseBuilder(context.applicationContext,
-                                AppDatabase::class.java, "wakeup")
+                                        AppDatabase::class.java, "wakeup")
                                 .allowMainThreadQueries()
                                 .addMigrations(migration7to8)
                                 .build()
@@ -113,4 +113,13 @@ abstract class AppDatabase : RoomDatabase() {
     abstract fun timeDetailDao(): TimeDetailDao
 
     abstract fun tableDao(): TableDao
+}
+
+class _8to9Migration(context: Context) : Migration(8, 9) {
+
+    override fun migrate(database: SupportSQLiteDatabase) {
+        database.beginTransaction()
+        database.query("")
+    }
+
 }

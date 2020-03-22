@@ -12,7 +12,6 @@ import android.view.ViewGroup
 import android.widget.Toast
 import androidx.core.content.res.ResourcesCompat
 import androidx.fragment.app.activityViewModels
-import com.google.android.material.button.MaterialButton
 import com.google.android.material.textfield.TextInputLayout
 import com.suda.yzune.wakeupschedule.R
 import com.suda.yzune.wakeupschedule.base_view.BaseFragment
@@ -35,7 +34,6 @@ class LoginWebFragment : BaseFragment() {
 
     private var year = ""
     private var term = ""
-    private var shanghaiPort = 0
 
     private val viewModel by activityViewModels<ImportViewModel>()
 
@@ -60,18 +58,6 @@ class LoginWebFragment : BaseFragment() {
             refreshCode()
             tv_tip.setOnClickListener {
                 Utils.openUrl(context!!, "https://yzune.github.io/2018/08/13/%E4%BD%BF%E7%94%A8FortiClient%E8%BF%9E%E6%8E%A5%E6%A0%A1%E5%9B%AD%E7%BD%91/")
-            }
-        }
-        if (viewModel.school == "上海大学") {
-            btg_ports.visibility = View.VISIBLE
-            tv_thanks.text = "感谢 @Deep Sea\n能导入贵校课程离不开他无私贡献代码"
-            btg_ports.addOnButtonCheckedListener { group, checkedId, isChecked ->
-                if (isChecked) {
-                    shanghaiPort = checkedId - R.id.btn_port1
-                }
-                if (!isChecked && shanghaiPort == checkedId - R.id.btn_port1) {
-                    group.findViewById<MaterialButton>(checkedId).isChecked = true
-                }
             }
         }
         if (viewModel.school == "清华大学") {
@@ -192,14 +178,6 @@ class LoginWebFragment : BaseFragment() {
                 try {
                     result = viewModel.loginTsinghua(et_id.text.toString(),
                             et_pwd.text.toString())
-                } catch (e: Exception) {
-                    exception = e
-                }
-            }
-            "上海大学" -> {
-                try {
-                    result = viewModel.loginShanghai(et_id.text.toString(),
-                            et_pwd.text.toString(), shanghaiPort)
                 } catch (e: Exception) {
                     exception = e
                 }

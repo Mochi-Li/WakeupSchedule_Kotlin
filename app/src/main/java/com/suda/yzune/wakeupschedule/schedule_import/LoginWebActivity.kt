@@ -47,6 +47,9 @@ class LoginWebActivity : BaseActivity() {
             "html" -> {
                 HtmlImportFragment()
             }
+            "code" -> {
+                CodeImportFragment()
+            }
             else -> {
                 if (viewModel.importType.isNullOrEmpty() || viewModel.school.isNullOrEmpty()) {
                     null
@@ -59,7 +62,7 @@ class LoginWebActivity : BaseActivity() {
             val transaction = supportFragmentManager.beginTransaction()
             transaction.add(android.R.id.content, frag, viewModel.school)
             transaction.commit()
-            if (viewModel.importType != "apply" && viewModel.importType != "file") {
+            if (viewModel.importType != "apply" && viewModel.importType != "file" && viewModel.importType != "code") {
                 showImportSettingDialog()
             }
         }
@@ -118,7 +121,7 @@ class LoginWebActivity : BaseActivity() {
         }
     }
 
-    private fun showResultDialog(title: CharSequence, msg: CharSequence, needStartActivity: Boolean, otherAction: () -> Unit = {}) {
+    fun showResultDialog(title: CharSequence, msg: CharSequence, needStartActivity: Boolean, otherAction: () -> Unit = {}) {
         MaterialAlertDialogBuilder(this@LoginWebActivity)
                 .setTitle(title)
                 .setMessage(msg)

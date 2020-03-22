@@ -141,8 +141,7 @@ class ScheduleViewModel(application: Application) : AndroidViewModel(application
         }
     }
 
-    suspend fun exportData(uri: Uri?) {
-        if (uri == null) throw Exception("无法获取文件")
+    suspend fun exportData(): String {
         val gson = Gson()
         val strBuilder = StringBuilder()
         strBuilder.append(gson.toJson(timeTableDao.getTimeTable(table.timeTable)))
@@ -150,10 +149,15 @@ class ScheduleViewModel(application: Application) : AndroidViewModel(application
         strBuilder.append("\n${gson.toJson(table)}")
         strBuilder.append("\n${gson.toJson(courseDao.getCourseBaseBeanOfTable(table.id))}")
         strBuilder.append("\n${gson.toJson(courseDao.getDetailOfTable(table.id))}")
+        return strBuilder.toString()
+    }
+
+    suspend fun exportData(uri: Uri?) {
+        if (uri == null) throw Exception("无法获取文件")
         try {
             withContext(Dispatchers.IO) {
                 val outputStream = getApplication<App>().contentResolver.openOutputStream(uri)
-                outputStream?.write(strBuilder.toString().toByteArray())
+                outputStream?.write(exportData().toByteArray())
             }
         } catch (e: Exception) {
             throw Exception("请选择其他「具体的」位置，不要在「下载」或「文档」等文件夹导出")

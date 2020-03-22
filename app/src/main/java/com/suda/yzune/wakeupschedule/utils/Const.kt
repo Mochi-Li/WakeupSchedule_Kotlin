@@ -33,6 +33,7 @@ object Const {
     const val KEY_HAS_COUNT = "has_count"
     const val KEY_CHECK_UPDATE = "s_update"
     const val KEY_DAY_WIDGET_COLOR = "s_colorful_day_widget"
+    const val KEY_APPWIDGET_BG = "appwidget_bg"
     const val KEY_SHOW_EMPTY_VIEW = "show_empty_view"
     const val KEY_SHOW_SUDA_LIFE = "suda_life"
     const val KEY_THEME_COLOR = "nav_bar_color"

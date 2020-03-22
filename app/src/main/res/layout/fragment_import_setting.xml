@@ -24,7 +24,7 @@
         android:lineSpacingExtra="4dp"
         android:paddingStart="16dp"
         android:paddingEnd="16dp"
-        android:text="请问你想以何种方式导入呢？\n新建再导入后，请在右栏找到新导入的课表"
+        android:text="请问你想以何种方式导入呢？\n新建再导入后，请点击右上角打开功能面板\n找到新导入的课表"
         android:textSize="12sp" />
 
     <com.google.android.material.button.MaterialButton

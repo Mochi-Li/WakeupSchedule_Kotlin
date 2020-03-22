@@ -176,12 +176,10 @@
         android:layout_marginBottom="16dp"
         android:visibility="gone"
         app:chipSpacingHorizontal="16dp"
-        app:chipSpacingVertical="16dp"
         app:layout_constraintBottom_toBottomOf="@id/fab_import"
         app:layout_constraintEnd_toStartOf="@id/fab_import"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="@id/fab_import"
-        app:lineSpacing="20dp"
         app:singleSelection="true"
         tools:visibility="visible">
 
@@ -221,6 +219,15 @@
             android:textColor="?attr/colorSurface"
             app:chipBackgroundColor="@color/orange" />
 
+        <com.google.android.material.chip.Chip
+            android:id="@+id/chip_qz5"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:checkable="true"
+            android:text="强智 5"
+            android:textColor="?attr/colorSurface"
+            app:chipBackgroundColor="@color/purple" />
+
     </com.google.android.material.chip.ChipGroup>
 
     <com.google.android.material.chip.ChipGroup
@@ -232,7 +239,6 @@
         android:layout_marginBottom="16dp"
         android:visibility="gone"
         app:chipSpacingHorizontal="16dp"
-        app:chipSpacingVertical="16dp"
         app:layout_constraintBottom_toBottomOf="@id/fab_import"
         app:layout_constraintEnd_toStartOf="@id/fab_import"
         app:layout_constraintStart_toStartOf="parent"

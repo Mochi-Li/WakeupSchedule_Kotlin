@@ -5,6 +5,7 @@ import android.appwidget.AppWidgetManager
 import android.content.BroadcastReceiver
 import android.content.Context
 import android.content.Intent
+import android.graphics.Color
 import android.net.Uri
 import android.util.TypedValue
 import android.view.View
@@ -19,6 +20,7 @@ import com.suda.yzune.wakeupschedule.today_appwidget.TodayCourseAppWidget
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.launch
+import splitties.dimensions.dip
 
 fun BroadcastReceiver.goAsync(
         coroutineScope: CoroutineScope = GlobalScope,
@@ -52,6 +54,16 @@ object AppWidgetUtils {
         }
         val date = CourseUtils.getTodayDate()
         val weekDay = CourseUtils.getWeekday()
+        if (context.getPrefer().getBoolean(Const.KEY_APPWIDGET_BG, false)) {
+            val space = context.dip(8)
+            mRemoteViews.setViewVisibility(R.id.iv_appwidget, View.VISIBLE)
+            mRemoteViews.setInt(R.id.iv_appwidget, "setImageAlpha", 80)
+            mRemoteViews.setInt(R.id.iv_appwidget, "setColorFilter", Color.RED)
+            mRemoteViews.setViewPadding(R.id.rl_appwidget, space, space * 2, space, space * 2)
+        } else {
+            mRemoteViews.setViewVisibility(R.id.iv_appwidget, View.GONE)
+            mRemoteViews.setViewPadding(R.id.rl_appwidget, 0, 0, 0, 0)
+        }
         mRemoteViews.setTextViewTextSize(R.id.tv_date, TypedValue.COMPLEX_UNIT_SP, tableBean.widgetItemTextSize.toFloat() + 2)
         mRemoteViews.setTextViewTextSize(R.id.tv_week, TypedValue.COMPLEX_UNIT_SP, tableBean.widgetItemTextSize.toFloat())
         mRemoteViews.setTextViewText(R.id.tv_date, date)
@@ -163,6 +175,16 @@ object AppWidgetUtils {
         val week = CourseUtils.countWeek(tableBean.startDate, tableBean.sundayFirst, nextDay)
         val date = CourseUtils.getTodayDate()
         val weekDay = CourseUtils.getWeekday(nextDay)
+        if (context.getPrefer().getBoolean(Const.KEY_APPWIDGET_BG, false)) {
+            val space = context.dip(8)
+            mRemoteViews.setViewVisibility(R.id.iv_appwidget, View.VISIBLE)
+            mRemoteViews.setInt(R.id.iv_appwidget, "setImageAlpha", 80)
+            mRemoteViews.setInt(R.id.iv_appwidget, "setColorFilter", Color.WHITE)
+            mRemoteViews.setViewPadding(R.id.rl_appwidget, space, space * 2, space, space * 2)
+        } else {
+            mRemoteViews.setViewVisibility(R.id.iv_appwidget, View.GONE)
+            mRemoteViews.setViewPadding(R.id.rl_appwidget, 0, 0, 0, 0)
+        }
         mRemoteViews.setTextColor(R.id.tv_date, tableBean.widgetTextColor)
         mRemoteViews.setTextColor(R.id.tv_week, tableBean.widgetTextColor)
         mRemoteViews.setInt(R.id.iv_next, "setColorFilter", tableBean.widgetTextColor)

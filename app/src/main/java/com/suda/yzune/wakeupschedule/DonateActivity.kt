@@ -13,7 +13,6 @@ import com.google.gson.reflect.TypeToken
 import com.suda.yzune.wakeupschedule.base_view.BaseBlurTitleActivity
 import com.suda.yzune.wakeupschedule.bean.DonateBean
 import com.suda.yzune.wakeupschedule.utils.Const
-import com.suda.yzune.wakeupschedule.utils.DonateUtils
 import com.suda.yzune.wakeupschedule.utils.MyRetrofitUtils
 import com.suda.yzune.wakeupschedule.utils.getPrefer
 import es.dmoral.toasty.Toasty
@@ -103,7 +102,7 @@ class DonateActivity : BaseBlurTitleActivity() {
     private fun initEvent() {
         tv_donate.setOnClickListener {
             if (BuildConfig.CHANNEL != "google") {
-                if (DonateUtils.isAppInstalled(applicationContext, "com.eg.android.AlipayGphone")) {
+                try {
                     val intent = Intent()
                     intent.action = "android.intent.action.VIEW"
                     val qrCodeUrl = Uri.parse("alipayqr://platformapi/startapp?saId=10000007&clientVersion=3.7.0.0718&qrcode=HTTPS://QR.ALIPAY.COM/FKX09148M0LN2VUUZENO9B?_s=web-other")
@@ -111,7 +110,7 @@ class DonateActivity : BaseBlurTitleActivity() {
                     intent.setClassName("com.eg.android.AlipayGphone", "com.alipay.mobile.quinox.LauncherActivity")
                     startActivity(intent)
                     Toasty.success(this, "非常感谢(*^▽^*)").show()
-                } else {
+                } catch (e: Exception) {
                     Toasty.info(this, "没有检测到支付宝客户端o(╥﹏╥)o").show()
                 }
             }

@@ -37,6 +37,11 @@
         android:text="导出为 ics（日历用）格式" />
 
     <com.google.android.material.button.MaterialButton
+        android:id="@+id/tv_share"
+        style="@style/DialogButtonStyle"
+        android:text="在线分享（Beta）" />
+
+    <com.google.android.material.button.MaterialButton
         android:id="@+id/tv_cancel"
         style="@style/DialogButtonStyle"
         android:layout_marginBottom="8dp"

@@ -90,6 +90,10 @@ class HtmlImportFragment : BaseFragment() {
                     qzChipId = id
                     viewModel.qzType = 3
                 }
+                R.id.chip_qz5 -> {
+                    qzChipId = id
+                    viewModel.qzType = 4
+                }
                 else -> {
                     chipGroup.findViewById<Chip>(qzChipId).isChecked = true
                 }

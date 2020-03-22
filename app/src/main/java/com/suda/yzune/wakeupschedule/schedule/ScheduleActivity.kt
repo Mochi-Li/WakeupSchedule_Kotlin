@@ -1,6 +1,9 @@
 package com.suda.yzune.wakeupschedule.schedule
 
 import android.appwidget.AppWidgetManager
+import android.content.ClipData
+import android.content.ClipboardManager
+import android.content.Context
 import android.content.Intent
 import android.net.Uri
 import android.os.Build
@@ -25,12 +28,14 @@ import com.google.android.material.slider.Slider
 import com.google.android.material.textfield.TextInputEditText
 import com.google.android.material.textfield.TextInputLayout
 import com.google.gson.Gson
+import com.google.gson.reflect.TypeToken
 import com.suda.yzune.wakeupschedule.R
 import com.suda.yzune.wakeupschedule.UpdateFragment
 import com.suda.yzune.wakeupschedule.base_view.BaseActivity
+import com.suda.yzune.wakeupschedule.bean.MyResponse
 import com.suda.yzune.wakeupschedule.bean.TableBean
 import com.suda.yzune.wakeupschedule.bean.TableSelectBean
-import com.suda.yzune.wakeupschedule.bean.UpdateInfoBean
+import com.suda.yzune.wakeupschedule.bean.UpdateInfo
 import com.suda.yzune.wakeupschedule.course_add.AddCourseActivity
 import com.suda.yzune.wakeupschedule.intro.AboutActivity
 import com.suda.yzune.wakeupschedule.schedule_manage.ScheduleManageActivity
@@ -61,6 +66,10 @@ class ScheduleActivity : BaseActivity() {
 
     private val preLoad by lazy(LazyThreadSafetyMode.NONE) {
         getPrefer().getBoolean(Const.KEY_SCHEDULE_PRE_LOAD, true)
+    }
+
+    private val clipboardManager by lazy(LazyThreadSafetyMode.NONE) {
+        (getSystemService(Context.CLIPBOARD_SERVICE) as ClipboardManager)
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -126,12 +135,12 @@ class ScheduleActivity : BaseActivity() {
                 if (response?.body() != null) {
                     val gson = Gson()
                     try {
-                        val updateInfo = gson.fromJson(response.body()!!.string(), UpdateInfoBean::class.java)
+                        val updateInfo = gson.fromJson<MyResponse<UpdateInfo>>(response.body()!!.string(), object : TypeToken<MyResponse<UpdateInfo>>() {}.type)
                         getPrefer().edit {
                             putBoolean(Const.KEY_SHOW_DONATE, updateInfo.data.donate)
                         }
                         if (getPrefer().getBoolean(Const.KEY_CHECK_UPDATE, true) && updateInfo.data.id > versionCode) {
-                            UpdateFragment.newInstance(updateInfo).show(supportFragmentManager, "updateDialog")
+                            UpdateFragment.newInstance(updateInfo.data.versionName, updateInfo.data.versionInfo).show(supportFragmentManager, "updateDialog")
                         }
                     } catch (e: Exception) {
                         getPrefer().edit {
@@ -352,6 +361,10 @@ class ScheduleActivity : BaseActivity() {
 
         val sudaMenu = ui.bottomNavigationView2.findViewById<View>(R.id.nav_suda)
         if (!getPrefer().getBoolean(Const.KEY_SHOW_SUDA_LIFE, true)) {
+            ui.bottomNavigationView2.menu.findItem(R.id.nav_suda).apply {
+                icon = null
+                title = ""
+            }
             sudaMenu.visibility = View.INVISIBLE
         }
         ui.bottomNavigationView2.setOnNavigationItemSelectedListener {
@@ -676,6 +689,30 @@ class ScheduleActivity : BaseActivity() {
             }
         }
         super.onActivityResult(requestCode, resultCode, data)
+    }
+
+    fun showShareOnlineDialog(key: String) {
+        val shareText = "这是来自「WakeUp课程表」的课表分享，10分钟内有效哦，如果失效请朋友再分享一遍叭。" +
+                "为了保护隐私我们选择不监听你的剪贴板，请复制这条消息后，打开App的主界面，右上角第二个按钮 -> 从分享口令导入，按操作提示即可完成导入~分享口令为「${key}」"
+        MaterialAlertDialogBuilder(this)
+                .setTitle("生成口令")
+                .setMessage(shareText)
+                .setCancelable(false)
+                .setPositiveButton("分享") { _, _ ->
+                    val shareIntent = ShareCompat.IntentBuilder.from(this)
+                            .setChooserTitle("WakeUp课程表分享码")
+                            .setText(shareText)
+                            .setType("text/plain")
+                            .createChooserIntent()
+                            .addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+                    startActivity(shareIntent)
+                }
+                .setNegativeButton("复制") { _, _ ->
+                    val clipData = ClipData.newPlainText("", shareText)
+                    clipboardManager.setPrimaryClip(clipData)
+                    Toasty.success(this, "口令已复制到剪贴板中~", Toasty.LENGTH_LONG).show()
+                }
+                .show()
     }
 
     private fun showShareDialog(title: String, uri: Uri) {

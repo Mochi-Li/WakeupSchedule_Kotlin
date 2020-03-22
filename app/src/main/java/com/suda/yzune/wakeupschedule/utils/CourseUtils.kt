@@ -1,6 +1,5 @@
 package com.suda.yzune.wakeupschedule.utils
 
-import android.content.Context
 import androidx.lifecycle.MutableLiveData
 import com.suda.yzune.wakeupschedule.bean.CourseBean
 import com.suda.yzune.wakeupschedule.bean.CourseDetailBean
@@ -166,22 +165,6 @@ object CourseUtils {
     fun getTodayDate(): String {
         val dateFormat = SimpleDateFormat("M月d日", Locale.CHINA)
         return dateFormat.format(Date())
-    }
-
-    fun isQQClientAvailable(context: Context): Boolean {
-        val packageManager = context.packageManager
-        val pInfo = packageManager.getInstalledPackages(0)
-        if (pInfo != null) {
-            for (i in pInfo.indices) {
-                val pn = pInfo[i].packageName
-                if (pn.equals("com.tencent.qqlite", ignoreCase = true)
-                        || pn.equals("com.tencent.mobileqq", ignoreCase = true)
-                        || pn.equals("com.tencent.tim", ignoreCase = true)) {
-                    return true
-                }
-            }
-        }
-        return false
     }
 
     fun calAfterTime(time: String, min: Int): String {

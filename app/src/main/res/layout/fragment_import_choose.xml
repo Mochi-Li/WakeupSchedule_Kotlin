@@ -63,6 +63,11 @@
         android:text="从分享/导出文件导入" />
 
     <com.google.android.material.button.MaterialButton
+        android:id="@+id/tv_share_import"
+        style="@style/DialogButtonStyle"
+        android:text="从分享口令导入（Beta）" />
+
+    <com.google.android.material.button.MaterialButton
         android:id="@+id/tv_feedback"
         style="@style/DialogButtonStyle"
         android:layout_marginBottom="8dp"

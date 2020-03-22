@@ -4,19 +4,15 @@ import android.content.Intent
 import android.net.Uri
 import android.os.Bundle
 import android.view.View
-import android.widget.Toast
 import androidx.fragment.app.BaseDialogFragment
 import com.suda.yzune.wakeupschedule.BuildConfig
 import com.suda.yzune.wakeupschedule.DonateActivity
 import com.suda.yzune.wakeupschedule.R
 import com.suda.yzune.wakeupschedule.utils.Const
-import com.suda.yzune.wakeupschedule.utils.CourseUtils
-import com.suda.yzune.wakeupschedule.utils.DonateUtils
 import com.suda.yzune.wakeupschedule.utils.getPrefer
 import es.dmoral.toasty.Toasty
 import kotlinx.android.synthetic.main.fragment_donate.*
 import splitties.activities.start
-import java.util.*
 
 class DonateFragment : BaseDialogFragment() {
 
@@ -63,7 +59,7 @@ class DonateFragment : BaseDialogFragment() {
 
         tv_donate.setOnClickListener {
             if (BuildConfig.CHANNEL != "google") {
-                if (DonateUtils.isAppInstalled(context!!.applicationContext, "com.eg.android.AlipayGphone")) {
+                try {
                     val intent = Intent()
                     intent.action = "android.intent.action.VIEW"
                     val qrCodeUrl = Uri.parse("alipayqr://platformapi/startapp?saId=10000007&clientVersion=3.7.0.0718&qrcode=HTTPS://QR.ALIPAY.COM/FKX09148M0LN2VUUZENO9B?_s=web-other")
@@ -71,26 +67,26 @@ class DonateFragment : BaseDialogFragment() {
                     intent.setClassName("com.eg.android.AlipayGphone", "com.alipay.mobile.quinox.LauncherActivity")
                     startActivity(intent)
                     Toasty.success(context!!, "非常感谢(*^▽^*)").show()
-                } else {
+                } catch (e: Exception) {
                     Toasty.info(context!!, "没有检测到支付宝客户端o(╥﹏╥)o").show()
                 }
             }
         }
 
-        tv_feedback.setOnClickListener {
-            val c = Calendar.getInstance()
-            val hour = c.get(Calendar.HOUR_OF_DAY)
-            if (hour !in 8..21) {
-                Toasty.info(activity!!, "开发者在休息哦(～﹃～)~zZ请换个时间反馈吧").show()
-            } else {
-                if (CourseUtils.isQQClientAvailable(context!!.applicationContext)) {
-                    val qqUrl = "mqqwpa://im/chat?chat_type=wpa&uin=1055614742&version=1"
-                    startActivity(Intent(Intent.ACTION_VIEW, Uri.parse(qqUrl)))
-                } else {
-                    Toasty.info(context!!, "手机上没有安装QQ，无法启动聊天窗口:-(", Toast.LENGTH_LONG).show()
-                }
-            }
-        }
+//        tv_feedback.setOnClickListener {
+//            val c = Calendar.getInstance()
+//            val hour = c.get(Calendar.HOUR_OF_DAY)
+//            if (hour !in 8..21) {
+//                Toasty.info(activity!!, "开发者在休息哦(～﹃～)~zZ请换个时间反馈吧").show()
+//            } else {
+//                if (CourseUtils.isQQClientAvailable(context!!.applicationContext)) {
+//                    val qqUrl = "mqqwpa://im/chat?chat_type=wpa&uin=1055614742&version=1"
+//                    startActivity(Intent(Intent.ACTION_VIEW, Uri.parse(qqUrl)))
+//                } else {
+//                    Toasty.info(context!!, "手机上没有安装QQ，无法启动聊天窗口:-(", Toast.LENGTH_LONG).show()
+//                }
+//            }
+//        }
 
         tv_donate_list.setOnClickListener {
             activity!!.start<DonateActivity>()

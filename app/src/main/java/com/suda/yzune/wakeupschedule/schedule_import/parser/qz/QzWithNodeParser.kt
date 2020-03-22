@@ -9,17 +9,26 @@ class QzWithNodeParser(source: String) : QzParser(source) {
         val courseHtml = Jsoup.parse(infoStr)
         val courseName = Jsoup.parse(infoStr.substringBefore("<br>").substringBefore("<font")).text().trim()
         val teacher = courseHtml.getElementsByAttributeValue("title", "老师").text().trim()
-        val room = courseHtml.getElementsByAttributeValue(
+        var room = courseHtml.getElementsByAttributeValue(
                 "title",
                 "教室"
         ).text().trim() + courseHtml.getElementsByAttributeValue("title", "分组").text().trim()
+        if (room.isBlank()) {
+            room = courseHtml.getElementsByAttributeValue(
+                    "title",
+                    "上课地点"
+            ).text().trim()
+        }
         val tempStr = courseHtml.getElementsByAttributeValue("title", "周次(节次)").text()
-        val weekStr = when {
+        var weekStr = when {
             tempStr.contains(' ') -> courseHtml.getElementsByAttributeValue("title", "周次(节次)").text().split(' ')[0]
             tempStr.isBlank() -> courseHtml.getElementsByAttributeValue("title", "周次").text()
             else -> courseHtml.getElementsByAttributeValue("title", "周次(节次)").text().substringBefore(')')
         }
-        val nodeList = when {
+        if (weekStr.isBlank()) {
+            weekStr = courseHtml.getElementsByAttributeValue("title", "选课人数").html().split("<br>")[1].substringBefore(')')
+        }
+        var nodeList = when {
             tempStr.contains(' ') -> courseHtml.getElementsByAttributeValue(
                     "title",
                     "周次(节次)"
@@ -32,6 +41,9 @@ class QzWithNodeParser(source: String) : QzParser(source) {
                     "title",
                     "周次(节次)"
             ).text().substringAfter(')').removeSurrounding("[", "]").split('-')
+        }
+        if (nodeList.isEmpty() || nodeList.any { it.isBlank() }) {
+            nodeList = courseHtml.getElementsByAttributeValue("title", "选课人数").html().split("<br>")[1].substringAfter(')').removeSurrounding("[", "]").split('-')
         }
         val weekList = weekStr.split(',')
         var startWeek = 0

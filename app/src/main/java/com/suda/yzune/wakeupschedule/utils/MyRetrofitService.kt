@@ -26,4 +26,16 @@ interface MyRetrofitService {
                  @Field("html") html: String,
                  @Field("qq") qq: String
     ): Call<ResponseBody>
+
+    @HTTP(method = "POST", path = "share_schedule", hasBody = true)
+    @FormUrlEncoded
+    fun shareSchedule(
+            @Header("version") version: Int,
+            @Field("schedule") schedule: String
+    ): Call<ResponseBody>
+
+    @GET("share_schedule/get")
+    fun getShareSchedule(
+            @Header("version") version: Int,
+            @Query("key") key: String): Call<ResponseBody>
 }

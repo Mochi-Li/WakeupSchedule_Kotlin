@@ -96,7 +96,11 @@ class AdvancedSettingsActivity : BaseListActivity(), ColorPickerFragment.ColorPi
             }
             else -> {
                 items.add(CategoryItem("愿意为之付费吗？", true))
-                items.add(VerticalItem("如何解锁？", "高级功能理论上是可以直接使用的，但是，像无人看守的小卖部，付费后再使用是诚信的表现哦~<br>朋友、校友、亲人，以及在此之前已经捐赠过的用户，已经解锁了高级功能，<b><font color='#$colorStr'>无需再花钱</font></b>。<br>其他用户的解锁方式如下，<b><font color='#$colorStr'>二选一即可：</font></b><br>1. 应用商店5星 + 支付宝付款2元<br>2. 支付宝付款5元<br><b><font color='#$colorStr'>点击此处进行付款，谢谢:)</font></b><br>", true))
+                items.add(VerticalItem("如何解锁？请仔细阅读以下内容哦", "<b><font color='#$colorStr'>当前页面</font></b>往下滑能看到的就是高级功能，<b><font color='#$colorStr'>理论上是可以直接使用的</font></b>，" +
+                        "但是，像<b><font color='#$colorStr'>无人看守</font></b>的小卖部，付费后再使用是诚信的表现哦~同时也能鼓励我们继续开发、继续完善功能。" +
+                        "当然，如果对这些功能的可靠性有疑问，可以<b><font color='#$colorStr'>先试用再付费</font></b>。" +
+                        "<br>朋友、校友、亲人，以及在此之前已经捐赠过的用户，已经解锁了高级功能，<b><font color='#$colorStr'>无需再花钱</font></b>。" +
+                        "<br>其他用户的解锁方式如下，<b><font color='#$colorStr'>二选一即可：</font></b><br>1. 应用商店5星 + 支付宝付款2元<br>2. 支付宝付款5元<br><b><font color='#$colorStr'>仔细考虑后点击此处进行付款，</font></b>感谢支持！", true))
                 items.add(VerticalItem("解锁后", "解锁后，你可以在你自用的任何设备上安装使用，并且免费使用后续更新的高级功能。<br><b><font color='#$colorStr'>放心，无论什么版本，App不会有任何形式的广告。</font></b>", true))
                 items.add(CategoryItem("外观", false))
             }
@@ -110,7 +114,10 @@ class AdvancedSettingsActivity : BaseListActivity(), ColorPickerFragment.ColorPi
         items.add(SwitchItem("开启上课提醒", getPrefer().getBoolean(Const.KEY_COURSE_REMIND, false)))
         items.add(SwitchItem("提醒通知常驻", getPrefer().getBoolean(Const.KEY_REMINDER_ON_GOING, false)))
         items.add(SeekBarItem("提前几分钟提醒", getPrefer().getInt(Const.KEY_REMINDER_TIME, 20), 0, 90, "分钟"))
+        items.add(VerticalItem("如何添加小部件？", "长按桌面空白处，或者在桌面做双指捏合手势，选择桌面小工具，肯定是有的，仔细找找，实在找不到就重启手机再找。\n" +
+                "P.S. 添加桌面小部件，想要确保它正常工作，最好在系统设置中，手动管理本App的后台，允许本App后台自启和后台运行。"))
         //items.add(SwitchItem("提醒同时将手机静音", PreferenceUtils.getBooleanFromSP(applicationContext, "silence_reminder", false)))
+        items.add(VerticalItem("", "\n\n\n"))
     }
 
     private fun onSwitchItemCheckChange(item: SwitchItem, isChecked: Boolean) {
@@ -167,7 +174,7 @@ class AdvancedSettingsActivity : BaseListActivity(), ColorPickerFragment.ColorPi
 
     private fun onVerticalItemClick(item: VerticalItem) {
         when (item.title) {
-            "如何解锁？" -> {
+            "如何解锁？请仔细阅读以下内容哦" -> {
                 try {
                     val intent = Intent()
                     intent.action = "android.intent.action.VIEW"

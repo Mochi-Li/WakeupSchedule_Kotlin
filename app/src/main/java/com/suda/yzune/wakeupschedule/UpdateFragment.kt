@@ -5,7 +5,6 @@ import android.net.Uri
 import android.os.Bundle
 import android.view.View
 import androidx.fragment.app.BaseDialogFragment
-import com.suda.yzune.wakeupschedule.bean.UpdateInfoBean
 import com.suda.yzune.wakeupschedule.utils.UpdateUtils
 import es.dmoral.toasty.Toasty
 import kotlinx.android.synthetic.main.fragment_update.*
@@ -15,20 +14,22 @@ class UpdateFragment : BaseDialogFragment() {
     override val layoutId: Int
         get() = R.layout.fragment_update
 
-    private lateinit var updateInfo: UpdateInfoBean
+    private var versionName = ""
+    private var versionInfo = ""
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         arguments?.let {
-            updateInfo = it.getParcelable("updateInfo")!!
+            versionName = it.getString("versionName")!!
+            versionInfo = it.getString("versionInfo")!!
         }
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         tv_old_version.text = "当前版本：" + UpdateUtils.getVersionName(context!!.applicationContext)
-        tv_new_version.text = "最新版本：" + updateInfo.data.versionName
-        tv_info.text = updateInfo.data.versionInfo
+        tv_new_version.text = "最新版本：$versionName"
+        tv_info.text = versionInfo
         tv_visit.setOnClickListener {
             if (BuildConfig.CHANNEL == "google") {
                 try {
@@ -55,10 +56,11 @@ class UpdateFragment : BaseDialogFragment() {
 
     companion object {
         @JvmStatic
-        fun newInstance(arg: UpdateInfoBean) =
+        fun newInstance(name: String, info: String) =
                 UpdateFragment().apply {
                     arguments = Bundle().apply {
-                        putParcelable("updateInfo", arg)
+                        putString("versionName", name)
+                        putString("versionInfo", info)
                     }
                 }
     }
