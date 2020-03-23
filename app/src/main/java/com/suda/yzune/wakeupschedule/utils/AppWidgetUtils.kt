@@ -58,7 +58,7 @@ object AppWidgetUtils {
             val space = context.dip(8)
             mRemoteViews.setViewVisibility(R.id.iv_appwidget, View.VISIBLE)
             mRemoteViews.setInt(R.id.iv_appwidget, "setImageAlpha", 80)
-            mRemoteViews.setInt(R.id.iv_appwidget, "setColorFilter", Color.RED)
+            mRemoteViews.setInt(R.id.iv_appwidget, "setColorFilter", Color.WHITE)
             mRemoteViews.setViewPadding(R.id.rl_appwidget, space, space * 2, space, space * 2)
         } else {
             mRemoteViews.setViewVisibility(R.id.iv_appwidget, View.GONE)

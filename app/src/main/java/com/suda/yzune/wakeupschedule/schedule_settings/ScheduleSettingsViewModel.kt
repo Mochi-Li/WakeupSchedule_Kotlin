@@ -39,7 +39,12 @@ class ScheduleSettingsViewModel(application: Application) : AndroidViewModel(app
             cal.set(Calendar.DAY_OF_WEEK, Calendar.SUNDAY)
         } else {
             cal.firstDayOfWeek = Calendar.MONDAY
-            cal.set(Calendar.DAY_OF_WEEK, Calendar.MONDAY)
+            val d = cal.get(Calendar.DAY_OF_WEEK) - Calendar.MONDAY
+            if (d >= 0) {
+                cal.add(Calendar.DATE, -d)
+            } else {
+                cal.add(Calendar.DATE, -6)
+            }
         }
         cal.add(Calendar.WEEK_OF_YEAR, -week + 1)
         mYear = cal.get(Calendar.YEAR)

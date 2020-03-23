@@ -117,7 +117,12 @@ object CourseUtils {
             cal.set(Calendar.DAY_OF_WEEK, Calendar.SUNDAY)
         } else {
             cal.firstDayOfWeek = Calendar.MONDAY
-            cal.set(Calendar.DAY_OF_WEEK, Calendar.MONDAY)
+            val d = cal.get(Calendar.DAY_OF_WEEK) - Calendar.MONDAY
+            if (d >= 0) {
+                cal.add(Calendar.DATE, -d)
+            } else {
+                cal.add(Calendar.DATE, -6)
+            }
         }
         cal.set(Calendar.HOUR_OF_DAY, 0)
         cal.set(Calendar.MINUTE, 0)
@@ -130,11 +135,7 @@ object CourseUtils {
         cal.set(Calendar.SECOND, 0)
         cal.set(Calendar.MILLISECOND, 0)
         val time1 = cal.timeInMillis
-        var betweenDays: Int = ((time2 - time1) / (1000 * 3600 * 24)).toInt()
-        if (betweenDays < 0) {
-            betweenDays--
-        }
-        return betweenDays
+        return ((time2 - time1) / (1000 * 3600 * 24)).toInt()
     }
 
     @Throws(ParseException::class)

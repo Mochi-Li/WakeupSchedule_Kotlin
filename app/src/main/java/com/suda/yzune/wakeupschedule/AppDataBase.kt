@@ -115,11 +115,11 @@ abstract class AppDatabase : RoomDatabase() {
     abstract fun tableDao(): TableDao
 }
 
-class _8to9Migration(context: Context) : Migration(8, 9) {
-
-    override fun migrate(database: SupportSQLiteDatabase) {
-        database.beginTransaction()
-        database.query("")
-    }
-
-}
+//class _8to9Migration(context: Context) : Migration(8, 9) {
+//
+//    override fun migrate(database: SupportSQLiteDatabase) {
+//        database.beginTransaction()
+//        database.query("")
+//    }
+//
+//}
