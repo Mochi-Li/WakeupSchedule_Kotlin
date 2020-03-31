@@ -10,23 +10,24 @@ import android.view.View
 import android.view.View.OVER_SCROLL_NEVER
 import android.view.inputmethod.EditorInfo
 import android.view.inputmethod.InputMethodManager
+import android.widget.TextView
 import androidx.appcompat.widget.AppCompatEditText
 import androidx.appcompat.widget.AppCompatImageButton
 import androidx.appcompat.widget.AppCompatTextView
 import androidx.appcompat.widget.LinearLayoutCompat
 import androidx.constraintlayout.widget.ConstraintLayout
 import androidx.constraintlayout.widget.ConstraintSet
-import androidx.core.content.ContextCompat
-import androidx.core.content.res.ResourcesCompat
 import androidx.core.view.setPadding
 import androidx.recyclerview.widget.RecyclerView
 import com.suda.yzune.wakeupschedule.R
+import com.suda.yzune.wakeupschedule.utils.ViewUtils
 import splitties.dimensions.dip
+import splitties.resources.color
 import splitties.resources.styledColor
 
 abstract class BaseListActivity : BaseActivity() {
 
-    abstract fun onSetupSubButton(tvButton: AppCompatTextView): AppCompatTextView?
+    abstract fun onSetupSubButton(): View?
     lateinit var mainTitle: AppCompatTextView
     lateinit var searchView: AppCompatEditText
     protected var showSearch = false
@@ -102,19 +103,15 @@ abstract class BaseListActivity : BaseActivity() {
             })
 
             if (showSearch) {
-                val iconFont = ResourcesCompat.getFont(context, R.font.iconfont)
-                addView(AppCompatTextView(context).apply {
-                    textSize = 20f
-                    typeface = iconFont
-                    text = "\uE6D4"
-                    gravity = Gravity.CENTER
+                addView(AppCompatImageButton(context).apply {
                     setBackgroundResource(outValue.resourceId)
+                    setImageResource(R.drawable.ic_outline_search_24)
                     setOnClickListener {
                         when (searchView.visibility) {
                             View.GONE -> {
                                 mainTitle.visibility = View.GONE
                                 searchView.visibility = View.VISIBLE
-                                setTextColor(ContextCompat.getColor(context, R.color.colorAccent))
+                                imageTintList = ViewUtils.createColorStateList(color(R.color.colorAccent))
                                 searchView.isFocusable = true
                                 searchView.isFocusableInTouchMode = true
                                 searchView.requestFocus()
@@ -128,15 +125,17 @@ abstract class BaseListActivity : BaseActivity() {
                 })
             }
 
-            onSetupSubButton(AppCompatTextView(context).apply {
-                gravity = Gravity.CENTER
-                setBackgroundResource(outValue.resourceId)
-            })?.let {
-                addView(it, LinearLayoutCompat.LayoutParams(LinearLayoutCompat.LayoutParams.WRAP_CONTENT, dip(48)).apply {
+            val subButton = onSetupSubButton()
+            if (subButton != null) {
+                addView(subButton.apply {
+                    setBackgroundResource(outValue.resourceId)
+                    if (this is TextView) {
+                        this.gravity = Gravity.CENTER_VERTICAL
+                    }
+                }, LinearLayoutCompat.LayoutParams(LinearLayoutCompat.LayoutParams.WRAP_CONTENT, dip(48)).apply {
                     marginEnd = dip(24)
                 })
             }
-
         }, ConstraintLayout.LayoutParams(ConstraintLayout.LayoutParams.MATCH_CONSTRAINT,
                 ConstraintLayout.LayoutParams.WRAP_CONTENT).apply {
             topToTop = ConstraintSet.PARENT_ID

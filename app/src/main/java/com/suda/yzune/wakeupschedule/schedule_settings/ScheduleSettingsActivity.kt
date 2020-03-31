@@ -8,13 +8,13 @@ import android.os.Bundle
 import android.text.Editable
 import android.text.InputType
 import android.text.TextWatcher
+import android.view.View
 import android.widget.Toast
 import androidx.activity.viewModels
 import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.widget.AppCompatCheckBox
-import androidx.appcompat.widget.AppCompatTextView
+import androidx.appcompat.widget.AppCompatImageButton
 import androidx.core.content.edit
-import androidx.core.content.res.ResourcesCompat
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import com.google.android.material.textfield.TextInputEditText
@@ -52,6 +52,7 @@ private const val STROKE_COLOR = 3
 private const val WIDGET_TITLE_COLOR = 4
 private const val WIDGET_COURSE_TEXT_COLOR = 5
 private const val WIDGET_STROKE_COLOR = 6
+private const val WIDGET_BG_COLOR = 7
 
 class ScheduleSettingsActivity : BaseListActivity(), ColorPickerFragment.ColorPickerDialogListener {
 
@@ -63,14 +64,17 @@ class ScheduleSettingsActivity : BaseListActivity(), ColorPickerFragment.ColorPi
             WIDGET_TITLE_COLOR -> viewModel.table.widgetTextColor = color
             WIDGET_COURSE_TEXT_COLOR -> viewModel.table.widgetCourseTextColor = color
             WIDGET_STROKE_COLOR -> viewModel.table.widgetStrokeColor = color
+            WIDGET_BG_COLOR -> getPrefer().edit {
+                putInt(Const.KEY_APPWIDGET_BG_COLOR, color)
+                Toasty.info(this@ScheduleSettingsActivity, "记得退出当前页面再返回桌面，点小部件右上角箭头切换才能看到效果哦", Toasty.LENGTH_LONG).show()
+            }
         }
     }
 
-    override fun onSetupSubButton(tvButton: AppCompatTextView): AppCompatTextView? {
-        val iconFont = ResourcesCompat.getFont(this, R.font.iconfont)
-        tvButton.typeface = iconFont
-        tvButton.textSize = 20f
-        tvButton.text = getString(R.string.icon_heart)
+    override fun onSetupSubButton(): View? {
+        val tvButton = AppCompatImageButton(this).apply {
+            setImageResource(R.drawable.ic_outline_favorite_border_24)
+        }
         if (BuildConfig.CHANNEL == "google" || (BuildConfig.CHANNEL == "huawei" && !getPrefer().getBoolean(Const.KEY_SHOW_DONATE, false))) {
             tvButton.setOnClickListener {
                 val dialog = DonateFragment.newInstance()
@@ -93,6 +97,10 @@ class ScheduleSettingsActivity : BaseListActivity(), ColorPickerFragment.ColorPi
 
     private val currentWeekItem by lazy(LazyThreadSafetyMode.NONE) {
         SeekBarItem("当前周", viewModel.getCurrentWeek(), 1, viewModel.table.maxWeek, "周", "第", keys = listOf("学期", "周", "日期", "开学", "开始", "时间"))
+    }
+
+    private val widgetBgItem by lazy(LazyThreadSafetyMode.NONE) {
+        VerticalItem("小部件背景颜色设置", "颜色跟透明度都可以哦\n下个版本支持预览\n退出当前页面再返回桌面，点小部件右上角箭头切换才能看到效果哦\n长按恢复默认值")
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -133,7 +141,7 @@ class ScheduleSettingsActivity : BaseListActivity(), ColorPickerFragment.ColorPi
         mAdapter.addChildClickViewIds(R.id.anko_check_box)
         mAdapter.setOnItemChildClickListener { _, view, position ->
             when (val item = showItems[position]) {
-                is SwitchItem -> onSwitchItemCheckChange(item, view.findViewById<AppCompatCheckBox>(R.id.anko_check_box).isChecked)
+                is SwitchItem -> onSwitchItemCheckChange(item, view.findViewById<AppCompatCheckBox>(R.id.anko_check_box).isChecked, position)
             }
         }
         mAdapter.setOnItemClickListener { _, view, position ->
@@ -211,6 +219,9 @@ class ScheduleSettingsActivity : BaseListActivity(), ColorPickerFragment.ColorPi
         items.add(VerticalItem("小部件格子边框颜色", "将不透明度调到最低就可以隐藏边框了哦~", keys = listOf("边框", "显示", "边框颜色", "格子", "边", "小部件", "小", "插件", "桌面")))
         items.add(SwitchItem("显示日视图课程色块", getPrefer().getBoolean(Const.KEY_DAY_WIDGET_COLOR, true)))
         items.add(SwitchItem("显示小部件背景", getPrefer().getBoolean(Const.KEY_APPWIDGET_BG, false)))
+        if (getPrefer().getBoolean(Const.KEY_APPWIDGET_BG, false)) {
+            items.add(widgetBgItem)
+        }
 
         items.add(CategoryItem("高级", false))
         when {
@@ -228,7 +239,7 @@ class ScheduleSettingsActivity : BaseListActivity(), ColorPickerFragment.ColorPi
         items.add(VerticalItem("", "\n\n\n"))
     }
 
-    private fun onSwitchItemCheckChange(item: SwitchItem, isChecked: Boolean) {
+    private fun onSwitchItemCheckChange(item: SwitchItem, isChecked: Boolean, position: Int) {
         when (item.title) {
             "周日为每周第一天" -> viewModel.table.sundayFirst = isChecked
             "显示周六" -> viewModel.table.showSat = isChecked
@@ -247,6 +258,11 @@ class ScheduleSettingsActivity : BaseListActivity(), ColorPickerFragment.ColorPi
             "显示小部件背景" -> {
                 getPrefer().edit {
                     putBoolean(Const.KEY_APPWIDGET_BG, isChecked)
+                }
+                if (isChecked) {
+                    mAdapter.addData(position + 1, widgetBgItem)
+                } else {
+                    mAdapter.remove(widgetBgItem)
                 }
                 mRecyclerView.longSnack("请点击小部件右上角的「切换按钮」查看效果~")
             }
@@ -418,6 +434,9 @@ class ScheduleSettingsActivity : BaseListActivity(), ColorPickerFragment.ColorPi
             "小部件格子边框颜色" -> {
                 buildColorPickerDialogBuilder(viewModel.table.widgetStrokeColor, WIDGET_STROKE_COLOR)
             }
+            widgetBgItem.title -> {
+                buildColorPickerDialogBuilder(getPrefer().getInt(Const.KEY_APPWIDGET_BG_COLOR, 0x80FFFFFF.toInt()), WIDGET_BG_COLOR)
+            }
             "解锁高级功能" -> {
                 start<AdvancedSettingsActivity>()
             }
@@ -432,6 +451,13 @@ class ScheduleSettingsActivity : BaseListActivity(), ColorPickerFragment.ColorPi
             "课程表背景" -> {
                 viewModel.table.background = ""
                 Toasty.success(this, "恢复默认壁纸成功~").show()
+                true
+            }
+            widgetBgItem.title -> {
+                Toasty.success(this, "恢复默认颜色成功~").show()
+                getPrefer().edit {
+                    putInt(Const.KEY_APPWIDGET_BG_COLOR, 0x80FFFFFF.toInt())
+                }
                 true
             }
             else -> false

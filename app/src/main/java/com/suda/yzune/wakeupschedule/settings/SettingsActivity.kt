@@ -2,6 +2,7 @@ package com.suda.yzune.wakeupschedule.settings
 
 import android.content.Intent
 import android.os.Bundle
+import android.view.View
 import androidx.appcompat.app.AppCompatDelegate
 import androidx.appcompat.widget.AppCompatCheckBox
 import androidx.appcompat.widget.AppCompatTextView
@@ -34,10 +35,11 @@ class SettingsActivity : BaseListActivity() {
 
     private val mAdapter = SettingItemAdapter()
 
-    override fun onSetupSubButton(tvButton: AppCompatTextView): AppCompatTextView? {
+    override fun onSetupSubButton(): View? {
         return if (BuildConfig.CHANNEL == "google" || (BuildConfig.CHANNEL == "huawei" && !getPrefer().getBoolean(Const.KEY_SHOW_DONATE, false))) {
             null
         } else {
+            val tvButton = AppCompatTextView(this)
             tvButton.text = "捐赠"
             tvButton.setTextColor(color(R.color.colorAccent))
             tvButton.setOnClickListener {

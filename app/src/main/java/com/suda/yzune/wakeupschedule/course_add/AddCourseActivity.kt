@@ -15,19 +15,19 @@ import android.view.ViewGroup
 import android.widget.Toast
 import androidx.activity.viewModels
 import androidx.appcompat.widget.AppCompatEditText
+import androidx.appcompat.widget.AppCompatImageView
 import androidx.appcompat.widget.AppCompatTextView
 import androidx.appcompat.widget.LinearLayoutCompat
 import androidx.constraintlayout.widget.ConstraintLayout
 import androidx.constraintlayout.widget.ConstraintSet
-import androidx.core.content.res.ResourcesCompat
 import androidx.core.view.ViewCompat
 import androidx.core.view.setMargins
 import androidx.core.view.updateLayoutParams
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.Observer
 import androidx.recyclerview.widget.LinearLayoutManager
-import com.google.android.material.button.MaterialButton
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
+import com.google.android.material.floatingactionbutton.FloatingActionButton
 import com.suda.yzune.wakeupschedule.R
 import com.suda.yzune.wakeupschedule.base_view.BaseListActivity
 import com.suda.yzune.wakeupschedule.bean.CourseBaseBean
@@ -35,19 +35,22 @@ import com.suda.yzune.wakeupschedule.bean.CourseEditBean
 import com.suda.yzune.wakeupschedule.schedule_import.Common
 import com.suda.yzune.wakeupschedule.utils.Const
 import com.suda.yzune.wakeupschedule.utils.CourseUtils
+import com.suda.yzune.wakeupschedule.utils.ViewUtils
 import com.suda.yzune.wakeupschedule.utils.getPrefer
 import com.suda.yzune.wakeupschedule.widget.EditDetailFragment
 import com.suda.yzune.wakeupschedule.widget.colorpicker.ColorPickerFragment
 import es.dmoral.toasty.Toasty
 import splitties.dimensions.dip
 import splitties.resources.color
+import splitties.resources.styledColor
 
 class AddCourseActivity : BaseListActivity(), ColorPickerFragment.ColorPickerDialogListener, AddCourseAdapter.OnItemEditTextChangedListener {
 
     private lateinit var tvColor: AppCompatTextView
-    private lateinit var ivColor: AppCompatTextView
+    private lateinit var ivColor: AppCompatImageView
 
-    override fun onSetupSubButton(tvButton: AppCompatTextView): AppCompatTextView? {
+    override fun onSetupSubButton(): View? {
+        val tvButton = AppCompatTextView(this)
         tvButton.text = "保存"
         tvButton.typeface = Typeface.DEFAULT_BOLD
         tvButton.setTextColor(color(R.color.colorAccent))
@@ -88,12 +91,9 @@ class AddCourseActivity : BaseListActivity(), ColorPickerFragment.ColorPickerDia
                 initAdapter(viewModel.baseBean)
             }
         }
-        val addFab = MaterialButton(this).apply {
-            includeFontPadding = false
-            textSize = 25f
-            cornerRadius = dip(48)
-            text = getString(R.string.icon_add)
-            typeface = ResourcesCompat.getFont(context, R.font.iconfont)
+        val addFab = FloatingActionButton(this).apply {
+            setImageResource(R.drawable.ic_outline_add_24)
+            imageTintList = ViewUtils.createColorStateList(styledColor(R.attr.colorSurface))
             setOnClickListener {
                 if (viewModel.editList.isEmpty()) {
                     adapter.addData(CourseEditBean(
@@ -279,7 +279,7 @@ class AddCourseActivity : BaseListActivity(), ColorPickerFragment.ColorPickerDia
         tvColor.text = baseBean.color
         if (baseBean.color != "") {
             val colorInt = Color.parseColor(baseBean.color)
-            ivColor.setTextColor(colorInt)
+            ivColor.imageTintList = ViewUtils.createColorStateList(colorInt)
             tvColor.setTextColor(colorInt)
             tvColor.text = "点此更改颜色"
         }
@@ -295,7 +295,7 @@ class AddCourseActivity : BaseListActivity(), ColorPickerFragment.ColorPickerDia
     override fun onColorSelected(dialogId: Int, color: Int) {
         tvColor.setTextColor(color)
         tvColor.text = "点此更改颜色"
-        ivColor.setTextColor(color)
+        ivColor.imageTintList = ViewUtils.createColorStateList(color)
         viewModel.baseBean.color = "#${Integer.toHexString(color)}"
     }
 

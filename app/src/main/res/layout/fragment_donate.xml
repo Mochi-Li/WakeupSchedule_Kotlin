@@ -7,7 +7,7 @@
     android:orientation="vertical"
     tools:context=".schedule.DonateFragment">
 
-    <androidx.appcompat.widget.AppCompatTextView
+    <androidx.appcompat.widget.AppCompatImageView
         android:id="@+id/ib_close"
         style="@style/ButtonBackground"
         android:layout_width="32dp"
@@ -15,12 +15,8 @@
         android:layout_gravity="end"
         android:layout_marginTop="8dp"
         android:layout_marginEnd="8dp"
-        android:fontFamily="@font/iconfont"
-        android:gravity="center"
-        android:includeFontPadding="false"
-        android:text=""
-        android:textSize="20sp" />
-
+        android:padding="8dp"
+        android:src="@drawable/ic_outline_close_24" />
 
     <androidx.appcompat.widget.AppCompatTextView
         android:layout_width="match_parent"

@@ -20,35 +20,27 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent" />
 
-    <androidx.appcompat.widget.AppCompatTextView
+    <androidx.appcompat.widget.AppCompatImageButton
         android:id="@+id/ib_edit"
         style="@style/ButtonBackground"
         android:layout_width="40dp"
         android:layout_height="64dp"
         android:layout_marginStart="16dp"
         android:layout_marginEnd="16dp"
-        android:fontFamily="@font/iconfont"
-        android:gravity="center"
-        android:includeFontPadding="false"
-        android:text=""
-        android:textColor="@color/blue"
-        android:textSize="23sp"
+        android:src="@drawable/ic_outline_edit_24"
+        app:tint="@color/blue"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toEndOf="@id/ib_delete"
         app:layout_constraintTop_toTopOf="parent" />
 
-    <androidx.appcompat.widget.AppCompatTextView
+    <androidx.appcompat.widget.AppCompatImageButton
         android:id="@+id/ib_delete"
         style="@style/ButtonBackground"
         android:layout_width="40dp"
         android:layout_height="64dp"
-        android:fontFamily="@font/iconfont"
-        android:gravity="center"
-        android:includeFontPadding="false"
-        android:text="@string/icon_delete"
-        android:textColor="@color/red"
-        android:textSize="23sp"
+        android:src="@drawable/ic_outline_delete_outline_24"
+        app:tint="@color/red"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toStartOf="@id/ib_edit"
         app:layout_constraintStart_toEndOf="@id/tv_time_name"

@@ -10,12 +10,12 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.FrameLayout
 import android.widget.ImageView
+import androidx.appcompat.widget.AppCompatImageButton
 import androidx.appcompat.widget.AppCompatImageView
 import androidx.appcompat.widget.AppCompatTextView
 import androidx.constraintlayout.widget.ConstraintLayout
 import androidx.constraintlayout.widget.ConstraintSet.PARENT_ID
 import androidx.coordinatorlayout.widget.CoordinatorLayout
-import androidx.core.content.res.ResourcesCompat
 import androidx.core.view.ViewCompat
 import androidx.core.view.setMargins
 import androidx.recyclerview.widget.LinearLayoutManager
@@ -40,7 +40,6 @@ import splitties.resources.styledColor
 
 class ScheduleActivityUI(override val ctx: Context) : Ui {
 
-    private val iconFont = ResourcesCompat.getFont(ctx, R.font.iconfont)
     private val statusBarMargin = getStatusBarHeight(ctx) + ctx.dip(8)
     private val outValue = TypedValue()
 
@@ -71,54 +70,28 @@ class ScheduleActivityUI(override val ctx: Context) : Ui {
         setTextColor(Color.BLACK)
     }
 
-    val navBtn = AppCompatTextView(ctx).apply {
-        id = R.id.anko_ib_nav
-        text = "\uE6A7"
-        setBackgroundResource(outValue.resourceId)
-        textSize = 20f
-        gravity = Gravity.CENTER
-        includeFontPadding = false
-        typeface = iconFont
-    }
-
-    val addBtn = AppCompatTextView(ctx).apply {
+    val addBtn = AppCompatImageButton(ctx).apply {
         id = R.id.anko_ib_add
-        text = "\uE6DC"
+        setImageResource(R.drawable.ic_outline_add_24)
         setBackgroundResource(outValue.resourceId)
-        textSize = 20f
-        gravity = Gravity.CENTER
-        includeFontPadding = false
-        typeface = iconFont
     }
 
-    val importBtn = AppCompatTextView(ctx).apply {
+    val importBtn = AppCompatImageButton(ctx).apply {
         id = R.id.anko_ib_import
-        text = "\uE6E2"
+        setImageResource(R.drawable.ic_outline_get_app_24)
         setBackgroundResource(outValue.resourceId)
-        textSize = 20f
-        gravity = Gravity.CENTER
-        includeFontPadding = false
-        typeface = iconFont
     }
 
-    val shareBtn = AppCompatTextView(ctx).apply {
+    val shareBtn = AppCompatImageButton(ctx).apply {
         id = R.id.anko_ib_share
-        text = "\uE6BA"
+        setImageResource(R.drawable.ic_outline_share1_24)
         setBackgroundResource(outValue.resourceId)
-        textSize = 20f
-        gravity = Gravity.CENTER
-        includeFontPadding = false
-        typeface = iconFont
     }
 
-    val moreBtn = AppCompatTextView(ctx).apply {
+    val moreBtn = AppCompatImageButton(ctx).apply {
         id = R.id.anko_ib_more
-        text = "\uE6BF"
+        setImageResource(R.drawable.ic_outline_more_vert_24)
         setBackgroundResource(outValue.resourceId)
-        textSize = 20f
-        gravity = Gravity.CENTER
-        includeFontPadding = false
-        typeface = iconFont
     }
 
     val content = ConstraintLayout(ctx).apply {
@@ -138,7 +111,6 @@ class ScheduleActivityUI(override val ctx: Context) : Ui {
                 ConstraintLayout.LayoutParams.WRAP_CONTENT).apply {
             startToStart = PARENT_ID
             topToTop = PARENT_ID
-            bottomToBottom = R.id.anko_ib_nav
             marginStart = dip(24)
             topMargin = statusBarMargin
         })
@@ -158,13 +130,6 @@ class ScheduleActivityUI(override val ctx: Context) : Ui {
             topToBottom = R.id.anko_tv_date
             topMargin = dip(4)
             marginStart = dip(8)
-        })
-
-        //导航按钮
-        addView(navBtn, ConstraintLayout.LayoutParams(dip(32), dip(32)).apply {
-            topMargin = statusBarMargin
-            endToStart = R.id.anko_tv_date
-            topToTop = PARENT_ID
         })
 
         //添加按钮

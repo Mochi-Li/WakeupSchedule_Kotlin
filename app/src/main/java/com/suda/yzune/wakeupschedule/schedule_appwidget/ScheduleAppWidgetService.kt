@@ -103,7 +103,7 @@ class ScheduleAppWidgetService : RemoteViewsService() {
         }
 
         override fun getLoadingView(): RemoteViews? {
-            return null
+            return RemoteViews(applicationContext.packageName, R.layout.appwidget_loading_view)
         }
 
         override fun getViewTypeCount(): Int {

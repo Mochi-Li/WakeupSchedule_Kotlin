@@ -198,7 +198,9 @@ class ScheduleActivity : BaseActivity() {
             val view = ui.content.getChildAt(i)
             when (view) {
                 is AppCompatTextView -> view.setTextColor(viewModel.table.textColor)
-                is AppCompatImageButton -> view.setColorFilter(viewModel.table.textColor)
+                is AppCompatImageButton -> {
+                    view.imageTintList = ViewUtils.createColorStateList(viewModel.table.textColor)
+                }
             }
         }
 
@@ -407,10 +409,6 @@ class ScheduleActivity : BaseActivity() {
                 .overlay(true)
                 .maxWidth(dip(240))
                 .customView(R.layout.my_tooltip, R.id.tv_tip)
-        val navTooltip = builder
-                .text("点这里查看更多功能")
-                .anchor(ui.navBtn)
-                .create()
         val jumpTooltip = builder
                 .text("点这里快速回到当前周")
                 .anchor(ui.weekDayView)
@@ -431,42 +429,37 @@ class ScheduleActivity : BaseActivity() {
                 .text("点这里查看更多功能")
                 .anchor(ui.moreBtn)
                 .create()
-        navTooltip.doOnHidden {
-            jumpTooltip.doOnHidden {
-                addBtnTooltip.doOnHidden {
-                    importTooltip.doOnHidden {
-                        shareTooltip.doOnHidden {
-                            moreTooltip.doOnHidden {
-                                getPrefer().edit {
-                                    putBoolean(Const.KEY_HAS_INTRO, true)
-                                }
-                                showBottomSheetDialog()
-                            }.show(ui.content, Tooltip.Gravity.LEFT)
-                            moreTooltip.contentView?.findViewById<TextView>(R.id.btn_next)?.apply {
-                                text = "完成教程"
-                                setOnClickListener {
-                                    moreTooltip.hide()
-                                }
+        jumpTooltip.doOnHidden {
+            addBtnTooltip.doOnHidden {
+                importTooltip.doOnHidden {
+                    shareTooltip.doOnHidden {
+                        moreTooltip.doOnHidden {
+                            getPrefer().edit {
+                                putBoolean(Const.KEY_HAS_INTRO, true)
                             }
+                            showBottomSheetDialog()
                         }.show(ui.content, Tooltip.Gravity.LEFT)
-                        shareTooltip.contentView?.findViewById<TextView>(R.id.btn_next)?.setOnClickListener {
-                            shareTooltip.hide()
+                        moreTooltip.contentView?.findViewById<TextView>(R.id.btn_next)?.apply {
+                            text = "完成教程"
+                            setOnClickListener {
+                                moreTooltip.hide()
+                            }
                         }
                     }.show(ui.content, Tooltip.Gravity.LEFT)
-                    importTooltip.contentView?.findViewById<TextView>(R.id.btn_next)?.setOnClickListener {
-                        importTooltip.hide()
+                    shareTooltip.contentView?.findViewById<TextView>(R.id.btn_next)?.setOnClickListener {
+                        shareTooltip.hide()
                     }
-                }.show(ui.content, Tooltip.Gravity.BOTTOM)
-                addBtnTooltip.contentView?.findViewById<TextView>(R.id.btn_next)?.setOnClickListener {
-                    addBtnTooltip.hide()
+                }.show(ui.content, Tooltip.Gravity.LEFT)
+                importTooltip.contentView?.findViewById<TextView>(R.id.btn_next)?.setOnClickListener {
+                    importTooltip.hide()
                 }
             }.show(ui.content, Tooltip.Gravity.BOTTOM)
-            jumpTooltip.contentView?.findViewById<TextView>(R.id.btn_next)?.setOnClickListener {
-                jumpTooltip.hide()
+            addBtnTooltip.contentView?.findViewById<TextView>(R.id.btn_next)?.setOnClickListener {
+                addBtnTooltip.hide()
             }
-        }.show(ui.content, Tooltip.Gravity.RIGHT)
-        navTooltip.contentView?.findViewById<TextView>(R.id.btn_next)?.setOnClickListener {
-            navTooltip.hide()
+        }.show(ui.content, Tooltip.Gravity.BOTTOM)
+        jumpTooltip.contentView?.findViewById<TextView>(R.id.btn_next)?.setOnClickListener {
+            jumpTooltip.hide()
         }
     }
 
@@ -498,10 +491,6 @@ class ScheduleActivity : BaseActivity() {
                 putExtra("nodes", viewModel.table.nodes)
                 putExtra("id", -1)
             }
-        }
-
-        ui.navBtn.setOnClickListener {
-            showBottomSheetDialog()
         }
 
         ui.moreBtn.setOnClickListener {

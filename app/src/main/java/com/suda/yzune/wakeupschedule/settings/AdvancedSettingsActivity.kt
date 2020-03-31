@@ -6,6 +6,7 @@ import android.net.Uri
 import android.os.Build
 import android.os.Bundle
 import android.text.InputType
+import android.view.View
 import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.widget.AppCompatCheckBox
 import androidx.appcompat.widget.AppCompatTextView
@@ -44,10 +45,11 @@ class AdvancedSettingsActivity : BaseListActivity(), ColorPickerFragment.ColorPi
 
     private val mAdapter = SettingItemAdapter()
 
-    override fun onSetupSubButton(tvButton: AppCompatTextView): AppCompatTextView? {
+    override fun onSetupSubButton(): View? {
         return if (BuildConfig.CHANNEL == "google" || (BuildConfig.CHANNEL == "huawei" && !getPrefer().getBoolean(Const.KEY_SHOW_DONATE, false))) {
             null
         } else {
+            val tvButton = AppCompatTextView(this)
             tvButton.text = "捐赠"
             tvButton.setTextColor(color(R.color.colorAccent))
             tvButton.setOnClickListener {

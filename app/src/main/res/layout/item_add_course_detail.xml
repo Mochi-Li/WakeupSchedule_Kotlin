@@ -15,7 +15,7 @@
         android:text="时间段"
         android:textSize="12sp" />
 
-    <androidx.appcompat.widget.AppCompatTextView
+    <androidx.appcompat.widget.AppCompatImageView
         android:id="@+id/ib_delete"
         style="@style/ButtonBackground"
         android:layout_width="32dp"
@@ -23,11 +23,9 @@
         android:layout_alignParentEnd="true"
         android:layout_marginTop="8dp"
         android:layout_marginEnd="8dp"
-        android:fontFamily="@font/iconfont"
-        android:gravity="center"
-        android:includeFontPadding="false"
-        android:text="@string/icon_close"
-        android:textSize="20sp" />
+        android:layout_gravity="end"
+        android:padding="8dp"
+        android:src="@drawable/ic_outline_close_24" />
 
     <androidx.appcompat.widget.LinearLayoutCompat
         android:id="@+id/ll_weeks"
@@ -36,12 +34,12 @@
         android:layout_below="@id/tv_item"
         android:background="?android:attr/selectableItemBackground">
 
-        <androidx.appcompat.widget.AppCompatTextView
-            style="@style/IconTextViewStyle"
+        <androidx.appcompat.widget.AppCompatImageView
             android:layout_width="56dp"
+            android:padding="16dp"
             android:layout_height="match_parent"
-            android:text="@string/icon_date"
-            android:textColor="#16AD9F" />
+            android:src="@drawable/ic_outline_event_note_24"
+            app:tint="#16AD9F" />
 
         <androidx.appcompat.widget.AppCompatTextView
             android:id="@+id/et_weeks"
@@ -62,12 +60,12 @@
         android:layout_below="@id/ll_weeks"
         android:background="?android:attr/selectableItemBackground">
 
-        <androidx.appcompat.widget.AppCompatTextView
-            style="@style/IconTextViewStyle"
+        <androidx.appcompat.widget.AppCompatImageView
             android:layout_width="56dp"
+            android:padding="16dp"
             android:layout_height="match_parent"
-            android:text="@string/icon_clock"
-            android:textColor="#FFA622" />
+            android:src="@drawable/ic_outline_access_time_24"
+            app:tint="#FFA622" />
 
         <androidx.appcompat.widget.AppCompatTextView
             android:id="@+id/et_time"
@@ -92,12 +90,12 @@
         android:layout_below="@id/ll_time"
         android:background="?android:attr/selectableItemBackground">
 
-        <androidx.appcompat.widget.AppCompatTextView
-            style="@style/IconTextViewStyle"
+        <androidx.appcompat.widget.AppCompatImageView
             android:layout_width="56dp"
+            android:padding="16dp"
             android:layout_height="match_parent"
-            android:text="@string/icon_person"
-            android:textColor="#1571D5" />
+            android:src="@drawable/ic_outline_person_outline_24"
+            app:tint="#1571D5" />
 
         <androidx.appcompat.widget.AppCompatTextView
             android:id="@+id/et_teacher"
@@ -120,12 +118,12 @@
         android:layout_below="@id/ll_teacher"
         android:background="?android:attr/selectableItemBackground">
 
-        <androidx.appcompat.widget.AppCompatTextView
-            style="@style/IconTextViewStyle"
+        <androidx.appcompat.widget.AppCompatImageView
             android:layout_width="56dp"
+            android:padding="16dp"
             android:layout_height="match_parent"
-            android:text="@string/icon_location"
-            android:textColor="#F63D3E" />
+            android:src="@drawable/ic_outline_location_on_24"
+            app:tint="#F63D3E" />
 
         <androidx.appcompat.widget.AppCompatTextView
             android:id="@+id/et_room"

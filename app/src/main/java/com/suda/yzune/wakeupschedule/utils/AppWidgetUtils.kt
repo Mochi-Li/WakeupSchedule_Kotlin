@@ -10,6 +10,7 @@ import android.net.Uri
 import android.util.TypedValue
 import android.view.View
 import android.widget.RemoteViews
+import androidx.core.graphics.ColorUtils
 import com.suda.yzune.wakeupschedule.R
 import com.suda.yzune.wakeupschedule.SplashActivity
 import com.suda.yzune.wakeupschedule.bean.TableBean
@@ -57,8 +58,9 @@ object AppWidgetUtils {
         if (context.getPrefer().getBoolean(Const.KEY_APPWIDGET_BG, false)) {
             val space = context.dip(8)
             mRemoteViews.setViewVisibility(R.id.iv_appwidget, View.VISIBLE)
-            mRemoteViews.setInt(R.id.iv_appwidget, "setImageAlpha", 80)
-            mRemoteViews.setInt(R.id.iv_appwidget, "setColorFilter", Color.WHITE)
+            val bgColor = context.getPrefer().getInt(Const.KEY_APPWIDGET_BG_COLOR, 0x80FFFFFF.toInt())
+            mRemoteViews.setInt(R.id.iv_appwidget, "setImageAlpha", Color.alpha(bgColor))
+            mRemoteViews.setInt(R.id.iv_appwidget, "setColorFilter", ColorUtils.setAlphaComponent(bgColor, 255))
             mRemoteViews.setViewPadding(R.id.rl_appwidget, space, space * 2, space, space * 2)
         } else {
             mRemoteViews.setViewVisibility(R.id.iv_appwidget, View.GONE)
@@ -178,8 +180,9 @@ object AppWidgetUtils {
         if (context.getPrefer().getBoolean(Const.KEY_APPWIDGET_BG, false)) {
             val space = context.dip(8)
             mRemoteViews.setViewVisibility(R.id.iv_appwidget, View.VISIBLE)
-            mRemoteViews.setInt(R.id.iv_appwidget, "setImageAlpha", 80)
-            mRemoteViews.setInt(R.id.iv_appwidget, "setColorFilter", Color.WHITE)
+            val bgColor = context.getPrefer().getInt(Const.KEY_APPWIDGET_BG_COLOR, 0x80FFFFFF.toInt())
+            mRemoteViews.setInt(R.id.iv_appwidget, "setImageAlpha", Color.alpha(bgColor))
+            mRemoteViews.setInt(R.id.iv_appwidget, "setColorFilter", ColorUtils.setAlphaComponent(bgColor, 255))
             mRemoteViews.setViewPadding(R.id.rl_appwidget, space, space * 2, space, space * 2)
         } else {
             mRemoteViews.setViewVisibility(R.id.iv_appwidget, View.GONE)

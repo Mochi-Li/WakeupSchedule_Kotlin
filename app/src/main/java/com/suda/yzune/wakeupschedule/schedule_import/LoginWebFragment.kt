@@ -1,7 +1,6 @@
 package com.suda.yzune.wakeupschedule.schedule_import
 
 import android.app.Activity.RESULT_OK
-import android.graphics.Color
 import android.os.Build
 import android.os.Bundle
 import android.text.InputType
@@ -10,7 +9,6 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.Toast
-import androidx.core.content.res.ResourcesCompat
 import androidx.fragment.app.activityViewModels
 import com.google.android.material.textfield.TextInputLayout
 import com.suda.yzune.wakeupschedule.R
@@ -22,11 +20,11 @@ import com.suda.yzune.wakeupschedule.schedule_import.login_school.hust.MobileHub
 import com.suda.yzune.wakeupschedule.schedule_import.login_school.jlu.UIMS
 import com.suda.yzune.wakeupschedule.schedule_import.login_school.suda.SudaXK
 import com.suda.yzune.wakeupschedule.utils.Utils
+import com.suda.yzune.wakeupschedule.utils.ViewUtils
 import es.dmoral.toasty.Toasty
-import jahirfiquitiva.libs.textdrawable.TextDrawable
 import kotlinx.android.synthetic.main.fragment_login_web.*
 import kotlinx.coroutines.delay
-import splitties.dimensions.dip
+import splitties.resources.styledColor
 import java.io.IOException
 import java.util.*
 
@@ -89,14 +87,10 @@ class LoginWebFragment : BaseFragment() {
 
     private fun initEvent() {
 
-        val textDrawable = TextDrawable
-                .builder()
-                .textColor(Color.WHITE)
-                .fontSize(context!!.dip(24))
-                .useFont(ResourcesCompat.getFont(context!!, R.font.iconfont)!!)
-                .buildRect("\uE6DE", Color.TRANSPARENT)
-
-        fab_login.setImageDrawable(textDrawable)
+        fab_login.apply {
+            setImageResource(R.drawable.ic_outline_done_24)
+            imageTintList = ViewUtils.createColorStateList(styledColor(R.attr.colorSurface))
+        }
 
         iv_code.setOnClickListener {
             refreshCode()

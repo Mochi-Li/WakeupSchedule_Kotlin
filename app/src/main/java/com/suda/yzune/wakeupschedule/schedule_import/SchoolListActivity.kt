@@ -16,7 +16,6 @@ import androidx.appcompat.widget.AppCompatImageButton
 import androidx.appcompat.widget.AppCompatTextView
 import androidx.appcompat.widget.LinearLayoutCompat
 import androidx.core.content.edit
-import androidx.core.content.res.ResourcesCompat
 import androidx.core.view.setPadding
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
@@ -55,6 +54,7 @@ import com.suda.yzune.wakeupschedule.schedule_import.Common.TYPE_ZF_NEW
 import com.suda.yzune.wakeupschedule.schedule_import.bean.SchoolInfo
 import com.suda.yzune.wakeupschedule.utils.Const
 import com.suda.yzune.wakeupschedule.utils.Utils
+import com.suda.yzune.wakeupschedule.utils.ViewUtils
 import com.suda.yzune.wakeupschedule.utils.getPrefer
 import com.timehop.stickyheadersrecyclerview.StickyRecyclerHeadersDecoration
 import es.dmoral.toasty.Toasty
@@ -160,19 +160,15 @@ class SchoolListActivity : BaseTitleActivity(), OnQuickSideBarTouchListener {
                 weight = 1f
             })
 
-            val iconFont = ResourcesCompat.getFont(context, R.font.iconfont)
-            addView(AppCompatTextView(context).apply {
-                textSize = 20f
-                typeface = iconFont
-                text = "\uE6D4"
-                gravity = Gravity.CENTER
+            addView(AppCompatImageButton(context).apply {
                 setBackgroundResource(outValue.resourceId)
+                setImageResource(R.drawable.ic_outline_search_24)
                 setOnClickListener {
                     when (searchView.visibility) {
                         View.GONE -> {
                             mainTitle.visibility = View.GONE
                             searchView.visibility = View.VISIBLE
-                            setTextColor(color(R.color.colorAccent))
+                            imageTintList = ViewUtils.createColorStateList(color(R.color.colorAccent))
                             searchView.isFocusable = true
                             searchView.isFocusableInTouchMode = true
                             searchView.requestFocus()
@@ -204,7 +200,7 @@ class SchoolListActivity : BaseTitleActivity(), OnQuickSideBarTouchListener {
             add(SchoolInfo("A", "安徽大学", "http://xk2.ahu.cn/default2.aspx", TYPE_ZF))
             add(SchoolInfo("A", "安徽工业大学", "http://jwxt.ahut.edu.cn/jsxsd/", TYPE_QZ))
             add(SchoolInfo("A", "安徽建筑大学", "http://219.231.0.156/", TYPE_ZF_NEW))
-            add(SchoolInfo("A", "安徽财经大学", "", TYPE_URP_NEW_AJAX))
+            add(SchoolInfo("A", "安徽财经大学", "", TYPE_URP_NEW))
             add(SchoolInfo("B", "保定学院", "http://jwgl.bdu.edu.cn/xtgl/login_slogin.html", TYPE_ZF_NEW))
             add(SchoolInfo("B", "北京信息科技大学", "http://jwgl.bistu.edu.cn/", TYPE_ZF))
             add(SchoolInfo("B", "北京化工大学", "http://jwglxt.buct.edu.cn/", TYPE_ZF_NEW))
@@ -453,7 +449,7 @@ class SchoolListActivity : BaseTitleActivity(), OnQuickSideBarTouchListener {
             add(SchoolInfo("S", "上海交通大学", "https://i.sjtu.edu.cn/xtgl/login_slogin.html", TYPE_ZF_NEW))
             add(SchoolInfo("H", "淮阴师范学院", "", TYPE_ZF_NEW))
             add(SchoolInfo("T", "唐山职业技术学院", "", TYPE_ZF_NEW))
-            add(SchoolInfo("Z", "浙江理工大学", "", TYPE_ZF_NEW))
+            add(SchoolInfo("Z", "浙江理工大学", "http://jwglxt.zstu.edu.cn/jwglxt", TYPE_ZF_NEW))
             add(SchoolInfo("X", "徐州工业职业技术学院", "", TYPE_ZF_NEW))
             add(SchoolInfo("Q", "青岛科技大学高密校区", "", TYPE_ZF_NEW))
             add(SchoolInfo("S", "石家庄邮电职业技术学院", "", TYPE_ZF_NEW))

@@ -40,12 +40,11 @@
         android:layout_marginTop="32dp"
         android:background="?android:attr/selectableItemBackground">
 
-        <androidx.appcompat.widget.AppCompatTextView
-            style="@style/IconTextViewStyle"
+        <androidx.appcompat.widget.AppCompatImageButton
             android:layout_width="56dp"
+            android:background="@null"
             android:layout_height="match_parent"
-            android:text="@string/icon_heart"
-            android:textColor="@color/red" />
+            android:src="@drawable/ic_outline_favorite_border_24" />
 
         <androidx.appcompat.widget.AppCompatTextView
             android:layout_width="match_parent"
@@ -62,12 +61,11 @@
         android:layout_height="64dp"
         android:background="?android:attr/selectableItemBackground">
 
-        <androidx.appcompat.widget.AppCompatTextView
-            style="@style/IconTextViewStyle"
+        <androidx.appcompat.widget.AppCompatImageButton
             android:layout_width="56dp"
+            android:background="@null"
             android:layout_height="match_parent"
-            android:text="@string/icon_doc"
-            android:textColor="@color/deepOrange" />
+            android:src="@drawable/ic_outline_code_24" />
 
         <androidx.appcompat.widget.AppCompatTextView
             android:layout_width="match_parent"
@@ -84,12 +82,11 @@
         android:layout_height="64dp"
         android:background="?android:attr/selectableItemBackground">
 
-        <androidx.appcompat.widget.AppCompatTextView
-            style="@style/IconTextViewStyle"
+        <androidx.appcompat.widget.AppCompatImageButton
             android:layout_width="56dp"
+            android:background="@null"
             android:layout_height="match_parent"
-            android:text="@string/icon_info"
-            android:textColor="@color/colorAccent" />
+            android:src="@drawable/ic_outline_help_outline_24" />
 
         <androidx.appcompat.widget.AppCompatTextView
             android:layout_width="match_parent"
@@ -106,12 +103,11 @@
         android:layout_height="64dp"
         android:background="?android:attr/selectableItemBackground">
 
-        <androidx.appcompat.widget.AppCompatTextView
-            style="@style/IconTextViewStyle"
+        <androidx.appcompat.widget.AppCompatImageButton
             android:layout_width="56dp"
+            android:background="@null"
             android:layout_height="match_parent"
-            android:text="@string/icon_msg"
-            android:textColor="@color/red" />
+            android:src="@drawable/ic_outline_sms_24" />
 
         <androidx.appcompat.widget.AppCompatTextView
             android:layout_width="match_parent"
@@ -128,12 +124,11 @@
         android:layout_width="match_parent"
         android:background="?android:attr/selectableItemBackground">
 
-        <androidx.appcompat.widget.AppCompatTextView
-            style="@style/IconTextViewStyle"
+        <androidx.appcompat.widget.AppCompatImageButton
             android:layout_width="56dp"
+            android:background="@null"
             android:layout_height="match_parent"
-            android:text="@string/icon_person"
-            android:textColor="@color/deepOrange" />
+            android:src="@drawable/ic_outline_person_outline_24" />
 
         <androidx.appcompat.widget.AppCompatTextView
             android:layout_width="match_parent"
@@ -150,12 +145,11 @@
         android:layout_width="match_parent"
         android:background="?android:attr/selectableItemBackground">
 
-        <androidx.appcompat.widget.AppCompatTextView
-            style="@style/IconTextViewStyle"
+        <androidx.appcompat.widget.AppCompatImageButton
             android:layout_width="56dp"
+            android:background="@null"
             android:layout_height="match_parent"
-            android:text="@string/icon_star"
-            android:textColor="@color/colorAccent" />
+            android:src="@drawable/ic_outline_star_border_24" />
 
         <androidx.appcompat.widget.AppCompatTextView
             android:layout_width="match_parent"

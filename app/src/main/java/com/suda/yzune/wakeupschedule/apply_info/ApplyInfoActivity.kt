@@ -6,8 +6,7 @@ import android.text.TextWatcher
 import android.view.LayoutInflater
 import android.view.View
 import androidx.activity.viewModels
-import androidx.appcompat.widget.AppCompatTextView
-import androidx.core.content.res.ResourcesCompat
+import androidx.appcompat.widget.AppCompatImageButton
 import androidx.lifecycle.Observer
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.suda.yzune.wakeupschedule.R
@@ -20,11 +19,10 @@ import splitties.snackbar.longSnack
 
 class ApplyInfoActivity : BaseListActivity() {
 
-    override fun onSetupSubButton(tvButton: AppCompatTextView): AppCompatTextView? {
-        val iconFont = ResourcesCompat.getFont(this, R.font.iconfont)
-        tvButton.typeface = iconFont
-        tvButton.textSize = 20f
-        tvButton.text = "\uE6D7"
+    override fun onSetupSubButton(): View? {
+        val tvButton = AppCompatImageButton(this).apply {
+            setImageResource(R.drawable.ic_outline_refresh_24)
+        }
         tvButton.setOnClickListener {
             viewModel.initData()
         }

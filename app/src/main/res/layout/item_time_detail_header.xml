@@ -96,18 +96,14 @@
                 app:tickColor="@android:color/transparent"
                 app:trackHeight="24dp" />
 
-            <androidx.appcompat.widget.AppCompatTextView
+            <androidx.appcompat.widget.AppCompatImageButton
                 android:id="@+id/ib_edit"
                 style="@style/ButtonBackground"
                 android:layout_width="40dp"
                 android:layout_height="56dp"
                 android:layout_marginEnd="16dp"
-                android:fontFamily="@font/iconfont"
-                android:gravity="center"
-                android:includeFontPadding="false"
-                android:text=""
-                android:textColor="@color/blue"
-                android:textSize="23sp" />
+                android:src="@drawable/ic_outline_edit_24"
+                app:tint="@color/blue" />
 
         </androidx.appcompat.widget.LinearLayoutCompat>
 

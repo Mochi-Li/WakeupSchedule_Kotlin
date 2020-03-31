@@ -11,7 +11,6 @@ import android.view.Gravity
 import android.view.View
 import android.widget.*
 import androidx.core.content.ContextCompat
-import androidx.core.content.res.ResourcesCompat
 import androidx.core.view.drawToBitmap
 import androidx.core.view.setMargins
 import androidx.core.view.setPadding
@@ -146,7 +145,6 @@ class TodayColorfulService : RemoteViewsService() {
         }
 
         private fun initView(context: Context, position: Int): View {
-            val iconFont = ResourcesCompat.getFont(context, R.font.iconfont)
             val dp = 2
             val alphaInt = (255 * (table.widgetItemAlpha.toFloat() / 100)).roundToInt()
             var alphaStr = if (alphaInt != 0) {
@@ -245,13 +243,11 @@ class TodayColorfulService : RemoteViewsService() {
                             addView(LinearLayout(context).apply {
                                 if (c.room != "") {
 
-                                    addView(TextView(context).apply {
-                                        text = "\uE6B2"
+                                    addView(ImageView(context).apply {
+                                        setImageResource(R.drawable.ic_outline_location_on_24)
                                         alpha = 0.8f
-                                        setTextColor(table.widgetCourseTextColor)
-                                        textSize = widgetTextSize + 2
-                                        typeface = iconFont
-                                    }, LinearLayout.LayoutParams(LinearLayout.LayoutParams.WRAP_CONTENT, LinearLayout.LayoutParams.WRAP_CONTENT))
+                                        imageTintList = ViewUtils.createColorStateList(table.widgetCourseTextColor)
+                                    }, LinearLayout.LayoutParams(LinearLayout.LayoutParams.WRAP_CONTENT, LinearLayout.LayoutParams.MATCH_PARENT))
 
                                     addView(TextView(context).apply {
                                         text = c.room
@@ -265,13 +261,11 @@ class TodayColorfulService : RemoteViewsService() {
                                     })
                                 }
                                 if (c.teacher != "") {
-                                    addView(TextView(context).apply {
-                                        text = "\uE6EB"
+                                    addView(ImageView(context).apply {
+                                        setImageResource(R.drawable.ic_outline_person_outline_24)
                                         alpha = 0.8f
-                                        setTextColor(table.widgetCourseTextColor)
-                                        textSize = widgetTextSize + 2
-                                        typeface = iconFont
-                                    }, LinearLayout.LayoutParams(LinearLayout.LayoutParams.WRAP_CONTENT, LinearLayout.LayoutParams.WRAP_CONTENT))
+                                        imageTintList = ViewUtils.createColorStateList(table.widgetCourseTextColor)
+                                    }, LinearLayout.LayoutParams(LinearLayout.LayoutParams.WRAP_CONTENT, LinearLayout.LayoutParams.MATCH_PARENT))
 
                                     addView(TextView(context).apply {
                                         alpha = 0.8f
@@ -300,7 +294,7 @@ class TodayColorfulService : RemoteViewsService() {
         }
 
         override fun getLoadingView(): RemoteViews? {
-            return null
+            return RemoteViews(applicationContext.packageName, R.layout.appwidget_loading_view)
         }
 
         override fun getViewTypeCount(): Int {

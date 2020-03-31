@@ -135,7 +135,7 @@ class TimeSettingsFragment : BaseFragment() {
 
         val tvTimeLen = view.findViewById<AppCompatTextView>(R.id.tv_time_length)
         val slider = view.findViewById<Slider>(R.id.sb_time_length)
-        val editBtn = view.findViewById<AppCompatTextView>(R.id.ib_edit)
+        val editBtn = view.findViewById<View>(R.id.ib_edit)
         slider.value = viewModel.timeTableList[position].courseLen.toFloat()
         tvTimeLen.text = viewModel.timeTableList[position].courseLen.toString()
         slider.addOnChangeListener { _, value, _ ->
