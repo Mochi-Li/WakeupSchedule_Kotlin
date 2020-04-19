@@ -156,7 +156,7 @@ object AppWidgetUtils {
         mRemoteViews.setRemoteAdapter(R.id.lv_schedule, lvIntent)
         val intent = Intent(context, SplashActivity::class.java)
         val pIntent = PendingIntent.getActivity(context, 0, intent, 0)
-        mRemoteViews.setOnClickPendingIntent(R.id.tv_date, pIntent)
+        mRemoteViews.setOnClickPendingIntent(R.id.rl_appwidget, pIntent)
 
         val nextIntent = Intent(context, ScheduleAppWidget::class.java)
         nextIntent.action = "WAKEUP_NEXT_WEEK"
@@ -218,7 +218,7 @@ object AppWidgetUtils {
         mRemoteViews.setRemoteAdapter(R.id.lv_course, lvIntent)
         val intent = Intent(context, SplashActivity::class.java)
         val pIntent = PendingIntent.getActivity(context, 0, intent, 0)
-        mRemoteViews.setOnClickPendingIntent(R.id.tv_date, pIntent)
+        mRemoteViews.setOnClickPendingIntent(R.id.rl_appwidget, pIntent)
 
         val i = Intent(context, TodayCourseAppWidget::class.java)
         i.action = "WAKEUP_NEXT_DAY"

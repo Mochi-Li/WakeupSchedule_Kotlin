@@ -1,6 +1,7 @@
 package com.suda.yzune.wakeupschedule
 
 import android.content.Context
+import androidx.core.content.edit
 import androidx.room.Database
 import androidx.room.Room
 import androidx.room.RoomDatabase
@@ -8,10 +9,12 @@ import androidx.room.migration.Migration
 import androidx.sqlite.db.SupportSQLiteDatabase
 import com.suda.yzune.wakeupschedule.bean.*
 import com.suda.yzune.wakeupschedule.dao.*
+import com.suda.yzune.wakeupschedule.utils.Const
+import com.suda.yzune.wakeupschedule.utils.getPrefer
 
 @Database(entities = [CourseBaseBean::class, CourseDetailBean::class, AppWidgetBean::class, TimeDetailBean::class,
     TimeTableBean::class, TableBean::class],
-        version = 8, exportSchema = false)
+        version = 9, exportSchema = false)
 
 abstract class AppDatabase : RoomDatabase() {
 
@@ -23,9 +26,10 @@ abstract class AppDatabase : RoomDatabase() {
                 synchronized(AppDatabase::class.java) {
                     if (INSTANCE == null) {
                         INSTANCE = Room.databaseBuilder(context.applicationContext,
-                                        AppDatabase::class.java, "wakeup")
+                                AppDatabase::class.java, "wakeup")
                                 .allowMainThreadQueries()
                                 .addMigrations(migration7to8)
+                                .addMigrations(_8to9Migration(context))
                                 .build()
                     }
                 }
@@ -115,11 +119,140 @@ abstract class AppDatabase : RoomDatabase() {
     abstract fun tableDao(): TableDao
 }
 
-//class _8to9Migration(context: Context) : Migration(8, 9) {
-//
-//    override fun migrate(database: SupportSQLiteDatabase) {
-//        database.beginTransaction()
-//        database.query("")
-//    }
-//
-//}
+class _8to9Migration(val context: Context) : Migration(8, 9) {
+
+    override fun migrate(database: SupportSQLiteDatabase) {
+        database.beginTransaction()
+        val cursor = database.query("SELECT * FROM TableBean")
+        cursor.moveToFirst()
+        val idIdx = cursor.getColumnIndex("id")
+        val tableNameIdx = cursor.getColumnIndex("tableName")
+        val nodesIdx = cursor.getColumnIndex("nodes")
+        val backgroundIdx = cursor.getColumnIndex("background")
+        val startDateIdx = cursor.getColumnIndex("startDate")
+        val maxWeekIdx = cursor.getColumnIndex("maxWeek")
+        val itemHeightIdx = cursor.getColumnIndex("itemHeight")
+        val itemAlphaIdx = cursor.getColumnIndex("itemAlpha")
+        val itemTextSizeIdx = cursor.getColumnIndex("itemTextSize")
+        val widgetItemHeightIdx = cursor.getColumnIndex("widgetItemHeight")
+        val widgetItemAlphaIdx = cursor.getColumnIndex("widgetItemAlpha")
+        val widgetItemTextSizeIdx = cursor.getColumnIndex("widgetItemTextSize")
+        val strokeColorIdx = cursor.getColumnIndex("strokeColor")
+        val widgetStrokeColorIdx = cursor.getColumnIndex("widgetStrokeColor")
+        val textColorIdx = cursor.getColumnIndex("textColor")
+        val widgetTextColorIdx = cursor.getColumnIndex("widgetTextColor")
+        val courseTextColorIdx = cursor.getColumnIndex("courseTextColor")
+        val widgetCourseTextColorIdx = cursor.getColumnIndex("widgetCourseTextColor")
+        val showSatIdx = cursor.getColumnIndex("showSat")
+        val showSunIdx = cursor.getColumnIndex("showSun")
+        val sundayFirstIdx = cursor.getColumnIndex("sundayFirst")
+        val showOtherWeekCourseIdx = cursor.getColumnIndex("showOtherWeekCourse")
+        val showTimeIdx = cursor.getColumnIndex("showTime")
+        val typeIdx = cursor.getColumnIndex("type")
+
+        while (cursor.count != 0) {
+            val id = cursor.getInt(idIdx)
+            val tableName = cursor.getString(tableNameIdx)
+            val nodes = cursor.getInt(nodesIdx)
+            val background = cursor.getString(backgroundIdx)
+            val startDate = cursor.getString(startDateIdx)
+            val maxWeek = cursor.getInt(maxWeekIdx)
+            val itemHeight = cursor.getInt(itemHeightIdx)
+            val itemAlpha = cursor.getInt(itemAlphaIdx)
+            val itemTextSize = cursor.getInt(itemTextSizeIdx)
+            val widgetItemHeight = cursor.getInt(widgetItemHeightIdx)
+            val widgetItemAlpha = cursor.getInt(widgetItemAlphaIdx)
+            val widgetItemTextSize = cursor.getInt(widgetItemTextSizeIdx)
+            val strokeColor = cursor.getInt(strokeColorIdx)
+            val widgetStrokeColor = cursor.getInt(widgetStrokeColorIdx)
+            val textColor = cursor.getInt(textColorIdx)
+            val widgetTextColor = cursor.getInt(widgetTextColorIdx)
+            val courseTextColor = cursor.getInt(courseTextColorIdx)
+            val widgetCourseTextColor = cursor.getInt(widgetCourseTextColorIdx)
+            val showSat = cursor.getInt(showSatIdx)
+            val showSun = cursor.getInt(showSunIdx)
+            val sundayFirst = cursor.getInt(sundayFirstIdx)
+            val showOtherWeekCourse = cursor.getInt(showOtherWeekCourseIdx)
+            val showTime = cursor.getInt(showTimeIdx)
+            val type = cursor.getInt(typeIdx)
+
+            if (type == 1) {
+                val todayWidgetCursor = database.query("SELECT * FROM AppWidgetBean WHERE detailType = 1")
+                val wIdIdx = todayWidgetCursor.getColumnIndex("id")
+                todayWidgetCursor.moveToFirst()
+                while (todayWidgetCursor.count != 0) {
+                    val wId = todayWidgetCursor.getInt(wIdIdx)
+                    context.getPrefer("widget${wId}_config").edit(true) {
+                        putInt("itemAlpha", widgetItemAlpha)
+                        putInt("itemTextSize", widgetItemTextSize)
+                        putInt("strokeColor", widgetStrokeColor)
+                        putInt("textColor", widgetTextColor)
+                        putInt("courseTextColor", widgetCourseTextColor)
+                        putString("tableIds", "$id")
+
+                        putBoolean(Const.KEY_APPWIDGET_BG, context.getPrefer().getBoolean(Const.KEY_APPWIDGET_BG, false))
+                        putInt(Const.KEY_APPWIDGET_BG_COLOR, context.getPrefer().getInt(Const.KEY_APPWIDGET_BG_COLOR, 0x80FFFFFF.toInt()))
+                    }
+                    if (!todayWidgetCursor.moveToNext()) break
+                }
+                todayWidgetCursor.close()
+                context.getPrefer().edit {
+                    putInt(Const.KEY_SHOW_TABLE_ID, id)
+                }
+            }
+
+            val weekWidgetCursor = database.query("SELECT * FROM AppWidgetBean WHERE info = '${id}'")
+            val weekIdIdx = weekWidgetCursor.getColumnIndex("id")
+            weekWidgetCursor.moveToFirst()
+            while (weekWidgetCursor.count != 0) {
+                val weekId = weekWidgetCursor.getInt(weekIdIdx)
+                context.getPrefer("widget${weekId}_config").edit(true) {
+                    putInt("itemAlpha", widgetItemAlpha)
+                    putInt("itemTextSize", widgetItemTextSize)
+                    putInt("strokeColor", widgetStrokeColor)
+                    putInt("textColor", widgetTextColor)
+                    putInt("courseTextColor", widgetCourseTextColor)
+                    putInt("tableId", id)
+                    putInt("itemHeight", widgetItemHeight)
+                    putBoolean("showSat", showSat == 1)
+                    putBoolean("showSun", showSun == 1)
+                    putBoolean("sundayFirst", sundayFirst == 1)
+                    putBoolean("showOtherWeekCourse", showOtherWeekCourse == 1)
+                    putBoolean("showTime", showTime == 1)
+                    putBoolean(Const.KEY_SCHEDULE_TEACHER, context.getPrefer().getBoolean(Const.KEY_SCHEDULE_TEACHER, true))
+                    putBoolean(Const.KEY_SCHEDULE_DETAIL_TIME, context.getPrefer().getBoolean(Const.KEY_SCHEDULE_DETAIL_TIME, true))
+                    putBoolean(Const.KEY_APPWIDGET_BG, context.getPrefer().getBoolean(Const.KEY_APPWIDGET_BG, false))
+                    putInt(Const.KEY_APPWIDGET_BG_COLOR, context.getPrefer().getInt(Const.KEY_APPWIDGET_BG_COLOR, 0x80FFFFFF.toInt()))
+                }
+                if (!weekWidgetCursor.moveToNext()) break
+            }
+            weekWidgetCursor.close()
+
+            context.getPrefer("table${id}_config").edit(true) {
+                putString("tableName", tableName)
+                putInt("nodes", nodes)
+                putString("background", background)
+                putString("startDate", startDate)
+                putInt("maxWeek", maxWeek)
+                putInt("itemHeight", itemHeight)
+                putInt("itemAlpha", itemAlpha)
+                putInt("itemTextSize", itemTextSize)
+                putInt("strokeColor", strokeColor)
+                putInt("textColor", textColor)
+                putInt("courseTextColor", courseTextColor)
+                putBoolean("showSat", showSat == 1)
+                putBoolean("showSun", showSun == 1)
+                putBoolean("sundayFirst", sundayFirst == 1)
+                putBoolean("showOtherWeekCourse", showOtherWeekCourse == 1)
+                putBoolean("showTime", showTime == 1)
+                putBoolean(Const.KEY_SCHEDULE_TEACHER, context.getPrefer().getBoolean(Const.KEY_SCHEDULE_TEACHER, true))
+                putBoolean(Const.KEY_SCHEDULE_DETAIL_TIME, context.getPrefer().getBoolean(Const.KEY_SCHEDULE_DETAIL_TIME, true))
+            }
+            if (!cursor.moveToNext()) break
+        }
+        cursor.close()
+        // throw Exception()
+        database.endTransaction()
+    }
+
+}

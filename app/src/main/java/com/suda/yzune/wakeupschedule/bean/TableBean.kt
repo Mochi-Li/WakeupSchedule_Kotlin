@@ -24,7 +24,7 @@ data class TableBean(
         var background: String = "",
         var timeTable: Int = 1,
         var startDate: String = "2020-02-03",
-        var maxWeek: Int = 30,
+        var maxWeek: Int = 20,
         var itemHeight: Int = 64,
         var itemAlpha: Int = 60,
         var itemTextSize: Int = 12,

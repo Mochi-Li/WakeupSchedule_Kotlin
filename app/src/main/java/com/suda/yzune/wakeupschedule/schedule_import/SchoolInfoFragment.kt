@@ -7,6 +7,7 @@ import android.view.ViewGroup
 import androidx.fragment.app.activityViewModels
 import com.suda.yzune.wakeupschedule.R
 import com.suda.yzune.wakeupschedule.base_view.BaseFragment
+import com.suda.yzune.wakeupschedule.utils.Utils
 import com.suda.yzune.wakeupschedule.utils.ViewUtils
 import es.dmoral.toasty.Toasty
 import kotlinx.android.synthetic.main.fragment_school_info.*
@@ -23,13 +24,13 @@ class SchoolInfoFragment : BaseFragment() {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-        ViewUtils.resizeStatusBar(context!!.applicationContext, v_status)
+        ViewUtils.resizeStatusBar(requireContext().applicationContext, v_status)
         initEvent()
     }
 
     private fun initEvent() {
         ib_back.setOnClickListener {
-            activity!!.finish()
+            requireActivity().finish()
         }
 
         chip_urp.setOnCheckedChangeListener { _, isChecked ->
@@ -47,8 +48,12 @@ class SchoolInfoFragment : BaseFragment() {
                 transaction.add(android.R.id.content, fragment, "webLogin")
                 transaction.commit()
             } else {
-                Toasty.error(activity!!, "请填写学校全称").show()
+                Toasty.error(requireActivity(), "请填写学校全称").show()
             }
+        }
+
+        tv_github.setOnClickListener {
+            Utils.openUrl(requireActivity(), "https://github.com/YZune/CourseAdapter")
         }
     }
 

@@ -13,6 +13,7 @@ import androidx.fragment.app.activityViewModels
 import androidx.navigation.Navigation
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
+import androidx.recyclerview.widget.StaggeredGridLayoutManager
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import com.google.android.material.textfield.TextInputEditText
 import com.google.android.material.textfield.TextInputLayout
@@ -21,11 +22,13 @@ import com.suda.yzune.wakeupschedule.base_view.BaseFragment
 import com.suda.yzune.wakeupschedule.bean.TableSelectBean
 import com.suda.yzune.wakeupschedule.schedule_settings.ScheduleSettingsActivity
 import com.suda.yzune.wakeupschedule.utils.Const
+import com.suda.yzune.wakeupschedule.utils.ViewUtils
 import com.suda.yzune.wakeupschedule.utils.getPrefer
 import es.dmoral.toasty.Toasty
 import kotlinx.android.synthetic.main.fragment_list_manage.*
 import splitties.activities.start
 import splitties.dimensions.dip
+import splitties.resources.dimenPxSize
 
 class ScheduleManageFragment : BaseFragment() {
 
@@ -44,7 +47,7 @@ class ScheduleManageFragment : BaseFragment() {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-        if (activity!!.getPrefer().getBoolean(Const.KEY_HIDE_NAV_BAR, false)) {
+        if (requireContext().getPrefer().getBoolean(Const.KEY_HIDE_NAV_BAR, false)) {
             ViewCompat.setOnApplyWindowInsetsListener(fab_add) { v, insets ->
                 v.updateLayoutParams<ConstraintLayout.LayoutParams> {
                     bottomMargin = insets.systemWindowInsets.bottom + v.dip(16)
@@ -53,7 +56,7 @@ class ScheduleManageFragment : BaseFragment() {
             }
         }
         fab_add.setOnClickListener {
-            val dialog = MaterialAlertDialogBuilder(context)
+            val dialog = MaterialAlertDialogBuilder(requireContext())
                     .setTitle(R.string.setting_schedule_name)
                     .setView(R.layout.dialog_edit_text)
                     .setNegativeButton(R.string.cancel, null)
@@ -72,9 +75,9 @@ class ScheduleManageFragment : BaseFragment() {
                             val tableName = editText.text.toString()
                             val tableId = viewModel.addBlankTable(tableName)
                             adapter.addData(TableSelectBean(id = tableId.toInt(), tableName = tableName))
-                            Toasty.success(context!!, "新建成功~").show()
+                            Toasty.success(requireContext(), "新建成功~").show()
                         } catch (e: Exception) {
-                            Toasty.error(context!!, "操作失败>_<").show()
+                            Toasty.error(requireContext(), "操作失败>_<").show()
                         }
                         dialog.dismiss()
                     }
@@ -84,7 +87,11 @@ class ScheduleManageFragment : BaseFragment() {
     }
 
     private fun initTableRecyclerView(fragmentView: View, rvTableList: RecyclerView, data: MutableList<TableSelectBean>) {
-        rvTableList.layoutManager = LinearLayoutManager(context)
+        if (ViewUtils.getScreenInfo(requireContext())[0] < dimenPxSize(R.dimen.wide_screen)) {
+            rvTableList.layoutManager = LinearLayoutManager(context)
+        } else {
+            rvTableList.layoutManager = StaggeredGridLayoutManager(2, RecyclerView.VERTICAL)
+        }
         adapter = TableListAdapter(R.layout.item_table_list, data)
         adapter.setOnItemClickListener { _, _, position ->
             val bundle = Bundle()
@@ -100,16 +107,16 @@ class ScheduleManageFragment : BaseFragment() {
                     launch {
                         val task = viewModel.getTableById(data[position].id)
                         if (task != null) {
-                            activity!!.start<ScheduleSettingsActivity> {
+                            requireActivity().start<ScheduleSettingsActivity> {
                                 putExtra("tableData", task)
                             }
                         } else {
-                            Toasty.error(context!!, "读取课表异常>_<")
+                            Toasty.error(requireContext(), "读取课表异常>_<")
                         }
                     }
                 }
                 R.id.ib_delete -> {
-                    Toasty.info(activity!!, "长按删除课程表哦~").show()
+                    Toasty.info(requireContext(), "长按删除课程表哦~").show()
                 }
             }
         }
@@ -119,8 +126,8 @@ class ScheduleManageFragment : BaseFragment() {
                 R.id.ib_delete -> {
                     launch {
                         viewModel.deleteTable(data[position].id)
-                        adapter.remove(position)
-                        Toasty.success(context!!, "删除成功~").show()
+                        adapter.removeAt(position)
+                        Toasty.success(requireContext(), "删除成功~").show()
                     }
                     return@setOnItemChildLongClickListener true
                 }
@@ -133,7 +140,7 @@ class ScheduleManageFragment : BaseFragment() {
         adapter.addFooterView(View(activity).apply {
             layoutParams = ViewGroup.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, dip(240))
         })
-        adapter.addHeaderView(AppCompatTextView(context!!).apply {
+        adapter.addHeaderView(AppCompatTextView(requireContext()).apply {
             text = "点击卡片查看该课表的课程"
             textAlignment = View.TEXT_ALIGNMENT_CENTER
             setPadding(0, dip(8), 0, dip(8))

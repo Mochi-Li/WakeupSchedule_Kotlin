@@ -10,7 +10,6 @@ import android.content.Context
 import android.content.Context.ALARM_SERVICE
 import android.content.Context.NOTIFICATION_SERVICE
 import android.content.Intent
-import android.graphics.BitmapFactory
 import android.os.Build
 import androidx.core.app.NotificationCompat
 import com.suda.yzune.wakeupschedule.AppDatabase
@@ -57,13 +56,11 @@ class TodayCourseAppWidget : AppWidgetProvider() {
                         .setSubText("上课提醒")
                         .setContentText("$weekDay  地点：$room")
                         .setWhen(System.currentTimeMillis())
-                        .setLargeIcon(BitmapFactory.decodeResource(context.resources, R.drawable.ic_launcher))
                         .setSmallIcon(R.drawable.wakeup)
                         .setAutoCancel(false)
                         .setOngoing(context.getPrefer().getBoolean(Const.KEY_REMINDER_ON_GOING, false))
                         .setPriority(NotificationCompat.PRIORITY_MAX)
-                        .setDefaults(NotificationCompat.DEFAULT_VIBRATE)
-                        .setDefaults(NotificationCompat.DEFAULT_LIGHTS)
+                        .setDefaults(NotificationCompat.DEFAULT_ALL)
                         .setVibrate(longArrayOf(0, 5000, 500, 5000))
                         .addAction(R.drawable.wakeup, "记得给手机静音哦", cancelPendingIntent)
                         .addAction(R.drawable.wakeup, "我知道啦", cancelPendingIntent)

@@ -32,8 +32,7 @@ class TimeSettingsFragment : BaseFragment() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        val arguments = arguments
-        position = arguments!!.getInt("position")
+        position = requireArguments().getInt("position")
         if (viewModel.timeSelectList.isEmpty()) {
             viewModel.initTimeSelectList()
         }
@@ -69,6 +68,7 @@ class TimeSettingsFragment : BaseFragment() {
                     0
                 }
             }
+            Toasty.info(requireContext(), "现在设置第 ${position + 1} 节上课时间").show()
             TimePickerDialog(context, { _, startHour, startMinute ->
                 val h = if (startHour < 10) "0$startHour" else startHour.toString()
                 val m = if (startMinute < 10) "0$startMinute" else startMinute.toString()
@@ -87,6 +87,7 @@ class TimeSettingsFragment : BaseFragment() {
                             0
                         }
                     }
+                    Toasty.info(requireContext(), "现在设置第 ${position + 1} 节下课时间").show()
                     TimePickerDialog(context, { _, endHour, endMinute ->
                         val endH = if (endHour < 10) "0$endHour" else endHour.toString()
                         val endM = if (endMinute < 10) "0$endMinute" else endMinute.toString()
@@ -95,13 +96,13 @@ class TimeSettingsFragment : BaseFragment() {
                         v.findViewById<TextView>(R.id.tv_start).text = start
                         v.findViewById<TextView>(R.id.tv_end).text = end
                     }, endT[0], endT[1], true).apply {
-                        setMessage("设置第 ${position + 1} 节下课时间")
+                        // setMessage("设置第 ${position + 1} 节下课时间")
                         setCancelable(false)
                         show()
                     }
                 }
             }, t[0], t[1], true).apply {
-                setMessage("设置第 ${position + 1} 节上课时间")
+                // setMessage("设置第 ${position + 1} 节上课时间")
                 setCancelable(false)
                 show()
             }
@@ -159,7 +160,7 @@ class TimeSettingsFragment : BaseFragment() {
         val minVal = 10
         editBtn.setOnClickListener(object : View.OnClickListener {
             override fun onClick(v: View?) {
-                val dialog = MaterialAlertDialogBuilder(activity)
+                val dialog = MaterialAlertDialogBuilder(requireContext())
                         .setTitle("课程时长")
                         .setView(R.layout.dialog_edit_text)
                         .setNegativeButton(R.string.cancel, null)
@@ -211,10 +212,10 @@ class TimeSettingsFragment : BaseFragment() {
         tvName.text = viewModel.timeTableList[position].name
         llName.setOnClickListener {
             if (viewModel.timeTableList[position].id == 1) {
-                Toasty.error(activity!!, "默认时间表不能改名呢>_<").show()
+                Toasty.error(requireContext(), "默认时间表不能改名呢>_<").show()
                 return@setOnClickListener
             }
-            val dialog = MaterialAlertDialogBuilder(context)
+            val dialog = MaterialAlertDialogBuilder(requireContext())
                     .setTitle("时间表名字")
                     .setView(R.layout.dialog_edit_text)
                     .setNegativeButton(R.string.cancel, null)

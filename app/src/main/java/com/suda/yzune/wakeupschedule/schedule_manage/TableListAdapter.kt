@@ -1,5 +1,8 @@
 package com.suda.yzune.wakeupschedule.schedule_manage
 
+import android.graphics.Bitmap
+import android.graphics.Color
+import android.graphics.drawable.BitmapDrawable
 import android.view.View
 import androidx.appcompat.widget.AppCompatImageView
 import com.bumptech.glide.Glide
@@ -11,24 +14,42 @@ import com.suda.yzune.wakeupschedule.bean.TableSelectBean
 class TableListAdapter(layoutResId: Int, data: MutableList<TableSelectBean>) :
         BaseQuickAdapter<TableSelectBean, BaseViewHolder>(layoutResId, data) {
 
-    override fun convert(helper: BaseViewHolder, item: TableSelectBean) {
+    override fun convert(holder: BaseViewHolder, item: TableSelectBean) {
         if (item.type == 1) {
-            helper.getView<View>(R.id.ib_delete).visibility = View.GONE
+            holder.getView<View>(R.id.ib_delete).visibility = View.GONE
         } else {
-            helper.getView<View>(R.id.ib_delete).visibility = View.VISIBLE
+            holder.getView<View>(R.id.ib_delete).visibility = View.VISIBLE
         }
 
         if (item.tableName != "") {
-            helper.setText(R.id.tv_table_name, item.tableName)
+            holder.setText(R.id.tv_table_name, item.tableName)
         } else {
-            helper.setText(R.id.tv_table_name, "我的课表")
+            holder.setText(R.id.tv_table_name, "我的课表")
         }
-        val imageView = helper.getView<AppCompatImageView>(R.id.iv_pic)
+        val imageView = holder.getView<AppCompatImageView>(R.id.iv_pic)
         if (item.background != "") {
-            Glide.with(context)
-                    .load(item.background)
-                    .override(400, 600)
-                    .into(imageView)
+            if (item.background.startsWith("#")) {
+                val bitmap = try {
+                    Bitmap.createBitmap(200, 200, Bitmap.Config.ARGB_8888).apply {
+                        eraseColor(item.background.removePrefix("#").toInt())
+                    }
+                } catch (e: Exception) {
+                    Bitmap.createBitmap(100, 100, Bitmap.Config.ARGB_8888).apply {
+                        eraseColor(Color.GRAY)
+                    }
+                }
+                Glide.with(context)
+                        .load(bitmap)
+                        .into(imageView)
+            } else {
+                Glide.with(context)
+                        .load(item.background)
+                        .override(400, 600)
+                        .error(BitmapDrawable(context.resources, Bitmap.createBitmap(100, 100, Bitmap.Config.ARGB_8888).apply {
+                            eraseColor(Color.GRAY)
+                        }))
+                        .into(imageView)
+            }
         } else {
             Glide.with(context)
                     .load(R.drawable.main_background_2020_1)

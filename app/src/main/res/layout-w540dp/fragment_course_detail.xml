@@ -1,6 +1,7 @@
-<androidx.appcompat.widget.LinearLayoutCompat xmlns:android="http://schemas.android.com/apk/res/android"
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
-    android:layout_width="280dp"
+    android:layout_width="480dp"
     android:layout_height="wrap_content"
     android:layout_gravity="center"
     android:background="@drawable/card_bg"
@@ -8,9 +9,13 @@
     tools:context="com.suda.yzune.wakeupschedule.schedule.CourseDetailFragment">
 
     <ScrollView
+        android:id="@+id/sv_detail"
         android:layout_width="match_parent"
-        android:layout_height="0dp"
-        android:layout_weight="1">
+        android:layout_height="match_parent"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent">
 
         <include
             android:id="@+id/include_detail"
@@ -18,41 +23,36 @@
 
     </ScrollView>
 
-    <View
-        android:layout_width="match_parent"
-        android:layout_height="1dp"
-        android:layout_marginStart="8dp"
-        android:layout_marginEnd="8dp"
-        android:alpha="0.5"
-        android:background="@color/grey" />
-
     <androidx.appcompat.widget.AppCompatTextView
         android:id="@+id/tv_tips"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_marginStart="16dp"
-        android:layout_marginTop="16dp"
         android:layout_marginEnd="16dp"
+        android:background="?attr/colorSurface"
         android:lineSpacingExtra="4sp"
+        android:padding="16dp"
         android:text="再点一次确定删除\n长按可以同时删除这门课程的其他时间哦"
         android:textColor="@color/colorAccent"
         android:textSize="12sp"
-        android:visibility="gone" />
+        android:visibility="gone"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent" />
 
     <androidx.appcompat.widget.LinearLayoutCompat
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="16dp"
-        android:layout_marginBottom="16dp"
-        android:gravity="center">
+        android:layout_width="wrap_content"
+        android:layout_height="160dp"
+        android:gravity="end"
+        android:orientation="vertical"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintTop_toTopOf="parent">
 
         <androidx.appcompat.widget.AppCompatImageButton
             android:id="@+id/ib_delete_course"
             style="@style/ButtonBackground"
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:layout_marginStart="32dp"
-            android:layout_marginEnd="32dp"
+            android:layout_width="64dp"
+            android:layout_height="0dp"
             android:layout_weight="1"
             android:src="@drawable/ic_outline_delete_outline_24"
             android:tint="@color/red" />
@@ -60,14 +60,12 @@
         <androidx.appcompat.widget.AppCompatImageButton
             android:id="@+id/ib_edit"
             style="@style/ButtonBackground"
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:layout_marginStart="32dp"
-            android:layout_marginEnd="32dp"
+            android:layout_width="64dp"
+            android:layout_height="0dp"
             android:layout_weight="1"
             android:src="@drawable/ic_outline_edit_24"
             android:tint="@color/blue" />
 
     </androidx.appcompat.widget.LinearLayoutCompat>
 
-</androidx.appcompat.widget.LinearLayoutCompat>
+</androidx.constraintlayout.widget.ConstraintLayout>

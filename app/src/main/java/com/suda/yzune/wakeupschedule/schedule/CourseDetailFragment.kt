@@ -16,12 +16,14 @@ import com.google.android.material.card.MaterialCardView
 import com.suda.yzune.wakeupschedule.R
 import com.suda.yzune.wakeupschedule.bean.CourseBean
 import com.suda.yzune.wakeupschedule.course_add.AddCourseActivity
+import com.suda.yzune.wakeupschedule.utils.ViewUtils
 import es.dmoral.toasty.Toasty
 import kotlinx.android.synthetic.main.fragment_course_detail.*
 import kotlinx.android.synthetic.main.item_add_course_detail.*
 import kotlinx.coroutines.delay
 import splitties.activities.start
 import splitties.dimensions.dip
+import splitties.resources.dimenPxSize
 import splitties.snackbar.longSnack
 
 class CourseDetailFragment : BaseDialogFragment() {
@@ -48,13 +50,17 @@ class CourseDetailFragment : BaseDialogFragment() {
         if (!nested) {
             dialog?.requestWindowFeature(Window.FEATURE_NO_TITLE)
             dialog?.window?.setBackgroundDrawable(ColorDrawable(Color.TRANSPARENT))
-            dialog?.window?.setLayout(context!!.dip(280), ViewGroup.LayoutParams.WRAP_CONTENT)
+            // dialog?.window?.setLayout(requireContext().dip(280), ViewGroup.LayoutParams.WRAP_CONTENT)
             val root = inflater.inflate(R.layout.fragment_base_dialog, container, false)
             val cardView = root.findViewById<MaterialCardView>(R.id.base_card_view)
             LayoutInflater.from(context).inflate(layoutId, cardView, true)
             return root
         } else {
-            container!!.layoutParams.width = context!!.dip(280)
+            if (ViewUtils.getScreenInfo(requireContext())[0] >= requireContext().dimenPxSize(R.dimen.wide_screen)) {
+                container!!.layoutParams.width = requireContext().dip(480)
+            } else {
+                container!!.layoutParams.width = requireContext().dip(280)
+            }
             val root = inflater.inflate(R.layout.fragment_base_dialog, container, false)
             val cardView = root.findViewById<MaterialCardView>(R.id.base_card_view)
             cardView.setBackgroundColor(Color.TRANSPARENT)
@@ -107,7 +113,7 @@ class CourseDetailFragment : BaseDialogFragment() {
 
         ib_edit.setOnClickListener {
             dismiss()
-            activity!!.start<AddCourseActivity> {
+            requireActivity().start<AddCourseActivity> {
                 putExtra("id", course.id)
                 putExtra("tableId", course.tableId)
                 putExtra("maxWeek", viewModel.table.maxWeek)
@@ -128,8 +134,8 @@ class CourseDetailFragment : BaseDialogFragment() {
                 launch {
                     try {
                         viewModel.deleteCourseBean(course)
-                        Toasty.success(context!!, "删除成功").show()
-                        val appWidgetManager = AppWidgetManager.getInstance(activity!!.applicationContext)
+                        Toasty.success(requireContext(), "删除成功").show()
+                        val appWidgetManager = AppWidgetManager.getInstance(requireActivity().applicationContext)
                         val list = viewModel.getScheduleWidgetIds()
                         list.forEach {
                             when (it.detailType) {
@@ -139,7 +145,7 @@ class CourseDetailFragment : BaseDialogFragment() {
                         }
                         dismiss()
                     } catch (e: Exception) {
-                        Toasty.error(context!!, "出现异常>_<\n" + e.message).show()
+                        Toasty.error(requireContext(), "出现异常>_<\n" + e.message).show()
                     }
                 }
             }
@@ -149,8 +155,8 @@ class CourseDetailFragment : BaseDialogFragment() {
             launch {
                 try {
                     viewModel.deleteCourseBaseBean(course.id, course.tableId)
-                    Toasty.success(context!!, "删除成功").show()
-                    val appWidgetManager = AppWidgetManager.getInstance(activity!!.applicationContext)
+                    Toasty.success(requireContext(), "删除成功").show()
+                    val appWidgetManager = AppWidgetManager.getInstance(requireActivity().applicationContext)
                     val list = viewModel.getScheduleWidgetIds()
                     list.forEach {
                         when (it.detailType) {
@@ -160,7 +166,7 @@ class CourseDetailFragment : BaseDialogFragment() {
                     }
                     dismiss()
                 } catch (e: Exception) {
-                    Toasty.error(context!!, "出现异常>_<\n" + e.message).show()
+                    Toasty.error(requireContext(), "出现异常>_<\n" + e.message).show()
                 }
             }
             return@setOnLongClickListener true

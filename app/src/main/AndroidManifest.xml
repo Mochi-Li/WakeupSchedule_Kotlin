@@ -33,7 +33,8 @@
 
         <activity
             android:name=".schedule_import.LoginWebActivity"
-            android:screenOrientation="portrait">
+            android:configChanges="orientation|screenSize|screenLayout|smallestScreenSize">
+            <!--            android:screenOrientation="portrait">-->
             <intent-filter
                 android:label="导入到课程表"
                 tools:ignore="AppLinkUrlError">

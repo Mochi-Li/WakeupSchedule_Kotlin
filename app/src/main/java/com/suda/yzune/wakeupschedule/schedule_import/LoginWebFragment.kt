@@ -55,7 +55,7 @@ class LoginWebFragment : BaseFragment() {
             viewModel.sudaXK = SudaXK()
             refreshCode()
             tv_tip.setOnClickListener {
-                Utils.openUrl(context!!, "https://yzune.github.io/2018/08/13/%E4%BD%BF%E7%94%A8FortiClient%E8%BF%9E%E6%8E%A5%E6%A0%A1%E5%9B%AD%E7%BD%91/")
+                Utils.openUrl(requireContext(), "https://yzune.github.io/2018/08/13/%E4%BD%BF%E7%94%A8FortiClient%E8%BF%9E%E6%8E%A5%E6%A0%A1%E5%9B%AD%E7%BD%91/")
             }
         }
         if (viewModel.school == "清华大学") {
@@ -142,7 +142,7 @@ class LoginWebFragment : BaseFragment() {
                     pb_loading.visibility = View.GONE
                     cardC2Dialog(viewModel.sudaXK?.years!!)
                 } catch (e: IOException) {
-                    Toasty.error(activity!!, "请检查是否连接校园网", Toast.LENGTH_LONG).show()
+                    Toasty.error(requireActivity(), "请检查是否连接校园网", Toast.LENGTH_LONG).show()
                     delay(500)
                     fab_login.isExpanded = false
                 } catch (e: Exception) {
@@ -161,7 +161,7 @@ class LoginWebFragment : BaseFragment() {
                             input_code.showError(e.message ?: "", 5000)
                             refreshCode()
                         }
-                        else -> Toasty.error(activity!!, e.message
+                        else -> Toasty.error(requireActivity(), e.message
                                 ?: "再试一次看看哦", Toast.LENGTH_LONG).show()
                     }
                     delay(500)
@@ -199,7 +199,7 @@ class LoginWebFragment : BaseFragment() {
                 }
             }
             "西北工业大学" -> {
-                Toasty.info(activity!!, "年份为学年的起始年，学期[秋、春、夏]分别对应[1、2、3]\n例如[2019-2020春] 选择[2019 2]", Toast.LENGTH_LONG).show()
+                Toasty.info(requireActivity(), "年份为学年的起始年，学期[秋、春、夏]分别对应[1、2、3]\n例如[2019-2020春] 选择[2019 2]", Toast.LENGTH_LONG).show()
                 pb_loading.visibility = View.INVISIBLE
                 fab_login.isExpanded = true
                 val year = Calendar.getInstance().get(Calendar.YEAR)
@@ -223,7 +223,7 @@ class LoginWebFragment : BaseFragment() {
                 et_pwd.requestFocus()
                 input_pwd.showError(exception.message ?: "", 5000)
             }
-            else -> Toasty.error(activity!!, exception.message
+            else -> Toasty.error(requireActivity(), exception.message
                     ?: "再试一次看看哦", Toast.LENGTH_LONG).show()
         }
     }
@@ -253,7 +253,7 @@ class LoginWebFragment : BaseFragment() {
                         input_code.showError(e.message ?: "", 5000)
                         refreshCode()
                     }
-                    else -> Toasty.error(activity!!, e.message
+                    else -> Toasty.error(requireActivity(), e.message
                             ?: "再试一次看看哦", Toast.LENGTH_LONG).show()
                 }
             }
@@ -267,7 +267,7 @@ class LoginWebFragment : BaseFragment() {
                 val result = viewModel.importSchedule(viewModel.sudaXK?.toSchedule(year, term)!!)
                 showSuccess(result)
             } catch (e: Exception) {
-                Toasty.error(activity!!,
+                Toasty.error(requireActivity(),
                         "导入失败>_<\n${e.message}", Toast.LENGTH_LONG).show()
             }
         }
@@ -289,16 +289,16 @@ class LoginWebFragment : BaseFragment() {
                 progress_bar.visibility = View.GONE
                 iv_code.visibility = View.INVISIBLE
                 iv_error.visibility = View.VISIBLE
-                Toasty.error(context!!, "请检查是否连接校园网", Toast.LENGTH_LONG).show()
+                Toasty.error(requireContext(), "请检查是否连接校园网", Toast.LENGTH_LONG).show()
             }
         }
     }
 
     private fun showSuccess(result: Int) {
-        Toasty.success(activity!!,
+        Toasty.success(requireActivity(),
                 "成功导入 $result 门课程(ﾟ▽ﾟ)/\n请在右侧栏切换后查看", Toast.LENGTH_LONG).show()
-        activity!!.setResult(RESULT_OK)
-        activity!!.finish()
+        requireActivity().setResult(RESULT_OK)
+        requireActivity().finish()
     }
 
     private fun cardC2Dialog(years: List<String>, selectLastYear: Boolean = false) {

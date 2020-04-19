@@ -5,6 +5,9 @@ import android.content.ClipData
 import android.content.ClipboardManager
 import android.content.Context
 import android.content.Intent
+import android.graphics.Bitmap
+import android.graphics.Color
+import android.graphics.drawable.BitmapDrawable
 import android.net.Uri
 import android.os.Build
 import android.os.Bundle
@@ -16,8 +19,12 @@ import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.widget.AppCompatImageButton
 import androidx.appcompat.widget.AppCompatTextView
 import androidx.appcompat.widget.PopupMenu
+import androidx.constraintlayout.widget.ConstraintLayout
+import androidx.coordinatorlayout.widget.CoordinatorLayout
 import androidx.core.app.ShareCompat
 import androidx.core.content.edit
+import androidx.core.view.ViewCompat
+import androidx.core.view.updateLayoutParams
 import androidx.lifecycle.Observer
 import androidx.viewpager.widget.ViewPager
 import com.bumptech.glide.Glide
@@ -163,28 +170,53 @@ class ScheduleActivity : BaseActivity() {
         })
 
         initBottomSheetAction()
+
+        if (getPrefer().getBoolean(Const.KEY_HIDE_NAV_BAR, false)) {
+            ViewCompat.setOnApplyWindowInsetsListener(ui.root) { _, insets ->
+                ui.moreBtn.updateLayoutParams<ConstraintLayout.LayoutParams> {
+                    marginEnd = insets.systemWindowInsetRight + dip(8)
+                }
+                ui.viewPager.updateLayoutParams<ConstraintLayout.LayoutParams> {
+                    marginEnd = insets.systemWindowInsetRight
+                }
+                ui.bottomSheet.updateLayoutParams<CoordinatorLayout.LayoutParams> {
+                    marginEnd = insets.systemWindowInsetRight
+                }
+                insets
+            }
+        }
     }
 
     private fun initTheme() {
         if (viewModel.table.background != "") {
             //ui.bg.clearColorFilter()
-            val x = (ViewUtils.getRealSize(this).x * 0.5).toInt()
-            val y = (ViewUtils.getRealSize(this).y * 0.5).toInt()
-            Glide.with(this)
-                    .load(viewModel.table.background)
-                    .override(x, y)
-                    .transition(DrawableTransitionOptions.withCrossFade())
-                    .error(R.drawable.main_background_2020_1)
-                    .into(ui.bg)
+            if (viewModel.table.background.startsWith("#")) {
+                val bitmap = try {
+                    Bitmap.createBitmap(200, 200, Bitmap.Config.ARGB_8888).apply {
+                        eraseColor(viewModel.table.background.removePrefix("#").toInt())
+                    }
+                } catch (e: Exception) {
+                    Bitmap.createBitmap(100, 100, Bitmap.Config.ARGB_8888).apply {
+                        eraseColor(Color.GRAY)
+                    }
+                }
+                Glide.with(this)
+                        .load(bitmap)
+                        .transition(DrawableTransitionOptions.withCrossFade())
+                        .into(ui.bg)
+            } else {
+                val x = (ViewUtils.getRealSize(this).x * 0.5).toInt()
+                val y = (ViewUtils.getRealSize(this).y * 0.5).toInt()
+                Glide.with(this)
+                        .load(viewModel.table.background)
+                        .override(x, y)
+                        .transition(DrawableTransitionOptions.withCrossFade())
+                        .error(BitmapDrawable(resources, Bitmap.createBitmap(100, 100, Bitmap.Config.ARGB_8888).apply {
+                            eraseColor(Color.GRAY)
+                        }))
+                        .into(ui.bg)
+            }
         } else {
-//            val mode = resources.configuration.uiMode and Configuration.UI_MODE_NIGHT_MASK
-//            if (mode == Configuration.UI_MODE_NIGHT_YES) {
-//                val lum = 0.50f
-//                val lumMatrix = ColorMatrix().apply {
-//                    setScale(lum, lum, lum, 1f)
-//                }
-//                ui.bg.colorFilter = ColorMatrixColorFilter(lumMatrix)
-//            }
             val x = (ViewUtils.getRealSize(this).x * 0.5).toInt()
             val y = (ViewUtils.getRealSize(this).y * 0.5).toInt()
             Glide.with(this)
@@ -270,7 +302,17 @@ class ScheduleActivity : BaseActivity() {
 
             override fun onStateChanged(bottomSheet: View, newState: Int) {
                 if (newState == BottomSheetBehavior.STATE_EXPANDED) {
-                    ui.weekSlider.value = viewModel.selectedWeek.toFloat()
+                    ui.weekSlider.value = when {
+                        viewModel.selectedWeek > viewModel.table.maxWeek -> {
+                            viewModel.table.maxWeek.toFloat()
+                        }
+                        viewModel.selectedWeek < 1 -> {
+                            1f
+                        }
+                        else -> {
+                            viewModel.selectedWeek.toFloat()
+                        }
+                    }
                 }
             }
         })
@@ -557,6 +599,8 @@ class ScheduleActivity : BaseActivity() {
 
     private fun initView() {
         launch {
+            val tableId = getPrefer().getInt(Const.KEY_SHOW_TABLE_ID, 0)
+
             viewModel.table = viewModel.getDefaultTable()
             viewModel.currentWeek = CourseUtils.countWeek(viewModel.table.startDate, viewModel.table.sundayFirst)
             viewModel.selectedWeek = viewModel.currentWeek
@@ -588,7 +632,17 @@ class ScheduleActivity : BaseActivity() {
                 ui.weekSlider.valueFrom = 0f
                 ui.weekSlider.valueTo = 1f
             }
-            ui.weekSlider.value = viewModel.currentWeek.toFloat()
+            ui.weekSlider.value = when {
+                viewModel.currentWeek < 1 -> {
+                    1f
+                }
+                viewModel.currentWeek > viewModel.table.maxWeek -> {
+                    viewModel.table.maxWeek.toFloat()
+                }
+                else -> {
+                    viewModel.currentWeek.toFloat()
+                }
+            }
 
             initTheme()
 

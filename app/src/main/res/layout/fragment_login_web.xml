@@ -106,7 +106,7 @@
                 style="@style/ButtonBackground"
                 android:layout_centerInParent="true"
                 android:src="@drawable/ic_outline_refresh_24"
-                app:tint="@color/orange" />
+                app:tint="@color/colorAccent" />
 
             <androidx.appcompat.widget.AppCompatImageView
                 android:id="@+id/iv_code"
@@ -192,12 +192,12 @@
         android:id="@+id/fab_login"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_gravity="top|center_horizontal"
-        android:layout_marginTop="432dp" />
+        android:layout_gravity="bottom|center_horizontal"
+        android:layout_marginBottom="120dp" />
 
     <com.google.android.material.transformation.TransformationChildCard
         android:id="@+id/sheet"
-        android:layout_width="match_parent"
+        android:layout_width="280dp"
         android:layout_height="288dp"
         android:layout_gravity="center"
         android:layout_marginStart="32dp"

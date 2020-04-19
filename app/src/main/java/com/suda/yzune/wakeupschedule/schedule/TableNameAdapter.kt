@@ -1,6 +1,9 @@
 package com.suda.yzune.wakeupschedule.schedule
 
+import android.graphics.Bitmap
+import android.graphics.Color
 import androidx.appcompat.widget.AppCompatImageView
+import androidx.core.content.ContextCompat
 import com.bumptech.glide.Glide
 import com.bumptech.glide.load.resource.bitmap.CenterCrop
 import com.bumptech.glide.load.resource.bitmap.RoundedCorners
@@ -13,21 +16,47 @@ import splitties.dimensions.dip
 class TableNameAdapter(layoutResId: Int, data: MutableList<TableSelectBean>) :
         BaseQuickAdapter<TableSelectBean, BaseViewHolder>(layoutResId, data) {
 
-    override fun convert(helper: BaseViewHolder, item: TableSelectBean) {
-        helper.setGone(R.id.menu_setting, item.type != 1)
+    override fun convert(holder: BaseViewHolder, item: TableSelectBean) {
+        holder.setGone(R.id.menu_setting, item.type != 1)
 
         if (item.tableName != "") {
-            helper.setText(R.id.tv_table_name, item.tableName)
+            holder.setText(R.id.tv_table_name, item.tableName)
         } else {
-            helper.setText(R.id.tv_table_name, "我的课表")
+            holder.setText(R.id.tv_table_name, "我的课表")
         }
-        val imageView = helper.getView<AppCompatImageView>(R.id.iv_table_bg)
+        val imageView = holder.getView<AppCompatImageView>(R.id.iv_table_bg)
+        if (item.type == 1) {
+            imageView.setColorFilter(ContextCompat.getColor(context, R.color.deep_grey))
+        } else {
+            imageView.clearColorFilter()
+        }
         if (item.background != "") {
-            Glide.with(context)
-                    .load(item.background)
-                    .override(200, 200)
-                    .transform(CenterCrop(), RoundedCorners(context.dip(4)))
-                    .into(imageView)
+            if (item.background.startsWith("#")) {
+                val bitmap = try {
+                    Bitmap.createBitmap(200, 200, Bitmap.Config.ARGB_8888).apply {
+                        eraseColor(item.background.removePrefix("#").toInt())
+                    }
+                } catch (e: Exception) {
+                    Bitmap.createBitmap(100, 100, Bitmap.Config.ARGB_8888).apply {
+                        eraseColor(Color.GRAY)
+                    }
+                }
+                Glide.with(context)
+                        .load(bitmap)
+                        .transform(CenterCrop(), RoundedCorners(context.dip(4)))
+                        .into(imageView)
+            } else {
+                Glide.with(context)
+                        .load(item.background)
+                        .override(200, 200)
+                        .transform(CenterCrop(), RoundedCorners(context.dip(4)))
+                        .error(Glide.with(context)
+                                .load(Bitmap.createBitmap(100, 100, Bitmap.Config.ARGB_8888).apply {
+                                    eraseColor(Color.GRAY)
+                                })
+                                .transform(CenterCrop(), RoundedCorners(context.dip(4))))
+                        .into(imageView)
+            }
         } else {
             Glide.with(context)
                     .load(R.drawable.main_background_2020_1)

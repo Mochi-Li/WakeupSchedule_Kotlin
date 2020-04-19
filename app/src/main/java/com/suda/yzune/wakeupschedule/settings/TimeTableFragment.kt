@@ -14,9 +14,9 @@ import androidx.navigation.Navigation
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
+import com.google.android.material.textfield.MaterialAutoCompleteTextView
 import com.google.android.material.textfield.TextInputEditText
 import com.google.android.material.textfield.TextInputLayout
-import com.google.android.material.textview.MaterialAutoCompleteTextView
 import com.suda.yzune.wakeupschedule.R
 import com.suda.yzune.wakeupschedule.base_view.BaseFragment
 import com.suda.yzune.wakeupschedule.bean.TimeTableBean
@@ -35,8 +35,7 @@ class TimeTableFragment : BaseFragment() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        val arguments = arguments
-        viewModel.selectedId = arguments!!.getInt("selectedId")
+        viewModel.selectedId = requireArguments().getInt("selectedId")
     }
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?,
@@ -48,7 +47,7 @@ class TimeTableFragment : BaseFragment() {
             val list = viewModel.getTimeTableList()
             viewModel.timeTableList.addAll(list)
             initRecyclerView(recyclerView, view)
-            arrayAdapter = ArrayAdapter(context!!, R.layout.popup_single_list_item)
+            arrayAdapter = ArrayAdapter(requireContext(), R.layout.popup_single_list_item)
             arrayAdapter.addAll(list)
             val index = list.indexOfFirst { it.id == viewModel.selectedId }
             view.findViewById<MaterialAutoCompleteTextView>(R.id.tv_time_table).apply {
@@ -67,7 +66,7 @@ class TimeTableFragment : BaseFragment() {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-        if (activity!!.getPrefer().getBoolean(Const.KEY_HIDE_NAV_BAR, false)) {
+        if (requireContext().getPrefer().getBoolean(Const.KEY_HIDE_NAV_BAR, false)) {
             ViewCompat.setOnApplyWindowInsetsListener(fab_add) { v, insets ->
                 v.updateLayoutParams<ConstraintLayout.LayoutParams> {
                     bottomMargin = insets.systemWindowInsets.bottom + v.dip(16)
@@ -76,7 +75,7 @@ class TimeTableFragment : BaseFragment() {
             }
         }
         fab_add.setOnClickListener {
-            val dialog = MaterialAlertDialogBuilder(context!!)
+            val dialog = MaterialAlertDialogBuilder(requireContext())
                     .setTitle("时间表名字")
                     .setView(R.layout.dialog_edit_text)
                     .setNegativeButton(R.string.cancel, null)
@@ -95,9 +94,9 @@ class TimeTableFragment : BaseFragment() {
                             val id = viewModel.addNewTimeTable(value.toString())
                             adapter.addData(TimeTableBean(id, value.toString()))
                             arrayAdapter.add(TimeTableBean(id, value.toString()))
-                            Toasty.success(activity!!, "新建成功~").show()
+                            Toasty.success(requireContext(), "新建成功~").show()
                         } catch (e: Exception) {
-                            Toasty.error(activity!!, "发生异常>_<${e.message}").show()
+                            Toasty.error(requireContext(), "发生异常>_<${e.message}").show()
                         }
                         dialog.dismiss()
                     }
@@ -109,7 +108,7 @@ class TimeTableFragment : BaseFragment() {
     private fun initRecyclerView(recyclerView: RecyclerView, fragmentView: View) {
         adapter = TimeTableAdapter(R.layout.item_time_table, viewModel.timeTableList)
         recyclerView.adapter = adapter
-        adapter.addFooterView(View(context!!).apply {
+        adapter.addFooterView(View(requireContext()).apply {
             layoutParams = ViewGroup.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, dip(240))
         })
         adapter.addChildClickViewIds(R.id.ib_edit, R.id.ib_delete)
@@ -122,7 +121,7 @@ class TimeTableFragment : BaseFragment() {
                     Navigation.findNavController(fragmentView).navigate(R.id.timeTableFragment_to_timeSettingsFragment, bundle)
                 }
                 R.id.ib_delete -> {
-                    Toasty.info(activity!!, "长按确认删除哦~").show()
+                    Toasty.info(requireContext(), "长按确认删除哦~").show()
                 }
             }
         }
@@ -136,7 +135,7 @@ class TimeTableFragment : BaseFragment() {
                         launch {
                             try {
                                 viewModel.deleteTimeTable(viewModel.timeTableList[position])
-                                adapter.remove(position)
+                                adapter.removeAt(position)
                                 arrayAdapter.remove(arrayAdapter.getItem(position))
                                 view.longSnack("删除成功~")
                             } catch (e: Exception) {

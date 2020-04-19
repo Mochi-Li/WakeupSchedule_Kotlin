@@ -30,6 +30,7 @@ object Common {
     const val TYPE_HUNNU = "hunnu" // 湖南师范大学
     const val TYPE_ECJTU = "ecjtu" // 华东交通大学
     const val TYPE_SHU = "shu"// 上海大学
+    const val TYPE_SIT = "sit"// 上海应用技术大学
     const val TYPE_JZ = "jz" // 金智教务
     const val TYPE_LOGIN = "login" // 模拟登录方式
     const val TYPE_MAINTAIN = "maintain" // 维护状态，暂不可用

@@ -39,7 +39,7 @@
     <com.google.android.material.button.MaterialButton
         android:id="@+id/tv_share"
         style="@style/DialogButtonStyle"
-        android:text="在线分享（Beta）" />
+        android:text="在线分享" />
 
     <com.google.android.material.button.MaterialButton
         android:id="@+id/tv_cancel"

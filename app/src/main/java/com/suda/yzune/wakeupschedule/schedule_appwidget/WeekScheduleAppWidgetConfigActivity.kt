@@ -8,6 +8,8 @@ import android.view.View
 import androidx.activity.viewModels
 import androidx.appcompat.widget.AppCompatTextView
 import androidx.recyclerview.widget.LinearLayoutManager
+import androidx.recyclerview.widget.RecyclerView
+import androidx.recyclerview.widget.StaggeredGridLayoutManager
 import com.bumptech.glide.Glide
 import com.bumptech.glide.load.resource.drawable.DrawableTransitionOptions
 import com.suda.yzune.wakeupschedule.R
@@ -15,8 +17,10 @@ import com.suda.yzune.wakeupschedule.base_view.BaseBlurTitleActivity
 import com.suda.yzune.wakeupschedule.bean.AppWidgetBean
 import com.suda.yzune.wakeupschedule.bean.TableSelectBean
 import com.suda.yzune.wakeupschedule.utils.AppWidgetUtils
+import com.suda.yzune.wakeupschedule.utils.ViewUtils
 import es.dmoral.toasty.Toasty
 import kotlinx.android.synthetic.main.activity_week_schedule_app_widget_config.*
+import splitties.resources.dimenPxSize
 import splitties.snackbar.longSnack
 
 class WeekScheduleAppWidgetConfigActivity : BaseBlurTitleActivity() {
@@ -74,7 +78,11 @@ class WeekScheduleAppWidgetConfigActivity : BaseBlurTitleActivity() {
                 }
             }
             rv_list.adapter = adapter
-            rv_list.layoutManager = LinearLayoutManager(this)
+            if (ViewUtils.getScreenInfo(this)[0] < dimenPxSize(R.dimen.wide_screen)) {
+                rv_list.layoutManager = LinearLayoutManager(this)
+            } else {
+                rv_list.layoutManager = StaggeredGridLayoutManager(2, RecyclerView.VERTICAL)
+            }
             launch {
                 list.clear()
                 list.addAll(viewModel.getTableList())

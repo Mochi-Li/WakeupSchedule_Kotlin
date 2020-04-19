@@ -11,9 +11,11 @@ import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.Observer
 import androidx.recyclerview.widget.StaggeredGridLayoutManager
 import com.suda.yzune.wakeupschedule.R
+import com.suda.yzune.wakeupschedule.utils.ViewUtils
 import com.suda.yzune.wakeupschedule.widget.SelectedRecyclerView
 import es.dmoral.toasty.Toasty
 import kotlinx.android.synthetic.main.fragment_select_week.*
+import splitties.resources.dimenPxSize
 import splitties.resources.styledColor
 
 class SelectWeekFragment : BaseDialogFragment() {
@@ -32,11 +34,11 @@ class SelectWeekFragment : BaseDialogFragment() {
         arguments?.let {
             position = it.getInt("position")
         }
-        colorSurface = context!!.styledColor(R.attr.colorOnSurface)
+        colorSurface = requireContext().styledColor(R.attr.colorOnSurface)
         liveData.observe(this, Observer {
             if (it?.size == viewModel.maxWeek) {
                 tv_all.setTextColor(Color.WHITE)
-                tv_all.background = ContextCompat.getDrawable(context!!, R.drawable.select_textview_bg)
+                tv_all.background = ContextCompat.getDrawable(requireContext(), R.drawable.select_textview_bg)
             }
             if (it?.size != viewModel.maxWeek) {
                 tv_all.setTextColor(colorSurface)
@@ -45,7 +47,7 @@ class SelectWeekFragment : BaseDialogFragment() {
             val flag = viewModel.judgeType(it!!)
             if (flag == 1) {
                 tv_type1.setTextColor(Color.WHITE)
-                tv_type1.background = ContextCompat.getDrawable(context!!, R.drawable.select_textview_bg)
+                tv_type1.background = ContextCompat.getDrawable(requireContext(), R.drawable.select_textview_bg)
             }
             if (flag != 1) {
                 tv_type1.setTextColor(colorSurface)
@@ -53,7 +55,7 @@ class SelectWeekFragment : BaseDialogFragment() {
             }
             if (flag == 2) {
                 tv_type2.setTextColor(Color.WHITE)
-                tv_type2.background = ContextCompat.getDrawable(context!!, R.drawable.select_textview_bg)
+                tv_type2.background = ContextCompat.getDrawable(requireContext(), R.drawable.select_textview_bg)
             }
             if (flag != 2) {
                 tv_type2.setTextColor(colorSurface)
@@ -73,7 +75,13 @@ class SelectWeekFragment : BaseDialogFragment() {
     private fun showWeeks() {
         val adapter = SelectWeekAdapter(R.layout.item_select_week, viewModel.maxWeek, result)
         rv_week.adapter = adapter
-        rv_week.layoutManager = StaggeredGridLayoutManager(6, StaggeredGridLayoutManager.VERTICAL)
+        rv_week.layoutManager = StaggeredGridLayoutManager(
+                if (ViewUtils.getScreenInfo(requireContext())[0] < dimenPxSize(R.dimen.wide_screen)) {
+                    6
+                } else {
+                    10
+                }
+                , StaggeredGridLayoutManager.VERTICAL)
         var prePos = -1
         rv_week.positionChangedListener = object : SelectedRecyclerView.PositionChangedListener {
             override fun changeState(pos: Int, isDown: Boolean) {
@@ -145,7 +153,7 @@ class SelectWeekFragment : BaseDialogFragment() {
 
         btn_save.setOnClickListener {
             if (result.size == 0) {
-                Toasty.error(context!!, "请至少选择一周").show()
+                Toasty.error(requireContext(), "请至少选择一周").show()
             } else {
                 viewModel.editList[position].weekList.value = result
                 dismiss()

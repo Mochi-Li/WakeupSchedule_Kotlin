@@ -7,5 +7,6 @@
     <dimen name="weekItemMarLeft">0dp</dimen>
     <dimen name="grid_expected_size">120dp</dimen>
     <dimen name="widget_margin">0dp</dimen>
+    <dimen name="wide_screen">540dp</dimen>
 
 </resources>

@@ -46,4 +46,5 @@ object Const {
     const val KEY_SCHEDULE_DETAIL_TIME = "schedule_detail_time"
     const val KEY_SCHEDULE_TEACHER = "schedule_teacher"
     const val KEY_SHOW_DONATE = "show_donate"
+    const val KEY_SHOW_TABLE_ID = "show_table_id"
 }

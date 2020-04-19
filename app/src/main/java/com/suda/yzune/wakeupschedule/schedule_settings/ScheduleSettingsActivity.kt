@@ -4,6 +4,7 @@ import android.app.DatePickerDialog
 import android.appwidget.AppWidgetManager
 import android.content.ActivityNotFoundException
 import android.content.Intent
+import android.graphics.Color
 import android.os.Bundle
 import android.text.Editable
 import android.text.InputType
@@ -53,6 +54,7 @@ private const val WIDGET_TITLE_COLOR = 4
 private const val WIDGET_COURSE_TEXT_COLOR = 5
 private const val WIDGET_STROKE_COLOR = 6
 private const val WIDGET_BG_COLOR = 7
+private const val BG_COLOR = 8
 
 class ScheduleSettingsActivity : BaseListActivity(), ColorPickerFragment.ColorPickerDialogListener {
 
@@ -67,6 +69,9 @@ class ScheduleSettingsActivity : BaseListActivity(), ColorPickerFragment.ColorPi
             WIDGET_BG_COLOR -> getPrefer().edit {
                 putInt(Const.KEY_APPWIDGET_BG_COLOR, color)
                 Toasty.info(this@ScheduleSettingsActivity, "记得退出当前页面再返回桌面，点小部件右上角箭头切换才能看到效果哦", Toasty.LENGTH_LONG).show()
+            }
+            BG_COLOR -> {
+                viewModel.table.background = "#${color}"
             }
         }
     }
@@ -190,7 +195,7 @@ class ScheduleSettingsActivity : BaseListActivity(), ColorPickerFragment.ColorPi
         items.add(currentWeekItem)
         items.add(HorizontalItem("管理已添加课程", "", keys = listOf("课程", "课")))
         items.add(SeekBarItem("一天课程节数", viewModel.table.nodes, 1, 30, "节", keys = listOf("节数", "数量", "数")))
-        items.add(SeekBarItem("学期周数", viewModel.table.maxWeek, 1, 30, "周", keys = listOf("学期", "周", "时间")))
+        items.add(SeekBarItem("学期周数", viewModel.table.maxWeek, 1, 60, "周", keys = listOf("学期", "周", "时间")))
         items.add(SwitchItem("周日为每周第一天", viewModel.table.sundayFirst, keys = listOf("周日", "第一天", "起始", "星期天", "天")))
         items.add(SwitchItem("显示周六", viewModel.table.showSat, keys = listOf("周六", "显示", "星期六", "六")))
         items.add(SwitchItem("显示周日", viewModel.table.showSun, keys = listOf("周日", "显示", "星期日", "日", "星期天", "周天")))
@@ -406,15 +411,29 @@ class ScheduleSettingsActivity : BaseListActivity(), ColorPickerFragment.ColorPi
     private fun onVerticalItemClick(item: VerticalItem) {
         when (item.title) {
             "课程表背景" -> {
-                val intent = Intent(Intent.ACTION_OPEN_DOCUMENT).apply {
-                    addCategory(Intent.CATEGORY_OPENABLE)
-                    type = "image/*"
-                }
-                try {
-                    startActivityForResult(intent, REQUEST_CODE_CHOOSE_BG)
-                } catch (e: ActivityNotFoundException) {
-                    e.printStackTrace()
-                }
+                MaterialAlertDialogBuilder(this)
+                        .setTitle("设置背景类型")
+                        .setItems(arrayOf("图片背景", "纯色背景")) { _, which ->
+                            if (which == 0) {
+                                val intent = Intent(Intent.ACTION_OPEN_DOCUMENT).apply {
+                                    addCategory(Intent.CATEGORY_OPENABLE)
+                                    type = "image/*"
+                                }
+                                try {
+                                    startActivityForResult(intent, REQUEST_CODE_CHOOSE_BG)
+                                } catch (e: ActivityNotFoundException) {
+                                    e.printStackTrace()
+                                }
+                            } else {
+                                val color = if (viewModel.table.background.startsWith("#")) {
+                                    viewModel.table.background.removePrefix("#").toInt()
+                                } else {
+                                    Color.GRAY
+                                }
+                                buildColorPickerDialogBuilder(color, BG_COLOR, false)
+                            }
+                        }
+                        .show()
             }
             "界面文字颜色" -> {
                 buildColorPickerDialogBuilder(viewModel.table.textColor, TITLE_COLOR)
@@ -464,9 +483,9 @@ class ScheduleSettingsActivity : BaseListActivity(), ColorPickerFragment.ColorPi
         }
     }
 
-    private fun buildColorPickerDialogBuilder(color: Int, id: Int) {
+    private fun buildColorPickerDialogBuilder(color: Int, id: Int, showAlphaSlider: Boolean = true) {
         ColorPickerFragment.newBuilder()
-                .setShowAlphaSlider(true)
+                .setShowAlphaSlider(showAlphaSlider)
                 .setColor(color)
                 .setDialogId(id)
                 .show(this)

@@ -32,6 +32,7 @@ class EditDetailFragment : BaseDialogFragment() {
         super.onViewCreated(view, savedInstanceState)
         tv_title.text = title
         et_detail.setText(value)
+        et_detail.setSelection(value.length)
         val hasData = detailData?.any {
             it.isNotBlank()
         } ?: false
@@ -49,6 +50,7 @@ class EditDetailFragment : BaseDialogFragment() {
             if (checkedId < 0) return@setOnCheckedChangeListener
             val t = group.findViewById<Chip>(checkedId).text
             et_detail.setText(t)
+            et_detail.setSelection(t.length)
         }
         tv_save.setOnClickListener {
             listener?.save(et_detail, dialog!!)

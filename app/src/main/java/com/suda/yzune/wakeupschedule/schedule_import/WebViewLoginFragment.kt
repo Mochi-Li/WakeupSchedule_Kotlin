@@ -81,22 +81,26 @@ class WebViewLoginFragment : BaseFragment() {
     @JavascriptInterface
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-        ViewUtils.resizeStatusBar(context!!.applicationContext, view.findViewById(R.id.v_status))
+        ViewUtils.resizeStatusBar(requireContext(), view.findViewById(R.id.v_status))
         ViewCompat.setOnApplyWindowInsetsListener(view) { v, insets ->
             v.updatePadding(bottom = insets.systemWindowInsets.bottom)
             insets
         }
         if (url != "") {
             et_url.setText(url)
+            et_url.setSelection(url.length)
             startVisit()
         } else {
-            val url = context!!.getPrefer().getString(Const.KEY_SCHOOL_URL, "")
+            val url = requireContext().getPrefer().getString(Const.KEY_SCHOOL_URL, "")
             if (url != "") {
                 et_url.setText(url)
+                et_url.setSelection(url!!.length)
+                startVisit()
             } else {
-                et_url.setText("https://www.baidu.com")
+                wv_course.visibility = View.VISIBLE
+                ll_error.visibility = View.GONE
+                wv_course.loadUrl("file:///android_asset/empty.html")
             }
-            startVisit()
         }
 
         if (viewModel.importType == "apply") {
@@ -216,12 +220,12 @@ class WebViewLoginFragment : BaseFragment() {
             cg_new_urp.visibility = View.GONE
         }
 
-        MaterialAlertDialogBuilder(activity)
+        MaterialAlertDialogBuilder(requireContext())
                 .setTitle("注意事项")
                 .setMessage(tips)
                 .setPositiveButton("我知道啦", null)
                 .setNeutralButton("如何正确选择教务？") { _, _ ->
-                    Utils.openUrl(activity!!, "https://support.qq.com/embed/97617/faqs/59901")
+                    Utils.openUrl(requireActivity(), "https://support.qq.com/embed/97617/faqs/59901")
                 }
                 .setCancelable(false)
                 .show()
@@ -238,7 +242,7 @@ class WebViewLoginFragment : BaseFragment() {
                     handler.proceed() //接受所有网站的证书
                     return
                 }
-                MaterialAlertDialogBuilder(activity)
+                MaterialAlertDialogBuilder(requireContext())
                         .setMessage("SSL证书验证失败")
                         .setPositiveButton("继续浏览") { _, _ ->
                             handler.proceed()
@@ -275,6 +279,10 @@ class WebViewLoginFragment : BaseFragment() {
         wv_course.settings.domStorageEnabled = true
         wv_course.settings.userAgentString = wv_course.settings.userAgentString.replace("Mobile", "eliboM").replace("Android", "diordnA")
         wv_course.settings.textZoom = 100
+        // We accept third party cookies
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
+            CookieManager.getInstance().setAcceptThirdPartyCookies(wv_course, true)
+        }
         initEvent()
     }
 
@@ -290,7 +298,7 @@ class WebViewLoginFragment : BaseFragment() {
         }
 
         chip_zoom.setOnClickListener {
-            val dialog = MaterialAlertDialogBuilder(activity)
+            val dialog = MaterialAlertDialogBuilder(requireContext())
                     .setTitle("设置缩放")
                     .setView(R.layout.dialog_edit_text)
                     .setNegativeButton(R.string.cancel, null)
@@ -522,11 +530,11 @@ class WebViewLoginFragment : BaseFragment() {
             et_url.text.toString() else "http://" + et_url.text.toString()
         if (URLUtil.isHttpUrl(url) || URLUtil.isHttpsUrl(url)) {
             wv_course.loadUrl(url)
-            context!!.getPrefer().edit {
+            requireContext().getPrefer().edit {
                 putString(Const.KEY_SCHOOL_URL, url)
             }
         } else {
-            Toasty.error(context!!, "请输入正确的网址╭(╯^╰)╮").show()
+            Toasty.error(requireContext(), "请输入正确的网址╭(╯^╰)╮").show()
         }
     }
 
@@ -543,6 +551,8 @@ class WebViewLoginFragment : BaseFragment() {
                         activity!!.setResult(RESULT_OK)
                         activity!!.finish()
                     } catch (e: Exception) {
+                        isRefer = false
+                        countClick = 0
                         Toasty.error(activity!!,
                                 "导入失败>_<\n${e.message}", Toast.LENGTH_LONG).show()
                     }

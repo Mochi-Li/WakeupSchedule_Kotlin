@@ -94,6 +94,7 @@ class AddCourseViewModel(application: Application) : AndroidViewModel(applicatio
     }
 
     fun initData(maxWeek: Int): MutableList<CourseEditBean> {
+        if (editList.isNotEmpty()) return editList
         editList.add(CourseEditBean(
                 tableId = tableId,
                 weekList = MutableLiveData<ArrayList<Int>>().apply {

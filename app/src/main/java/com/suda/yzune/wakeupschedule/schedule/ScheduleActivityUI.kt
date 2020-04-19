@@ -8,14 +8,15 @@ import android.util.TypedValue
 import android.view.Gravity
 import android.view.View
 import android.view.ViewGroup
-import android.widget.FrameLayout
 import android.widget.ImageView
+import android.widget.LinearLayout
 import androidx.appcompat.widget.AppCompatImageButton
 import androidx.appcompat.widget.AppCompatImageView
 import androidx.appcompat.widget.AppCompatTextView
 import androidx.constraintlayout.widget.ConstraintLayout
 import androidx.constraintlayout.widget.ConstraintSet.PARENT_ID
 import androidx.coordinatorlayout.widget.CoordinatorLayout
+import androidx.core.graphics.ColorUtils
 import androidx.core.view.ViewCompat
 import androidx.core.view.setMargins
 import androidx.recyclerview.widget.LinearLayoutManager
@@ -36,6 +37,7 @@ import com.suda.yzune.wakeupschedule.utils.getPrefer
 import splitties.dimensions.dip
 import splitties.dimensions.dp
 import splitties.resources.colorSL
+import splitties.resources.dimenPxSize
 import splitties.resources.styledColor
 
 class ScheduleActivityUI(override val ctx: Context) : Ui {
@@ -210,10 +212,10 @@ class ScheduleActivityUI(override val ctx: Context) : Ui {
             "第 ${it.toInt()} 周"
         }
         haloRadius = 0
-        thumbRadius = dip(8)
+        thumbRadius = dip(4)
         thumbElevation = 0f
         thumbColor = ViewUtils.createColorStateList(Color.WHITE)
-        trackHeight = dip(24)
+        trackHeight = dip(16)
         tickColor = ViewUtils.createColorStateList(Color.TRANSPARENT)
         isSaveEnabled = false
     }
@@ -250,7 +252,7 @@ class ScheduleActivityUI(override val ctx: Context) : Ui {
         itemTextAppearanceInactive = R.style.BottomNavigationViewText
     }
 
-    val cardContent = ConstraintLayout(ctx).apply {
+    private val cardContent0 = ConstraintLayout(ctx).apply {
         val space = dip(16)
         isMotionEventSplittingEnabled = false
         addView(AppCompatTextView(context).apply {
@@ -283,16 +285,17 @@ class ScheduleActivityUI(override val ctx: Context) : Ui {
         }, ConstraintLayout.LayoutParams(ConstraintLayout.LayoutParams.WRAP_CONTENT, ConstraintLayout.LayoutParams.WRAP_CONTENT).apply {
             startToStart = PARENT_ID
             topToBottom = R.id.bottom_sheet_slider_week
-            topMargin = dip(8)
             marginStart = space
         })
         addView(rvTableName, ConstraintLayout.LayoutParams(ConstraintLayout.LayoutParams.MATCH_PARENT, ConstraintLayout.LayoutParams.WRAP_CONTENT).apply {
             startToStart = PARENT_ID
             endToEnd = PARENT_ID
             topToBottom = R.id.bottom_sheet_title_schedule
+            bottomToBottom = PARENT_ID
             topMargin = dip(16)
             marginStart = space
             marginEnd = space
+            bottomMargin = space
         })
         addView(manageScheduleBtn, ConstraintLayout.LayoutParams(ConstraintLayout.LayoutParams.WRAP_CONTENT, ConstraintLayout.LayoutParams.WRAP_CONTENT).apply {
             endToEnd = PARENT_ID
@@ -305,26 +308,12 @@ class ScheduleActivityUI(override val ctx: Context) : Ui {
             topToTop = R.id.bottom_sheet_title_schedule
             bottomToBottom = R.id.bottom_sheet_title_schedule
         })
-        addView(shortCutTitle, ConstraintLayout.LayoutParams(ConstraintLayout.LayoutParams.WRAP_CONTENT, ConstraintLayout.LayoutParams.WRAP_CONTENT).apply {
-            startToStart = PARENT_ID
-            topToBottom = R.id.bottom_sheet_rv_table
-            bottomToTop = R.id.bottom_sheet_nav_view
-            topMargin = dip(16)
-            marginStart = space
-        })
-        addView(bottomNavigationView, ConstraintLayout.LayoutParams(ConstraintLayout.LayoutParams.MATCH_PARENT, dip(64)).apply {
-            startToStart = PARENT_ID
-            endToEnd = PARENT_ID
-            bottomToTop = R.id.bottom_sheet_nav_view2
-            topToBottom = R.id.bottom_sheet_title_shortcut
-        })
-        addView(bottomNavigationView2, ConstraintLayout.LayoutParams(ConstraintLayout.LayoutParams.MATCH_PARENT, dip(64)).apply {
-            startToStart = PARENT_ID
-            endToEnd = PARENT_ID
-            bottomToBottom = PARENT_ID
-            topToBottom = R.id.bottom_sheet_nav_view
-            bottomMargin = dip(8)
-        })
+    }
+
+    private val cardContent1 = LinearLayout(ctx).apply {
+        orientation = LinearLayout.VERTICAL
+        addView(bottomNavigationView, LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, dip(64)))
+        addView(bottomNavigationView2, LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, dip(64)))
         if (context.getPrefer().getBoolean(Const.KEY_HIDE_NAV_BAR, false)) {
             ViewCompat.setOnApplyWindowInsetsListener(this) { _, insets ->
                 insets.consumeSystemWindowInsets()
@@ -332,18 +321,54 @@ class ScheduleActivityUI(override val ctx: Context) : Ui {
         }
     }
 
-    val bottomSheet = FrameLayout(ctx).apply {
-        addView(MaterialCardView(context).apply {
-            setCardBackgroundColor(styledColor(R.attr.colorSurface))
-            cardElevation = dp(8)
-            addView(cardContent, ViewGroup.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT))
-        }, FrameLayout.LayoutParams(FrameLayout.LayoutParams.MATCH_PARENT, FrameLayout.LayoutParams.WRAP_CONTENT).apply {
+    private val screenWidth = ViewUtils.getScreenInfo(ctx)[0]
+
+    val bottomSheet = if (screenWidth < ctx.dimenPxSize(R.dimen.wide_screen)) {
+        LinearLayout(ctx).apply {
+            val space = dip(16)
             gravity = Gravity.BOTTOM
-            setMargins(dip(16))
-            if (context.getPrefer().getBoolean(Const.KEY_HIDE_NAV_BAR, false)) {
-                bottomMargin = dip(16) + ViewUtils.getVirtualBarHeight(ctx)
-            }
-        })
+            val bgColor = ColorUtils.setAlphaComponent(styledColor(R.attr.colorSurface), 243)
+            orientation = LinearLayout.VERTICAL
+            addView(MaterialCardView(context).apply {
+                setCardBackgroundColor(bgColor)
+                cardElevation = dp(8)
+                addView(cardContent0, ViewGroup.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT))
+            }, LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.WRAP_CONTENT).apply {
+                setMargins(space, 0, space, 0)
+            })
+            addView(MaterialCardView(context).apply {
+                setCardBackgroundColor(bgColor)
+                cardElevation = dp(8)
+                addView(cardContent1, ViewGroup.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT))
+            }, LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.WRAP_CONTENT).apply {
+                setMargins(dip(16))
+                if (context.getPrefer().getBoolean(Const.KEY_HIDE_NAV_BAR, false)) {
+                    bottomMargin = dip(16) + ViewUtils.getVirtualBarHeight(ctx)
+                }
+            })
+        }
+    } else {
+        LinearLayout(ctx).apply {
+            val space = dip(8)
+            gravity = Gravity.BOTTOM
+            val bgColor = ColorUtils.setAlphaComponent(styledColor(R.attr.colorSurface), 243)
+            addView(MaterialCardView(context).apply {
+                setCardBackgroundColor(bgColor)
+                cardElevation = dp(8)
+                addView(cardContent0, ViewGroup.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT))
+            }, LinearLayout.LayoutParams(0, LinearLayout.LayoutParams.WRAP_CONTENT).apply {
+                setMargins(space, 0, space / 2, space)
+                weight = 1f
+            })
+            addView(MaterialCardView(context).apply {
+                setCardBackgroundColor(bgColor)
+                cardElevation = dp(8)
+                addView(cardContent1, ViewGroup.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT))
+            }, LinearLayout.LayoutParams(0, LinearLayout.LayoutParams.WRAP_CONTENT).apply {
+                setMargins(space / 2, 0, space, space)
+                weight = 1f
+            })
+        }
     }
 
     override val root = CoordinatorLayout(ctx).apply {
@@ -356,7 +381,7 @@ class ScheduleActivityUI(override val ctx: Context) : Ui {
         addView(bottomSheet, CoordinatorLayout.LayoutParams(
                 CoordinatorLayout.LayoutParams.MATCH_PARENT,
                 ViewUtils.getScreenInfo(context)[1]).apply {
-            behavior = BottomSheetBehavior<FrameLayout>(ctx, null).apply {
+            behavior = BottomSheetBehavior<LinearLayout>(ctx, null).apply {
                 isHideable = true
                 peekHeight = 0
             }

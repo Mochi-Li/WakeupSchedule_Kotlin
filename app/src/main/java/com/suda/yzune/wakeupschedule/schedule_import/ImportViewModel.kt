@@ -85,6 +85,7 @@ class ImportViewModel(application: Application) : AndroidViewModel(application) 
             Common.TYPE_ECJTU -> ECJTUParser(source)
             Common.TYPE_UMOOC -> UMoocParser(source)
             Common.TYPE_SHU -> SHUParser(source)
+            Common.TYPE_SIT -> SITParser(source)
             else -> null
         }
         return parser?.saveCourse(getApplication(), importId) { baseList, detailList ->

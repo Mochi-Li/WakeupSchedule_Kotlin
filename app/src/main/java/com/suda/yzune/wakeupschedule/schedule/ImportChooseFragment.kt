@@ -33,8 +33,8 @@ class ImportChooseFragment : BaseDialogFragment() {
 
         tv_file.setOnClickListener {
             showSAFTips {
-                activity!!.startActivityForResult(
-                        Intent(activity, LoginWebActivity::class.java).apply {
+                requireActivity().startActivityForResult(
+                        Intent(requireActivity(), LoginWebActivity::class.java).apply {
                             putExtra("import_type", "file")
                         },
                         Const.REQUEST_CODE_IMPORT)
@@ -43,8 +43,8 @@ class ImportChooseFragment : BaseDialogFragment() {
         }
 
         tv_share_import.setOnClickListener {
-            activity!!.startActivityForResult(
-                    Intent(activity, LoginWebActivity::class.java).apply {
+            requireActivity().startActivityForResult(
+                    Intent(requireActivity(), LoginWebActivity::class.java).apply {
                         putExtra("import_type", "code")
                     },
                     Const.REQUEST_CODE_IMPORT)
@@ -53,8 +53,8 @@ class ImportChooseFragment : BaseDialogFragment() {
 
         tv_html.setOnClickListener {
             showSAFTips {
-                activity!!.startActivityForResult(
-                        Intent(activity, LoginWebActivity::class.java).apply {
+                requireActivity().startActivityForResult(
+                        Intent(requireActivity(), LoginWebActivity::class.java).apply {
                             putExtra("import_type", "html")
                             putExtra("tableId", viewModel.table.id)
                         },
@@ -65,8 +65,8 @@ class ImportChooseFragment : BaseDialogFragment() {
 
         tv_excel.setOnClickListener {
             showSAFTips {
-                activity!!.startActivityForResult(
-                        Intent(activity, LoginWebActivity::class.java).apply {
+                requireActivity().startActivityForResult(
+                        Intent(requireActivity(), LoginWebActivity::class.java).apply {
                             putExtra("import_type", "excel")
                             putExtra("tableId", viewModel.table.id)
                         },
@@ -77,15 +77,15 @@ class ImportChooseFragment : BaseDialogFragment() {
 
         tv_school.setOnClickListener {
             //AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_NO)
-            activity!!.startActivityForResult(
-                    Intent(activity, SchoolListActivity::class.java),
+            requireActivity().startActivityForResult(
+                    Intent(requireActivity(), SchoolListActivity::class.java),
                     Const.REQUEST_CODE_IMPORT)
             dismiss()
         }
 
         tv_feedback.setOnClickListener {
             //AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_NO)
-            activity!!.start<LoginWebActivity> {
+            requireActivity().start<LoginWebActivity> {
                 putExtra("import_type", "apply")
             }
             dismiss()
@@ -93,11 +93,11 @@ class ImportChooseFragment : BaseDialogFragment() {
     }
 
     private fun showSAFTips(block: () -> Unit) {
-        MaterialAlertDialogBuilder(activity)
+        MaterialAlertDialogBuilder(requireContext())
                 .setTitle("提示")
                 .setMessage("为了避免使用敏感的外部存储读写权限，本应用采用了系统级的文件选择器来选择文件。如果找不到路径，请点选择器右上角的三个点，选择「显示内部存储设备」，然后通过侧栏选择路径。")
                 .setNeutralButton("查看图文教程") { _, _ ->
-                    Utils.openUrl(activity!!, "https://support.qq.com/embed/phone/97617/faqs/59884")
+                    Utils.openUrl(requireActivity(), "https://support.qq.com/embed/phone/97617/faqs/59884")
                 }
                 .setPositiveButton(R.string.sure) { _, _ ->
                     block.invoke()

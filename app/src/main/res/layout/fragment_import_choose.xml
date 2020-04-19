@@ -62,7 +62,7 @@
     <com.google.android.material.button.MaterialButton
         android:id="@+id/tv_share_import"
         style="@style/DialogButtonStyle"
-        android:text="从分享口令导入（Beta）" />
+        android:text="从分享口令导入" />
 
     <com.google.android.material.button.MaterialButton
         android:id="@+id/tv_feedback"

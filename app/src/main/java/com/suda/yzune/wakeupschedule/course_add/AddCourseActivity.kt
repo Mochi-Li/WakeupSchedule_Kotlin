@@ -5,6 +5,7 @@ import android.app.Dialog
 import android.appwidget.AppWidgetManager
 import android.content.Intent
 import android.graphics.Color
+import android.graphics.Rect
 import android.graphics.Typeface
 import android.os.Bundle
 import android.text.Editable
@@ -12,6 +13,7 @@ import android.text.TextWatcher
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.view.inputmethod.EditorInfo
 import android.widget.Toast
 import androidx.activity.viewModels
 import androidx.appcompat.widget.AppCompatEditText
@@ -26,6 +28,7 @@ import androidx.core.view.updateLayoutParams
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.Observer
 import androidx.recyclerview.widget.LinearLayoutManager
+import androidx.recyclerview.widget.RecyclerView
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import com.google.android.material.floatingactionbutton.FloatingActionButton
 import com.suda.yzune.wakeupschedule.R
@@ -66,6 +69,13 @@ class AddCourseActivity : BaseListActivity(), ColorPickerFragment.ColorPickerDia
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        mRecyclerView.addItemDecoration(object : RecyclerView.ItemDecoration() {
+            override fun getItemOffsets(outRect: Rect, itemPosition: Int, parent: RecyclerView) {
+                if (itemPosition != 0) {
+                    outRect.set(0, 0, 0, dip(16))
+                }
+            }
+        })
         if (intent.extras!!.getInt("id") == -1) {
             viewModel.tableId = intent.extras!!.getInt("tableId")
             viewModel.maxWeek = intent.extras!!.getInt("maxWeek")
@@ -78,16 +88,18 @@ class AddCourseActivity : BaseListActivity(), ColorPickerFragment.ColorPickerDia
             viewModel.nodes = intent.extras!!.getInt("nodes")
             adapter = AddCourseAdapter(R.layout.item_add_course_detail, viewModel.editList)
             launch {
-                val detailList = viewModel.initData(intent.extras!!.getInt("id"), viewModel.tableId)
-                detailList.forEach {
-                    viewModel.editList.add(CourseUtils.detailBean2EditBean(it))
+                if (savedInstanceState == null) {
+                    val detailList = viewModel.initData(intent.extras!!.getInt("id"), viewModel.tableId)
+                    detailList.forEach {
+                        viewModel.editList.add(CourseUtils.detailBean2EditBean(it))
+                    }
+                    adapter.notifyDataSetChanged()
+                    val courseBaseBean = viewModel.initBaseData(intent.extras!!.getInt("id"))
+                    viewModel.baseBean.id = courseBaseBean.id
+                    viewModel.baseBean.color = courseBaseBean.color
+                    viewModel.baseBean.courseName = courseBaseBean.courseName
+                    viewModel.baseBean.tableId = courseBaseBean.tableId
                 }
-                adapter.notifyDataSetChanged()
-                val courseBaseBean = viewModel.initBaseData(intent.extras!!.getInt("id"))
-                viewModel.baseBean.id = courseBaseBean.id
-                viewModel.baseBean.color = courseBaseBean.color
-                viewModel.baseBean.courseName = courseBaseBean.courseName
-                viewModel.baseBean.tableId = courseBaseBean.tableId
                 initAdapter(viewModel.baseBean)
             }
         }
@@ -123,7 +135,7 @@ class AddCourseActivity : BaseListActivity(), ColorPickerFragment.ColorPickerDia
                 (mRecyclerView.layoutManager as LinearLayoutManager).scrollToPositionWithOffset(adapter.data.size, 0)
             }
         }
-        rootView.addView(addFab, ConstraintLayout.LayoutParams(dip(56), dip(67)).apply {
+        rootView.addView(addFab, ConstraintLayout.LayoutParams(ConstraintLayout.LayoutParams.WRAP_CONTENT, ConstraintLayout.LayoutParams.WRAP_CONTENT).apply {
             bottomToBottom = ConstraintSet.PARENT_ID
             endToEnd = ConstraintSet.PARENT_ID
             setMargins(dip(16))
@@ -188,7 +200,7 @@ class AddCourseActivity : BaseListActivity(), ColorPickerFragment.ColorPickerDia
                     if (adapter.data.size == 1) {
                         Toasty.error(this, "至少要保留一个时间段").show()
                     } else {
-                        adapter.remove(position)
+                        adapter.removeAt(position)
                     }
                 }
                 R.id.ll_weeks -> {
@@ -266,6 +278,7 @@ class AddCourseActivity : BaseListActivity(), ColorPickerFragment.ColorPickerDia
         ivColor = view.findViewById(R.id.iv_color)
         etName.setText(baseBean.courseName)
         etName.setSelection(baseBean.courseName.length)
+        etName.imeOptions = EditorInfo.IME_ACTION_DONE
         etName.addTextChangedListener(object : TextWatcher {
             override fun afterTextChanged(s: Editable?) {
                 baseBean.courseName = s.toString()

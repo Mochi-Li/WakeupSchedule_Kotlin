@@ -49,25 +49,6 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_marginStart="24dp"
-                android:layout_marginTop="24dp"
-                android:layout_marginEnd="24dp"
-                android:text="前言"
-                android:textStyle="bold" />
-
-            <androidx.appcompat.widget.AppCompatTextView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_marginStart="24dp"
-                android:layout_marginTop="8dp"
-                android:layout_marginEnd="24dp"
-                android:lineSpacingExtra="4dp"
-                android:text="本来，只是想写个本校使用的课程表。\n后来，发现可以顺便适配方正教务。\n但是，单是方正也有很多细节上的差异。所以按照教务来适配，有一定的局限性。于是决定，还是回到按学校来适配吧。\n侧栏 - 探索，点击可以查看目前申请适配的学校名单，我将每周末查看一次，优先适配有效数多的学校。"
-                android:textSize="12sp" />
-
-            <androidx.appcompat.widget.AppCompatTextView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_marginStart="24dp"
                 android:layout_marginTop="16dp"
                 android:layout_marginEnd="24dp"
                 android:text="使用须知"
@@ -81,6 +62,26 @@
                 android:layout_marginEnd="24dp"
                 android:lineSpacingExtra="4dp"
                 android:text="1. 学校名称必须填写全称，否则视作无效\n2. 本人还是学生，也需顾及学业，请勿催促"
+                android:textSize="12sp" />
+
+            <androidx.appcompat.widget.AppCompatTextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="24dp"
+                android:layout_marginTop="16dp"
+                android:layout_marginEnd="24dp"
+                android:text="参与适配？"
+                android:textStyle="bold" />
+
+            <androidx.appcompat.widget.AppCompatTextView
+                android:id="@+id/tv_github"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="24dp"
+                android:layout_marginTop="8dp"
+                android:layout_marginEnd="24dp"
+                android:lineSpacingExtra="4dp"
+                android:text="我们开源了网页解析器部分，只需要有一点 Java 基础，就可以自行适配啦。详情点这里跳转到 GitHub。"
                 android:textSize="12sp" />
 
             <androidx.appcompat.widget.AppCompatEditText
@@ -162,14 +163,13 @@
             <com.google.android.material.button.MaterialButton
                 android:id="@+id/tv_next"
                 style="@style/Widget.MaterialComponents.Button.UnelevatedButton"
-                android:layout_width="160dp"
+                android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_gravity="center_horizontal"
-                android:layout_marginTop="16dp"
+                android:layout_gravity="end"
+                android:layout_marginTop="24dp"
+                android:layout_marginEnd="24dp"
                 android:layout_marginBottom="32dp"
-                android:text="下一步"
-                android:textSize="12sp"
-                android:textStyle="bold" />
+                android:text="下一步" />
         </androidx.appcompat.widget.LinearLayoutCompat>
 
     </ScrollView>

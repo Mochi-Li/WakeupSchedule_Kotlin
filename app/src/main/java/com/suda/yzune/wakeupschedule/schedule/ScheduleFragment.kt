@@ -49,7 +49,7 @@ class ScheduleFragment : BaseFragment() {
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View {
         weekDay = CourseUtils.getWeekdayInt()
-        ui = ScheduleUI(context!!, viewModel.table, if (week == viewModel.currentWeek) weekDay else -1)
+        ui = ScheduleUI(requireContext(), viewModel.table, if (week == viewModel.currentWeek) weekDay else -1)
         showCourseNumber = viewModel.getShowCourseNumber(week)
         return ui.root
     }
@@ -91,10 +91,10 @@ class ScheduleFragment : BaseFragment() {
                 if (ui.root.getViewById(R.id.anko_empty_view) != null) {
                     return@Observer
                 }
-                val img = ImageView(context!!).apply {
+                val img = ImageView(requireContext()).apply {
                     setImageResource(R.drawable.ic_schedule_empty)
                 }
-                ui.root.addView(LinearLayout(context!!).apply {
+                ui.root.addView(LinearLayout(requireContext()).apply {
                     id = R.id.anko_empty_view
                     orientation = LinearLayout.VERTICAL
                     if (context.getPrefer().getBoolean(Const.KEY_SHOW_EMPTY_VIEW, true)) {
@@ -113,8 +113,8 @@ class ScheduleFragment : BaseFragment() {
                     endToEnd = ConstraintSet.PARENT_ID
                     topToBottom = R.id.anko_tv_title0
                     bottomToBottom = ConstraintSet.PARENT_ID
-                    marginStart = context!!.dip(32)
-                    marginEnd = context!!.dip(32)
+                    marginStart = requireContext().dip(32)
+                    marginEnd = requireContext().dip(32)
                 })
             } else {
                 ui.content.visibility = View.VISIBLE
@@ -176,34 +176,34 @@ class ScheduleFragment : BaseFragment() {
             if (c.step <= 0) {
                 c.step = 1
                 isError = true
-                Toasty.info(context!!, R.string.error_course_data, Toast.LENGTH_LONG).show()
+                Toasty.info(requireContext(), R.string.error_course_data, Toast.LENGTH_LONG).show()
             }
             if (c.startNode <= 0) {
                 c.startNode = 1
                 isError = true
-                Toasty.info(context!!, R.string.error_course_data, Toast.LENGTH_LONG).show()
+                Toasty.info(requireContext(), R.string.error_course_data, Toast.LENGTH_LONG).show()
             }
             if (c.startNode > table.nodes) {
                 c.startNode = table.nodes
                 isError = true
-                Toasty.info(context!!, R.string.error_course_node, Toast.LENGTH_LONG).show()
+                Toasty.info(requireContext(), R.string.error_course_node, Toast.LENGTH_LONG).show()
             }
             if (c.startNode + c.step - 1 > table.nodes) {
                 c.step = table.nodes - c.startNode + 1
                 isError = true
-                Toasty.info(context!!, R.string.error_course_node, Toast.LENGTH_LONG).show()
+                Toasty.info(requireContext(), R.string.error_course_node, Toast.LENGTH_LONG).show()
             }
 
-            val textView = TipTextView(context!!)
+            val textView = TipTextView(requireContext())
 
             if (ll.childCount != 0) {
                 isCovered = (pre.startNode == c.startNode)
             }
 
-            textView.setPadding(context!!.dip(4))
+            textView.setPadding(requireContext().dip(4))
 
             if (c.color.isEmpty()) {
-                c.color = "#${Integer.toHexString(ViewUtils.getCustomizedColor(activity!!, c.id % 9))}"
+                c.color = "#${Integer.toHexString(ViewUtils.getCustomizedColor(requireActivity(), c.id % 9))}"
             }
 
             if (showTeacher && c.teacher != "") {
@@ -283,7 +283,7 @@ class ScheduleFragment : BaseFragment() {
                     detailFragment.show(parentFragmentManager, "courseDetail")
                 } catch (e: Exception) {
                     //TODO: 提示是否要删除异常的数据
-                    Toasty.error(activity!!, "哎呀>_<差点崩溃了").show()
+                    Toasty.error(requireActivity(), "哎呀>_<差点崩溃了").show()
                 }
             }
 

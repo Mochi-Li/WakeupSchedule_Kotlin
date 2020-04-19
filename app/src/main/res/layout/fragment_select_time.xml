@@ -18,16 +18,18 @@
 
     <androidx.appcompat.widget.LinearLayoutCompat
         android:layout_width="match_parent"
-        android:layout_height="240dp">
+        android:layout_height="200dp">
 
         <cn.carbswang.android.numberpickerview.library.NumberPickerView
             android:id="@+id/wp_day"
             android:layout_width="0dp"
             android:layout_height="match_parent"
             android:layout_weight="1"
+            app:npv_DividerColor="@color/colorAccent"
             app:npv_RespondChangeOnDetached="false"
-            app:npv_ShownCount="5"
+            app:npv_ShownCount="4"
             app:npv_TextColorNormal="?attr/colorOnBackground"
+            app:npv_TextColorSelected="@color/colorAccent"
             app:npv_TextSizeNormal="14sp"
             app:npv_TextSizeSelected="14sp"
             app:npv_WrapSelectorWheel="true" />
@@ -37,9 +39,11 @@
             android:layout_width="0dp"
             android:layout_height="match_parent"
             android:layout_weight="1"
+            app:npv_DividerColor="@color/colorAccent"
             app:npv_RespondChangeOnDetached="false"
-            app:npv_ShownCount="5"
+            app:npv_ShownCount="4"
             app:npv_TextColorNormal="?attr/colorOnBackground"
+            app:npv_TextColorSelected="@color/colorAccent"
             app:npv_TextSizeNormal="14sp"
             app:npv_TextSizeSelected="14sp"
             app:npv_WrapSelectorWheel="false" />
@@ -49,9 +53,11 @@
             android:layout_width="0dp"
             android:layout_height="match_parent"
             android:layout_weight="1"
+            app:npv_DividerColor="@color/colorAccent"
             app:npv_RespondChangeOnDetached="false"
-            app:npv_ShownCount="5"
+            app:npv_ShownCount="4"
             app:npv_TextColorNormal="?attr/colorOnBackground"
+            app:npv_TextColorSelected="@color/colorAccent"
             app:npv_TextSizeNormal="14sp"
             app:npv_TextSizeSelected="14sp"
             app:npv_WrapSelectorWheel="false" />

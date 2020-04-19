@@ -17,10 +17,13 @@ import androidx.appcompat.widget.AppCompatTextView
 import androidx.appcompat.widget.LinearLayoutCompat
 import androidx.constraintlayout.widget.ConstraintLayout
 import androidx.constraintlayout.widget.ConstraintSet
+import androidx.core.view.ViewCompat
 import androidx.core.view.setPadding
 import androidx.recyclerview.widget.RecyclerView
 import com.suda.yzune.wakeupschedule.R
+import com.suda.yzune.wakeupschedule.utils.Const
 import com.suda.yzune.wakeupschedule.utils.ViewUtils
+import com.suda.yzune.wakeupschedule.utils.getPrefer
 import splitties.dimensions.dip
 import splitties.resources.color
 import splitties.resources.styledColor
@@ -39,6 +42,12 @@ abstract class BaseListActivity : BaseActivity() {
         super.onCreate(savedInstanceState)
         rootView = createView()
         setContentView(rootView)
+        if (getPrefer().getBoolean(Const.KEY_HIDE_NAV_BAR, false)) {
+            ViewCompat.setOnApplyWindowInsetsListener(rootView) { v, insets ->
+                v.setPadding(0, 0, insets.systemWindowInsetRight, 0)
+                insets
+            }
+        }
     }
 
     private fun createView() = ConstraintLayout(this).apply {

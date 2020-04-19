@@ -16,7 +16,7 @@ class ImportSettingFragment : BaseDialogFragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         tv_cover.setOnClickListener {
-            viewModel.importId = activity!!.intent.extras!!.getInt("tableId", -1)
+            viewModel.importId = requireActivity().intent.extras!!.getInt("tableId", -1)
             viewModel.newFlag = false
             dismiss()
         }
@@ -31,7 +31,7 @@ class ImportSettingFragment : BaseDialogFragment() {
 
         tv_cancel.setOnClickListener {
             dismiss()
-            activity!!.finish()
+            requireActivity().finish()
         }
     }
 }

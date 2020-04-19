@@ -8,8 +8,11 @@ import androidx.annotation.LayoutRes
 import androidx.appcompat.widget.AppCompatImageButton
 import androidx.appcompat.widget.AppCompatTextView
 import androidx.appcompat.widget.LinearLayoutCompat
+import androidx.core.view.ViewCompat
 import androidx.core.view.setPadding
 import com.suda.yzune.wakeupschedule.R
+import com.suda.yzune.wakeupschedule.utils.Const
+import com.suda.yzune.wakeupschedule.utils.getPrefer
 import splitties.dimensions.dip
 import splitties.resources.styledColor
 
@@ -27,7 +30,14 @@ abstract class BaseTitleActivity : BaseActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(layoutId)
-        findViewById<LinearLayoutCompat>(R.id.ll_root).addView(createTitleBar(), 0)
+        val root = findViewById<LinearLayoutCompat>(R.id.ll_root)
+        root.addView(createTitleBar(), 0)
+        if (getPrefer().getBoolean(Const.KEY_HIDE_NAV_BAR, false)) {
+            ViewCompat.setOnApplyWindowInsetsListener(root) { v, insets ->
+                v.setPadding(0, 0, insets.systemWindowInsetRight, 0)
+                insets
+            }
+        }
     }
 
     open fun createTitleBar() = LinearLayoutCompat(this).apply {

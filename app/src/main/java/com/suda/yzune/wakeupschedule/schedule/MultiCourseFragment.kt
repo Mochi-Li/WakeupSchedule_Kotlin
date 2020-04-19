@@ -13,7 +13,7 @@ import splitties.dimensions.dip
 class MultiCourseFragment : BaseDialogFragment() {
 
     override val layoutId: Int
-        get() = R.layout.fragment_multi_course
+        get() = 0
 
     private var week = 0
     private var day = 0
@@ -43,7 +43,7 @@ class MultiCourseFragment : BaseDialogFragment() {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-        viewpager.pageMargin = context!!.dip(32)
+        viewpager.pageMargin = requireContext().dip(32)
         viewpager.offscreenPageLimit = 3
         viewpager.adapter = MultiCourseAdapter(childFragmentManager, viewModel.getMultiCourse(week, day, startNode))
     }
