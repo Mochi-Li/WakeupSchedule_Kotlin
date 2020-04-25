@@ -15,6 +15,8 @@ import androidx.core.app.NotificationCompat
 import com.suda.yzune.wakeupschedule.AppDatabase
 import com.suda.yzune.wakeupschedule.R
 import com.suda.yzune.wakeupschedule.SplashActivity
+import com.suda.yzune.wakeupschedule.bean.TableConfig
+import com.suda.yzune.wakeupschedule.bean.WidgetStyleConfig
 import com.suda.yzune.wakeupschedule.utils.*
 import java.util.*
 
@@ -71,11 +73,9 @@ class TodayCourseAppWidget : AppWidgetProvider() {
         if (intent.action == "WAKEUP_NEXT_DAY") {
             val dataBase = AppDatabase.getDatabase(context)
             val widgetDao = dataBase.appWidgetDao()
-            val tableDao = dataBase.tableDao()
             goAsync {
-                val table = tableDao.getDefaultTable()
                 for (appWidget in widgetDao.getWidgetsByTypes(0, 1)) {
-                    AppWidgetUtils.refreshTodayWidget(context, AppWidgetManager.getInstance(context), appWidget.id, table, true)
+                    AppWidgetUtils.refreshTodayWidget(context, AppWidgetManager.getInstance(context), appWidget.id, true)
                 }
             }
         }
@@ -84,9 +84,8 @@ class TodayCourseAppWidget : AppWidgetProvider() {
             val widgetDao = dataBase.appWidgetDao()
             val tableDao = dataBase.tableDao()
             goAsync {
-                val table = tableDao.getDefaultTable()
                 for (appWidget in widgetDao.getWidgetsByTypes(0, 1)) {
-                    AppWidgetUtils.refreshTodayWidget(context, AppWidgetManager.getInstance(context), appWidget.id, table)
+                    AppWidgetUtils.refreshTodayWidget(context, AppWidgetManager.getInstance(context), appWidget.id)
                 }
             }
         }
@@ -106,9 +105,11 @@ class TodayCourseAppWidget : AppWidgetProvider() {
         val timeDao = dataBase.timeDetailDao()
 
         goAsync {
-            val table = tableDao.getDefaultTable()
+            val tableId = context.getPrefer().getInt(Const.KEY_SHOW_TABLE_ID, 1)
+            val table = tableDao.getTableById(tableId) ?: return@goAsync
+            val tableConfig = TableConfig(context, tableId)
             if (context.getPrefer().getBoolean(Const.KEY_COURSE_REMIND, false)) {
-                val week = CourseUtils.countWeek(table.startDate, table.sundayFirst)
+                val week = CourseUtils.countWeek(tableConfig.startDate, tableConfig.sundayFirst)
                 if (week >= 0) {
                     val weekDay = CourseUtils.getWeekday()
                     val before = context.getPrefer().getInt(Const.KEY_REMINDER_TIME, 20)
@@ -154,7 +155,7 @@ class TodayCourseAppWidget : AppWidgetProvider() {
             }
 
             for (appWidget in widgetDao.getWidgetsByTypes(0, 1)) {
-                AppWidgetUtils.refreshTodayWidget(context, appWidgetManager, appWidget.id, table)
+                AppWidgetUtils.refreshTodayWidget(context, appWidgetManager, appWidget.id)
             }
         }
     }
@@ -165,6 +166,7 @@ class TodayCourseAppWidget : AppWidgetProvider() {
         goAsync {
             for (id in appWidgetIds) {
                 widgetDao.deleteAppWidget(id)
+                WidgetStyleConfig(context, id).clear()
             }
         }
     }

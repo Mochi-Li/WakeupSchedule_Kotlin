@@ -26,19 +26,6 @@
         android:alpha="0.5"
         android:background="@color/grey" />
 
-    <androidx.appcompat.widget.AppCompatTextView
-        android:id="@+id/tv_tips"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_marginStart="16dp"
-        android:layout_marginTop="16dp"
-        android:layout_marginEnd="16dp"
-        android:lineSpacingExtra="4sp"
-        android:text="再点一次确定删除\n长按可以同时删除这门课程的其他时间哦"
-        android:textColor="@color/colorAccent"
-        android:textSize="12sp"
-        android:visibility="gone" />
-
     <androidx.appcompat.widget.LinearLayoutCompat
         android:layout_width="match_parent"
         android:layout_height="wrap_content"

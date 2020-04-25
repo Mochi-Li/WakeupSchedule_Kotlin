@@ -19,6 +19,7 @@ import com.google.android.material.textfield.TextInputEditText
 import com.google.android.material.textfield.TextInputLayout
 import com.suda.yzune.wakeupschedule.R
 import com.suda.yzune.wakeupschedule.base_view.BaseFragment
+import com.suda.yzune.wakeupschedule.bean.TableConfig
 import com.suda.yzune.wakeupschedule.bean.TimeTableBean
 import com.suda.yzune.wakeupschedule.utils.Const
 import com.suda.yzune.wakeupschedule.utils.getPrefer
@@ -33,11 +34,6 @@ class TimeTableFragment : BaseFragment() {
     private lateinit var adapter: TimeTableAdapter
     private lateinit var arrayAdapter: ArrayAdapter<TimeTableBean>
 
-    override fun onCreate(savedInstanceState: Bundle?) {
-        super.onCreate(savedInstanceState)
-        viewModel.selectedId = requireArguments().getInt("selectedId")
-    }
-
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?,
                               savedInstanceState: Bundle?): View {
         val view = inflater.inflate(R.layout.time_table_fragment, container, false)
@@ -49,14 +45,18 @@ class TimeTableFragment : BaseFragment() {
             initRecyclerView(recyclerView, view)
             arrayAdapter = ArrayAdapter(requireContext(), R.layout.popup_single_list_item)
             arrayAdapter.addAll(list)
-            val index = list.indexOfFirst { it.id == viewModel.selectedId }
+            val index = list.indexOfFirst { it.id == viewModel.table.timeTable }
             view.findViewById<MaterialAutoCompleteTextView>(R.id.tv_time_table).apply {
                 setText(list[index].name)
                 setAdapter(arrayAdapter)
                 listSelection = index
                 setOnItemClickListener { _, _, position, _ ->
                     arrayAdapter.getItem(position)?.let {
-                        viewModel.selectedId = it.id
+                        viewModel.table.timeTable = it.id
+                        launch {
+                            viewModel.saveTable()
+                            Toasty.success(requireContext(), "时间表切换成功~").show()
+                        }
                     }
                 }
             }
@@ -74,6 +74,7 @@ class TimeTableFragment : BaseFragment() {
                 insets
             }
         }
+        text_input_layout.hint = "课表「${TableConfig(requireContext(), viewModel.table.id).tableName}」显示的时间表，点击框框切换"
         fab_add.setOnClickListener {
             val dialog = MaterialAlertDialogBuilder(requireContext())
                     .setTitle("时间表名字")
@@ -129,7 +130,7 @@ class TimeTableFragment : BaseFragment() {
         adapter.setOnItemChildLongClickListener { _, view, position ->
             when (view.id) {
                 R.id.ib_delete -> {
-                    if (viewModel.timeTableList[position].id == viewModel.selectedId) {
+                    if (viewModel.timeTableList[position].id == viewModel.table.timeTable) {
                         view.longSnack("不能删除已选中的时间表哦>_<")
                     } else {
                         launch {

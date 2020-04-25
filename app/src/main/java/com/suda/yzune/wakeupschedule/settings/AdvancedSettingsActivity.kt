@@ -2,6 +2,7 @@ package com.suda.yzune.wakeupschedule.settings
 
 import android.app.NotificationManager
 import android.content.Intent
+import android.graphics.Color
 import android.net.Uri
 import android.os.Build
 import android.os.Bundle
@@ -11,6 +12,7 @@ import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.widget.AppCompatCheckBox
 import androidx.appcompat.widget.AppCompatTextView
 import androidx.core.content.edit
+import androidx.core.graphics.ColorUtils
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import com.google.android.material.textfield.TextInputEditText
@@ -34,8 +36,14 @@ import splitties.snackbar.longSnack
 class AdvancedSettingsActivity : BaseListActivity(), ColorPickerFragment.ColorPickerDialogListener {
 
     override fun onColorSelected(dialogId: Int, color: Int) {
-        getPrefer().edit {
-            putInt(Const.KEY_THEME_COLOR, color)
+        if (Color.alpha(color) < Const.MIN_TEXT_COLOR_ALPHA) {
+            getPrefer().edit {
+                putInt(Const.KEY_THEME_COLOR, ColorUtils.setAlphaComponent(color, Const.MIN_TEXT_COLOR_ALPHA))
+            }
+        } else {
+            getPrefer().edit {
+                putInt(Const.KEY_THEME_COLOR, color)
+            }
         }
         mRecyclerView.longSnack("重启App后生效哦~")
     }

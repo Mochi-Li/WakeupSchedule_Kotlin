@@ -13,6 +13,7 @@ class CSVParser(source: String) : Parser(source) {
             if (line.size < 7) {
                 throw Exception("第 ${i + 1} 行数据不足")
             }
+            if (line[0].isEmpty()) continue
             var startWeek = 0
             var endWeek = 0
             var type = 0

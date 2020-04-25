@@ -9,6 +9,7 @@ import com.suda.yzune.wakeupschedule.schedule_import.Common
 import java.text.ParseException
 import java.text.SimpleDateFormat
 import java.util.*
+import kotlin.collections.ArrayList
 
 object CourseUtils {
     fun getDayStr(weekDay: Int): String {
@@ -55,20 +56,15 @@ object CourseUtils {
                 },
                 room = c.room, teacher = c.teacher,
                 weekList = MutableLiveData<ArrayList<Int>>().apply {
-                    this.value = ArrayList<Int>().apply {
-                        when (c.type) {
-                            0 -> {
-                                for (i in c.startWeek..c.endWeek) {
-                                    this.add(i)
+                    this.value =
+                            when (c.type) {
+                                0 -> {
+                                    (c.startWeek..c.endWeek).toCollection(ArrayList())
+                                }
+                                else -> {
+                                    (c.startWeek..c.endWeek step 2).toCollection(ArrayList())
                                 }
                             }
-                            else -> {
-                                for (i in c.startWeek..c.endWeek step 2) {
-                                    this.add(i)
-                                }
-                            }
-                        }
-                    }
                 },
                 tableId = c.tableId
         )
@@ -91,17 +87,10 @@ object CourseUtils {
         return flag
     }
 
-    fun getDateBefore(d: Date, day: Int): Date {
-        val now = Calendar.getInstance()
-        now.time = d
-        now.set(Calendar.DATE, now.get(Calendar.DATE) - day)
-        return now.time
-    }
-
     fun getDateAfter(d: Date, day: Int): Date {
         val now = Calendar.getInstance()
         now.time = d
-        now.set(Calendar.DATE, now.get(Calendar.DATE) + day)
+        now.add(Calendar.DATE, day)
         return now.time
     }
 

@@ -20,7 +20,7 @@ class FileImportFragment : BaseFragment() {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-        ViewUtils.resizeStatusBar(context!!.applicationContext, v_status)
+        ViewUtils.resizeStatusBar(requireContext().applicationContext, v_status)
 
         tv_self.setOnClickListener {
             val intent = Intent(Intent.ACTION_OPEN_DOCUMENT).apply {
@@ -35,7 +35,7 @@ class FileImportFragment : BaseFragment() {
         }
 
         ib_back.setOnClickListener {
-            activity!!.finish()
+            requireActivity().finish()
         }
     }
 }

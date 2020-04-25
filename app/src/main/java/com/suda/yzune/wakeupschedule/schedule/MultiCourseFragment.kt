@@ -45,7 +45,7 @@ class MultiCourseFragment : BaseDialogFragment() {
         super.onViewCreated(view, savedInstanceState)
         viewpager.pageMargin = requireContext().dip(32)
         viewpager.offscreenPageLimit = 3
-        viewpager.adapter = MultiCourseAdapter(childFragmentManager, viewModel.getMultiCourse(week, day, startNode))
+        viewpager.adapter = MultiCourseAdapter(childFragmentManager, viewModel.getMultiCourse(week, day, startNode), week)
     }
 
     companion object {

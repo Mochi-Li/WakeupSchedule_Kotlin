@@ -8,6 +8,7 @@ import androidx.appcompat.widget.AppCompatCheckBox
 import androidx.appcompat.widget.AppCompatTextView
 import androidx.constraintlayout.widget.ConstraintLayout
 import androidx.constraintlayout.widget.ConstraintSet
+import androidx.core.graphics.ColorUtils
 import com.chad.library.adapter.base.provider.BaseItemProvider
 import com.chad.library.adapter.base.viewholder.BaseViewHolder
 import com.suda.yzune.wakeupschedule.R
@@ -18,6 +19,7 @@ import com.suda.yzune.wakeupschedule.utils.Const
 import com.suda.yzune.wakeupschedule.utils.getPrefer
 import splitties.dimensions.dip
 import splitties.resources.color
+import splitties.resources.styledColor
 
 class SwitchItemProvider : BaseItemProvider<BaseSettingItem>() {
 
@@ -38,6 +40,8 @@ class SwitchItemProvider : BaseItemProvider<BaseSettingItem>() {
             addView(AppCompatTextView(context).apply {
                 id = R.id.anko_text_view
                 textSize = 16f
+                setTextColor(ColorUtils.setAlphaComponent(styledColor(R.attr.colorOnSurface), 255))
+                setLines(1)
             }, ConstraintLayout.LayoutParams(ConstraintLayout.LayoutParams.MATCH_CONSTRAINT, ConstraintLayout.LayoutParams.WRAP_CONTENT).apply {
                 startToStart = ConstraintSet.PARENT_ID
                 endToStart = R.id.anko_check_box
@@ -63,7 +67,8 @@ class SwitchItemProvider : BaseItemProvider<BaseSettingItem>() {
                 val color = context.getPrefer().getInt(Const.KEY_THEME_COLOR, color(R.color.colorAccent))
                 val states = arrayOf(intArrayOf(android.R.attr.state_checked), intArrayOf())
                 val colors = intArrayOf(color, Color.GRAY)
-                supportButtonTintList = ColorStateList(states, colors)
+                buttonTintList = ColorStateList(states, colors)
+                // supportButtonTintList = ColorStateList(states, colors)
             }
 
             addView(checkBox, ConstraintLayout.LayoutParams(ConstraintLayout.LayoutParams.WRAP_CONTENT, dip(32)).apply {

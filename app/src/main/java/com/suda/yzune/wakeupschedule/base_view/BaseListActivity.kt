@@ -134,16 +134,11 @@ abstract class BaseListActivity : BaseActivity() {
                 })
             }
 
-            val subButton = onSetupSubButton()
-            if (subButton != null) {
-                addView(subButton.apply {
-                    setBackgroundResource(outValue.resourceId)
-                    if (this is TextView) {
-                        this.gravity = Gravity.CENTER_VERTICAL
-                    }
-                }, LinearLayoutCompat.LayoutParams(LinearLayoutCompat.LayoutParams.WRAP_CONTENT, dip(48)).apply {
-                    marginEnd = dip(24)
-                })
+            onSetupSubButton()?.let {
+                (it as? TextView)?.gravity = Gravity.CENTER_VERTICAL
+                it.setBackgroundResource(outValue.resourceId)
+                it.setPadding(dip(24), 0, dip(24), 0)
+                addView(it, LinearLayoutCompat.LayoutParams(LinearLayoutCompat.LayoutParams.WRAP_CONTENT, dip(48)))
             }
         }, ConstraintLayout.LayoutParams(ConstraintLayout.LayoutParams.MATCH_CONSTRAINT,
                 ConstraintLayout.LayoutParams.WRAP_CONTENT).apply {

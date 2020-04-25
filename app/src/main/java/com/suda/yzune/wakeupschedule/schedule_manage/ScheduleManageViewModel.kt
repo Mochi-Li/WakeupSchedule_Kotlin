@@ -6,7 +6,7 @@ import com.suda.yzune.wakeupschedule.AppDatabase
 import com.suda.yzune.wakeupschedule.bean.AppWidgetBean
 import com.suda.yzune.wakeupschedule.bean.CourseBaseBean
 import com.suda.yzune.wakeupschedule.bean.TableBean
-import com.suda.yzune.wakeupschedule.bean.TableSelectBean
+import com.suda.yzune.wakeupschedule.bean.TableConfig
 
 class ScheduleManageViewModel(application: Application) : AndroidViewModel(application) {
 
@@ -15,8 +15,10 @@ class ScheduleManageViewModel(application: Application) : AndroidViewModel(appli
     private val courseDao = dataBase.courseDao()
     private val widgetDao = dataBase.appWidgetDao()
 
-    suspend fun initTableSelectList(): MutableList<TableSelectBean> {
-        return tableDao.getTableSelectList().toMutableList()
+    suspend fun initTableSelectList(): MutableList<TableConfig> {
+        return tableDao.getTableList().map {
+            TableConfig(getApplication(), it.id)
+        }.toMutableList()
     }
 
     suspend fun getCourseBaseBeanListByTable(tableId: Int): MutableList<CourseBaseBean> {
@@ -27,12 +29,14 @@ class ScheduleManageViewModel(application: Application) : AndroidViewModel(appli
         return tableDao.getTableById(id)
     }
 
-    suspend fun addBlankTable(tableName: String): Long {
-        return tableDao.insertTable(TableBean(id = 0, tableName = tableName))
+    suspend fun addBlankTable(tableName: String): TableConfig {
+        val id = tableDao.insertTable(TableBean(id = 0))
+        return TableConfig(getApplication(), id.toInt()).apply { this.tableName = tableName }
     }
 
     suspend fun deleteTable(id: Int) {
         tableDao.deleteTable(id)
+        TableConfig(getApplication(), id).clear()
     }
 
     suspend fun clearTable(id: Int) {

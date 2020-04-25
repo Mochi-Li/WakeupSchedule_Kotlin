@@ -98,17 +98,44 @@ class AddCourseViewModel(application: Application) : AndroidViewModel(applicatio
         editList.add(CourseEditBean(
                 tableId = tableId,
                 weekList = MutableLiveData<ArrayList<Int>>().apply {
-                    this.value = ArrayList<Int>().apply {
-                        for (i in 1..maxWeek) {
-                            this.add(i)
-                        }
-                    }
+                    this.value = (1..maxWeek).toCollection(ArrayList())
                 }))
         return editList
     }
 
-    suspend fun initData(id: Int, tableId: Int): List<CourseDetailBean> {
-        return courseDao.getDetailByIdOfTable(id, tableId)
+    suspend fun initData(id: Int, tableId: Int) {
+        val detailList = courseDao.getDetailByIdOfTable(id, tableId)
+        if (detailList.isEmpty()) {
+            initData(maxWeek)
+            return
+        }
+        editList.add(CourseUtils.detailBean2EditBean(detailList[0]))
+        for (i in (1 until detailList.size)) {
+            if (judgeMergeCourse(detailList[i], detailList[i - 1])) {
+                editList.last().weekList.value?.apply {
+                    addAll(getWeekIntList(detailList[i]))
+                    sort()
+                }
+            } else {
+                editList.add(CourseUtils.detailBean2EditBean(detailList[i]))
+            }
+        }
+    }
+
+    private fun getWeekIntList(c: CourseDetailBean): List<Int> {
+        return when (c.type) {
+            0 -> {
+                (c.startWeek..c.endWeek).toList()
+            }
+            else -> {
+                (c.startWeek..c.endWeek step 2).toList()
+            }
+        }
+    }
+
+    private fun judgeMergeCourse(a: CourseDetailBean, b: CourseDetailBean): Boolean {
+        return a.day == b.day && a.startNode == b.startNode && a.step == b.step
+                && a.teacher == b.teacher && a.room == b.room
     }
 
     suspend fun getLastId(): Int? {

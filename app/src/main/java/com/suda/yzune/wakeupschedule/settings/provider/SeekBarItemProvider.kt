@@ -5,6 +5,7 @@ import android.view.Gravity
 import android.view.ViewGroup
 import android.widget.LinearLayout
 import android.widget.TextView
+import androidx.core.graphics.ColorUtils
 import com.chad.library.adapter.base.provider.BaseItemProvider
 import com.chad.library.adapter.base.viewholder.BaseViewHolder
 import com.suda.yzune.wakeupschedule.R
@@ -12,6 +13,7 @@ import com.suda.yzune.wakeupschedule.settings.items.BaseSettingItem
 import com.suda.yzune.wakeupschedule.settings.items.SeekBarItem
 import com.suda.yzune.wakeupschedule.settings.items.SettingType
 import splitties.dimensions.dip
+import splitties.resources.styledColor
 
 class SeekBarItemProvider : BaseItemProvider<BaseSettingItem>() {
 
@@ -31,6 +33,8 @@ class SeekBarItemProvider : BaseItemProvider<BaseSettingItem>() {
                 id = R.id.anko_text_view
                 textSize = 16f
                 gravity = Gravity.CENTER_VERTICAL
+                setTextColor(ColorUtils.setAlphaComponent(styledColor(R.attr.colorOnSurface), 255))
+                setLines(1)
             }, LinearLayout.LayoutParams(0, LinearLayout.LayoutParams.MATCH_PARENT).apply {
                 marginEnd = dip(16)
                 weight = 1f

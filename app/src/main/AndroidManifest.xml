@@ -21,8 +21,12 @@
         tools:ignore="GoogleAppIndexingWarning"
         tools:replace="android:allowBackup"
         tools:targetApi="n">
-
-        <activity android:name=".settings.SettingsHostActivity" />
+        <activity
+            android:name=".schedule_appwidget.WidgetStyleConfigActivity"
+            android:configChanges="orientation|screenSize|screenLayout|smallestScreenSize"
+            android:excludeFromRecents="true"
+            android:label="小部件样式"
+            android:launchMode="singleInstance" />
         <activity
             android:name=".suda_life.SudaLifeActivity"
             android:label="苏大生活" />
@@ -34,7 +38,8 @@
         <activity
             android:name=".schedule_import.LoginWebActivity"
             android:configChanges="orientation|screenSize|screenLayout|smallestScreenSize">
-            <!--            android:screenOrientation="portrait">-->
+
+            <!-- android:screenOrientation="portrait"> -->
             <intent-filter
                 android:label="导入到课程表"
                 tools:ignore="AppLinkUrlError">
@@ -75,7 +80,7 @@
             android:label="添加课程" />
         <activity
             android:name=".settings.SettingsActivity"
-            android:label="设置" />
+            android:label="全局设置" />
         <activity
             android:name=".settings.TimeSettingsActivity"
             android:label="选择时间表" />
@@ -110,9 +115,6 @@
             android:name=".DonateActivity"
             android:label="捐赠" />
         <activity
-            android:name=".apply_info.ApplyInfoActivity"
-            android:label="申请适配情况" />
-        <activity
             android:name=".SplashActivity"
             android:theme="@style/SplashTheme">
             <intent-filter>
@@ -126,6 +128,7 @@
             android:label="多课表管理" />
         <activity
             android:name=".schedule_settings.ScheduleSettingsActivity"
+            android:configChanges="orientation|screenSize|screenLayout|smallestScreenSize"
             android:label="课表设置" />
         <activity
             android:name=".schedule_appwidget.WeekScheduleAppWidgetConfigActivity"

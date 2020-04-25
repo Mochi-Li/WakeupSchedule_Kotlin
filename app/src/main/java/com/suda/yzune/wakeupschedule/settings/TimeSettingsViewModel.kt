@@ -14,6 +14,7 @@ class TimeSettingsViewModel(application: Application) : AndroidViewModel(applica
     lateinit var table: TableBean
 
     private val dataBase = AppDatabase.getDatabase(application)
+    private val tableDao = dataBase.tableDao()
     private val timeDao = dataBase.timeDetailDao()
     private val timeTableDao = dataBase.timeTableDao()
     val timeTableList = arrayListOf<TimeTableBean>()
@@ -21,10 +22,13 @@ class TimeSettingsViewModel(application: Application) : AndroidViewModel(applica
     val timeSelectList = arrayListOf<String>()
 
     var entryPosition = 0
-    var selectedId = 1
 
     suspend fun addNewTimeTable(name: String): Int {
         return timeTableDao.initTimeTable(TimeTableBean(id = 0, name = name))
+    }
+
+    suspend fun saveTable() {
+        tableDao.updateTable(table)
     }
 
     suspend fun initTimeTableData(id: Int) {

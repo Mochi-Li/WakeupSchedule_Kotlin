@@ -92,9 +92,9 @@
                 app:haloRadius="0dp"
                 app:thumbColor="@android:color/white"
                 app:thumbElevation="0dp"
-                app:thumbRadius="8dp"
+                app:thumbRadius="4dp"
                 app:tickColor="@android:color/transparent"
-                app:trackHeight="24dp" />
+                app:trackHeight="16dp" />
 
             <androidx.appcompat.widget.AppCompatImageButton
                 android:id="@+id/ib_edit"

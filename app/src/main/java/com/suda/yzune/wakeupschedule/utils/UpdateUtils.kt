@@ -3,9 +3,7 @@ package com.suda.yzune.wakeupschedule.utils
 import android.content.Context
 import androidx.core.content.edit
 import com.suda.yzune.wakeupschedule.AppDatabase
-import com.suda.yzune.wakeupschedule.bean.TableBean
-import com.suda.yzune.wakeupschedule.bean.TimeDetailBean
-import com.suda.yzune.wakeupschedule.bean.TimeTableBean
+import com.suda.yzune.wakeupschedule.bean.*
 
 object UpdateUtils {
 
@@ -28,7 +26,7 @@ object UpdateUtils {
     suspend fun tranOldData(context: Context) {
         if (context.getPrefer().getBoolean("has_intro", false) &&
                 !context.getPrefer().getBoolean("has_adjust", false)) {
-            val tableData = TableBean(
+            val tableData = TableCompat(
                     tableName = "",
                     itemHeight = context.getPrefer().getInt("item_height", 56),
                     maxWeek = context.getPrefer().getInt("sb_weeks", 30),
@@ -66,7 +64,11 @@ object UpdateUtils {
             val widgetDao = dataBase.appWidgetDao()
 
             try {
-                tableDao.updateTable(tableData)
+                tableDao.updateTable(TableBean(tableData.id, tableData.timeTable))
+                TableConfig(context, tableData.id, tableData)
+                context.getPrefer().edit {
+                    putInt(Const.KEY_SHOW_TABLE_ID, tableData.id)
+                }
                 widgetDao.updateFromOldVer()
                 if (!context.getPrefer().getBoolean("isInitTimeTable", false)) {
                     val timeList = ArrayList<TimeDetailBean>().apply {
@@ -136,7 +138,10 @@ object UpdateUtils {
 
         if (!context.getPrefer().getBoolean("has_intro", false) &&
                 !context.getPrefer().getBoolean("has_adjust", false)) {
-            val tableData = TableBean(type = 1, id = 1, tableName = "")
+            val tableData = TableBean(type = 1, id = 1)
+            context.getPrefer().edit {
+                putInt(Const.KEY_SHOW_TABLE_ID, tableData.id)
+            }
             val dataBase = AppDatabase.getDatabase(context)
             val tableDao = dataBase.tableDao()
             val timeDao = dataBase.timeDetailDao()

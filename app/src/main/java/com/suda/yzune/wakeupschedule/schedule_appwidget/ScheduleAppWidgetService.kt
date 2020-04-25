@@ -1,26 +1,18 @@
 package com.suda.yzune.wakeupschedule.schedule_appwidget
 
 import android.content.Intent
-import android.graphics.Color
-import android.view.Gravity
-import android.view.View
-import android.widget.*
-import androidx.core.view.setPadding
+import android.widget.LinearLayout
+import android.widget.RemoteViews
+import android.widget.RemoteViewsService
+import android.widget.TextView
 import com.suda.yzune.wakeupschedule.AppDatabase
 import com.suda.yzune.wakeupschedule.R
-import com.suda.yzune.wakeupschedule.bean.CourseBean
-import com.suda.yzune.wakeupschedule.bean.TableBean
-import com.suda.yzune.wakeupschedule.bean.TimeDetailBean
+import com.suda.yzune.wakeupschedule.bean.*
 import com.suda.yzune.wakeupschedule.schedule.ScheduleUI
-import com.suda.yzune.wakeupschedule.utils.Const
 import com.suda.yzune.wakeupschedule.utils.CourseUtils
 import com.suda.yzune.wakeupschedule.utils.CourseUtils.countWeek
 import com.suda.yzune.wakeupschedule.utils.ViewUtils
-import com.suda.yzune.wakeupschedule.utils.getPrefer
-import com.suda.yzune.wakeupschedule.widget.TipTextView
-import splitties.dimensions.dip
 import java.text.ParseException
-import kotlin.math.roundToInt
 
 class ScheduleAppWidgetService : RemoteViewsService() {
 
@@ -31,22 +23,17 @@ class ScheduleAppWidgetService : RemoteViewsService() {
             if (list.size < 2) {
                 return ScheduleRemoteViewsFactory(nextWeek = (list[0] == "1"))
             }
-            return if (list[0] == "1") {
-                ScheduleRemoteViewsFactory(list[1].toInt(), true)
-            } else {
-                ScheduleRemoteViewsFactory(list[1].toInt(), false)
-            }
+            return ScheduleRemoteViewsFactory(list[1].toInt(), list[0] == "1")
         } else {
             return ScheduleRemoteViewsFactory()
         }
     }
 
-    private inner class ScheduleRemoteViewsFactory(val tableId: Int = -1, val nextWeek: Boolean = false) : RemoteViewsFactory {
+    private inner class ScheduleRemoteViewsFactory(val appWidgetId: Int = -1, val nextWeek: Boolean = false) : RemoteViewsFactory {
         private lateinit var table: TableBean
+        private lateinit var tableConfig: TableConfig
+        private lateinit var scheduleConfig: WidgetStyleConfig
         private var week = 0
-        private var widgetItemHeight = 0
-        private var marTop = 0
-        private var alphaInt = 255
         private val dataBase = AppDatabase.getDatabase(applicationContext)
         private val tableDao = dataBase.tableDao()
         private val courseDao = dataBase.courseDao()
@@ -54,30 +41,33 @@ class ScheduleAppWidgetService : RemoteViewsService() {
         private val timeList = arrayListOf<TimeDetailBean>()
         private val weekDay = CourseUtils.getWeekdayInt()
         private val allCourseList = Array(7) { listOf<CourseBean>() }
-        private var showTeacher = true
+        private var isTableDelete = false
 
         override fun onCreate() {}
 
         override fun onDataSetChanged() {
-            table = if (tableId == -1) {
-                tableDao.getDefaultTableSync()
-            } else {
-                tableDao.getTableByIdSync(tableId) ?: tableDao.getDefaultTableSync()
-            }
+            if (appWidgetId == -1) return
+            scheduleConfig = WidgetStyleConfig(applicationContext, appWidgetId)
+            tableConfig = TableConfig(applicationContext, scheduleConfig.tableId)
 
             try {
-                week = if (nextWeek) countWeek(table.startDate, table.sundayFirst) + 1
-                else countWeek(table.startDate, table.sundayFirst)
+                week = if (nextWeek) countWeek(tableConfig.startDate, tableConfig.sundayFirst) + 1
+                else countWeek(tableConfig.startDate, tableConfig.sundayFirst)
             } catch (e: ParseException) {
                 e.printStackTrace()
             }
             if (week <= 0) {
                 week = 1
             }
-            showTeacher = getPrefer().getBoolean(Const.KEY_SCHEDULE_TEACHER, true)
-            widgetItemHeight = dip(table.widgetItemHeight)
-            marTop = resources.getDimensionPixelSize(R.dimen.weekItemMarTop)
-            alphaInt = (255 * (table.widgetItemAlpha.toFloat() / 100)).roundToInt()
+
+            tableDao.getTableByIdSync(scheduleConfig.tableId).let {
+                if (it != null) {
+                    table = it
+                } else {
+                    isTableDelete = true
+                    return
+                }
+            }
 
             for (i in 1..7) {
                 allCourseList[i - 1] = courseDao.getCourseByDayOfTableSync(i, table.id)
@@ -96,6 +86,11 @@ class ScheduleAppWidgetService : RemoteViewsService() {
         }
 
         override fun getViewAt(position: Int): RemoteViews {
+            if (isTableDelete) {
+                val rv = RemoteViews(applicationContext.packageName, R.layout.appwidget_loading_view)
+                rv.setTextViewText(R.id.tv_tips, "选择显示的课表已被删除\n请移除或重新设置此小部件")
+                return rv
+            }
             val mRemoteViews = RemoteViews(applicationContext.packageName, R.layout.item_schedule_widget)
             if (position < 0 || position >= 1) return mRemoteViews
             initData(mRemoteViews)
@@ -119,9 +114,9 @@ class ScheduleAppWidgetService : RemoteViewsService() {
         }
 
         fun initData(views: RemoteViews) {
-            val ui = ScheduleUI(applicationContext, table, weekDay, true)
+            val ui = ScheduleUI(applicationContext, tableConfig, scheduleConfig, weekDay, true)
             if (timeList.isNotEmpty() && ui.showTimeDetail) {
-                for (i in 0 until table.nodes) {
+                for (i in 0 until tableConfig.nodes) {
                     (ui.content.getViewById(R.id.anko_tv_node1 + i) as LinearLayout).apply {
                         findViewById<TextView>(R.id.tv_start).text = timeList[i].startTime
                         findViewById<TextView>(R.id.tv_end).text = timeList[i].endTime
@@ -129,7 +124,7 @@ class ScheduleAppWidgetService : RemoteViewsService() {
                 }
             }
             for (i in 1..7) {
-                initWeekPanel(ui, allCourseList[i - 1], i)
+                ui.initWeekPanel(allCourseList[i - 1], timeList, week, i)
             }
             val scrollView = ui.scrollView
             val info = ViewUtils.getScreenInfo(applicationContext)
@@ -140,135 +135,6 @@ class ScheduleAppWidgetService : RemoteViewsService() {
             }
             views.setBitmap(R.id.iv_schedule, "setImageBitmap", ViewUtils.getViewBitmap(scrollView))
             scrollView.removeAllViews()
-        }
-
-        private fun initWeekPanel(ui: ScheduleUI, data: List<CourseBean>?, day: Int) {
-            val ll = ui.content.getViewById(R.id.anko_ll_week_panel_0 + ui.dayMap[day] - 1) as FrameLayout?
-                    ?: return
-            ll.removeAllViews()
-            if (data == null || data.isEmpty()) return
-            var isCovered = false
-            var pre = data[0]
-            for (i in data.indices) {
-                val c = data[i]
-
-                // 过期的不显示
-                if (c.endWeek < week) {
-                    continue
-                }
-
-                val isOtherWeek = (week % 2 == 0 && c.type == 1) || (week % 2 == 1 && c.type == 2)
-                        || (c.startWeek > week)
-
-                if (!table.showOtherWeekCourse && isOtherWeek) continue
-
-                var isError = false
-
-                val strBuilder = StringBuilder()
-                val detailBuilder = StringBuilder()
-                if (c.step <= 0) {
-                    c.step = 1
-                    isError = true
-                }
-                if (c.startNode <= 0) {
-                    c.startNode = 1
-                    isError = true
-                }
-                if (c.startNode > table.nodes) {
-                    c.startNode = table.nodes
-                    isError = true
-                }
-                if (c.startNode + c.step - 1 > table.nodes) {
-                    c.step = table.nodes - c.startNode + 1
-                    isError = true
-                }
-
-                val textView = TipTextView(applicationContext)
-
-                if (ll.childCount != 0) {
-                    isCovered = (pre.startNode == c.startNode)
-                }
-
-                textView.setPadding(dip(4))
-
-                if (c.color.isEmpty()) {
-                    c.color = "#${Integer.toHexString(ViewUtils.getCustomizedColor(applicationContext, c.id % 9))}"
-                }
-
-                if (showTeacher && c.teacher != "") {
-                    detailBuilder.append("\n${c.teacher}")
-                }
-                if (isOtherWeek) {
-                    when (c.type) {
-                        1 -> detailBuilder.append("\n单周")
-                        2 -> detailBuilder.append("\n双周")
-                    }
-                    detailBuilder.append("\n[非本周]")
-                    textView.visibility = View.VISIBLE
-                } else {
-                    when (c.type) {
-                        1 -> detailBuilder.append("\n单周")
-                        2 -> detailBuilder.append("\n双周")
-                    }
-                }
-
-                if (isCovered) {
-                    val tv = ll.getChildAt(ll.childCount - 1) as TipTextView?
-                    if (tv != null) {
-                        if (tv.tipVisibility == TipTextView.TIP_OTHER_WEEK) {
-                            tv.visibility = View.INVISIBLE
-                        }
-                    }
-                }
-
-                val tv = ll.findViewWithTag<TipTextView?>(c.startNode)
-                if (tv != null) {
-                    textView.visibility = View.INVISIBLE
-                    if (tv.tipVisibility != TipTextView.TIP_VISIBLE && !isOtherWeek) {
-                        if (tv.tipVisibility != TipTextView.TIP_ERROR) {
-                            tv.tipVisibility = TipTextView.TIP_VISIBLE
-                        }
-                    }
-                }
-
-                if (isError) {
-                    textView.tipVisibility = TipTextView.TIP_ERROR
-                }
-
-                if (!isOtherWeek) {
-                    textView.tag = c.startNode
-                } else {
-                    textView.tipVisibility = TipTextView.TIP_OTHER_WEEK
-                }
-
-                if (table.showTime && timeList.isNotEmpty()) {
-                    strBuilder.append(timeList[c.startNode - 1].startTime + "\n")
-                }
-                strBuilder.append(c.courseName)
-                if (c.room != "") {
-                    strBuilder.append("\n${c.room}")
-                }
-                if (!showTeacher) {
-                    strBuilder.append(detailBuilder)
-                }
-                textView.init(
-                        text = strBuilder.toString(),
-                        detail = if (showTeacher) detailBuilder.toString() else "",
-                        txtSize = table.widgetItemTextSize,
-                        txtColor = table.widgetCourseTextColor,
-                        bgColor = Color.parseColor(c.color),
-                        bgAlpha = alphaInt,
-                        stroke = table.widgetStrokeColor
-                )
-
-                ll.addView(textView, FrameLayout.LayoutParams(FrameLayout.LayoutParams.MATCH_PARENT,
-                        widgetItemHeight * c.step + marTop * (c.step - 1)).apply {
-                    gravity = Gravity.TOP
-                    topMargin = (c.startNode - 1) * (widgetItemHeight + marTop) + marTop
-                })
-
-                pre = c
-            }
         }
 
     }

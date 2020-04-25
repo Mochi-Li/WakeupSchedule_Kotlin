@@ -89,10 +89,7 @@ class AddCourseActivity : BaseListActivity(), ColorPickerFragment.ColorPickerDia
             adapter = AddCourseAdapter(R.layout.item_add_course_detail, viewModel.editList)
             launch {
                 if (savedInstanceState == null) {
-                    val detailList = viewModel.initData(intent.extras!!.getInt("id"), viewModel.tableId)
-                    detailList.forEach {
-                        viewModel.editList.add(CourseUtils.detailBean2EditBean(it))
-                    }
+                    viewModel.initData(intent.extras!!.getInt("id"), viewModel.tableId)
                     adapter.notifyDataSetChanged()
                     val courseBaseBean = viewModel.initBaseData(intent.extras!!.getInt("id"))
                     viewModel.baseBean.id = courseBaseBean.id
@@ -113,11 +110,7 @@ class AddCourseActivity : BaseListActivity(), ColorPickerFragment.ColorPickerDia
                             room = "",
                             tableId = viewModel.tableId,
                             weekList = MutableLiveData<ArrayList<Int>>().apply {
-                                this.value = ArrayList<Int>().apply {
-                                    for (i in 1..viewModel.maxWeek) {
-                                        this.add(i)
-                                    }
-                                }
+                                this.value = (1..viewModel.maxWeek).toCollection(ArrayList())
                             }))
                 } else {
                     adapter.addData(CourseEditBean(
@@ -125,11 +118,7 @@ class AddCourseActivity : BaseListActivity(), ColorPickerFragment.ColorPickerDia
                             room = viewModel.editList[0].room,
                             tableId = viewModel.tableId,
                             weekList = MutableLiveData<ArrayList<Int>>().apply {
-                                this.value = ArrayList<Int>().apply {
-                                    for (i in 1..viewModel.maxWeek) {
-                                        this.add(i)
-                                    }
-                                }
+                                this.value = (1..viewModel.maxWeek).toCollection(ArrayList())
                             }))
                 }
                 (mRecyclerView.layoutManager as LinearLayoutManager).scrollToPositionWithOffset(adapter.data.size, 0)

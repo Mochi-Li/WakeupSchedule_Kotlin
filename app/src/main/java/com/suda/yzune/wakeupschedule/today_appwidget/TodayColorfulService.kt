@@ -1,48 +1,36 @@
 package com.suda.yzune.wakeupschedule.today_appwidget
 
-import android.content.Context
 import android.content.Intent
 import android.graphics.Bitmap
-import android.graphics.Color
-import android.graphics.Typeface
-import android.graphics.drawable.GradientDrawable
-import android.text.TextUtils
 import android.view.Gravity
-import android.view.View
 import android.widget.*
-import androidx.core.content.ContextCompat
 import androidx.core.view.drawToBitmap
-import androidx.core.view.setMargins
-import androidx.core.view.setPadding
 import com.suda.yzune.wakeupschedule.AppDatabase
 import com.suda.yzune.wakeupschedule.R
-import com.suda.yzune.wakeupschedule.bean.CourseBean
-import com.suda.yzune.wakeupschedule.bean.TableBean
-import com.suda.yzune.wakeupschedule.bean.TimeDetailBean
+import com.suda.yzune.wakeupschedule.bean.*
 import com.suda.yzune.wakeupschedule.utils.Const
 import com.suda.yzune.wakeupschedule.utils.CourseUtils
 import com.suda.yzune.wakeupschedule.utils.ViewUtils
 import com.suda.yzune.wakeupschedule.utils.getPrefer
 import splitties.dimensions.dip
 import java.text.ParseException
-import kotlin.math.roundToInt
 
 class TodayColorfulService : RemoteViewsService() {
 
     override fun onGetViewFactory(intent: Intent?): RemoteViewsFactory {
-        return if (intent != null) {
-            val i = intent.data?.schemeSpecificPart?.toInt()
-            return if (i == 1) {
-                TodayColorfulRemoteViewsFactory(true)
-            } else {
-                TodayColorfulRemoteViewsFactory(false)
+        if (intent != null) {
+            val list = intent.data?.schemeSpecificPart?.split(",")
+                    ?: return TodayColorfulRemoteViewsFactory()
+            if (list.size < 2) {
+                return TodayColorfulRemoteViewsFactory(nextDay = (list[0] == "1"))
             }
+            return TodayColorfulRemoteViewsFactory(list[1].toInt(), list[0] == "1")
         } else {
-            TodayColorfulRemoteViewsFactory()
+            return TodayColorfulRemoteViewsFactory()
         }
     }
 
-    private inner class TodayColorfulRemoteViewsFactory(val nextDay: Boolean = false) : RemoteViewsFactory {
+    private inner class TodayColorfulRemoteViewsFactory(val appWidgetId: Int = -1, val nextDay: Boolean = false) : RemoteViewsFactory {
 
         private val dataBase = AppDatabase.getDatabase(applicationContext)
         private val tableDao = dataBase.tableDao()
@@ -51,6 +39,8 @@ class TodayColorfulService : RemoteViewsService() {
 
         private var week = 1
         private lateinit var table: TableBean
+        private lateinit var tableConfig: TableConfig
+        private lateinit var styleConfig: WidgetStyleConfig
         private val timeList = arrayListOf<TimeDetailBean>()
         private val courseList = arrayListOf<CourseBean>()
         private var showColor = false
@@ -61,9 +51,14 @@ class TodayColorfulService : RemoteViewsService() {
         }
 
         override fun onDataSetChanged() {
-            table = tableDao.getDefaultTableSync()
+            // todo: 换成记录的id值而不是当前显示的
+            if (appWidgetId == -1) return
+            table = tableDao.getTableByIdSync(getPrefer().getInt(Const.KEY_SHOW_TABLE_ID, 1))
+                    ?: return
+            tableConfig = TableConfig(applicationContext, table.id)
+            styleConfig = WidgetStyleConfig(applicationContext, appWidgetId)
             try {
-                week = CourseUtils.countWeek(table.startDate, table.sundayFirst, nextDay)
+                week = CourseUtils.countWeek(tableConfig.startDate, tableConfig.sundayFirst, nextDay)
             } catch (e: ParseException) {
                 e.printStackTrace()
             }
@@ -94,13 +89,10 @@ class TodayColorfulService : RemoteViewsService() {
 
         override fun getViewAt(position: Int): RemoteViews {
             val mRemoteViews = RemoteViews(applicationContext.packageName, R.layout.item_schedule_widget)
-            if (!this::table.isInitialized) {
-                table = tableDao.getDefaultTableSync()
-            }
             if (position < 0) return mRemoteViews
             if (courseList.isNotEmpty()) {
                 if (position >= courseList.size) return mRemoteViews
-                val view = initView(applicationContext, position)
+                val view = ViewUtils.initTodayCourseView(applicationContext, styleConfig, courseList[position], timeList)
                 val contentView = view.findViewById<LinearLayout>(R.id.anko_layout)
                 if (screenInfo[0] < screenInfo[1]) {
                     ViewUtils.layoutView(contentView, screenInfo[0], screenInfo[1])
@@ -128,7 +120,7 @@ class TodayColorfulService : RemoteViewsService() {
                         } else {
                             "今天没有课哦"
                         }
-                        setTextColor(table.widgetTextColor)
+                        setTextColor(styleConfig.textColor)
                         gravity = Gravity.CENTER
                     }, LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.WRAP_CONTENT).apply {
                         topMargin = dip(16)
@@ -142,155 +134,6 @@ class TodayColorfulService : RemoteViewsService() {
                 mRemoteViews.setImageViewBitmap(R.id.iv_schedule, view.drawToBitmap(Bitmap.Config.ARGB_4444))
             }
             return mRemoteViews
-        }
-
-        private fun initView(context: Context, position: Int): View {
-            val dp = 2
-            val alphaInt = (255 * (table.widgetItemAlpha.toFloat() / 100)).roundToInt()
-            var alphaStr = if (alphaInt != 0) {
-                Integer.toHexString(alphaInt)
-            } else {
-                "00"
-            }
-            if (alphaStr.length < 2) {
-                alphaStr = "0$alphaStr"
-            }
-            val widgetTextSize = table.widgetItemTextSize.toFloat()
-            return LinearLayout(context).apply {
-                id = R.id.anko_layout
-                orientation = LinearLayout.VERTICAL
-                val c = courseList[position]
-
-                addView(LinearLayout(context).apply {
-                    setPadding(dip(dp * 4))
-
-                    if (showColor) {
-                        background = ContextCompat.getDrawable(context.applicationContext, R.drawable.course_item_bg_today)
-                        val myGrad = background as GradientDrawable
-//                                myGrad.cornerRadius = dip(dp * 4).toFloat()
-                        myGrad.setStroke(dip(dp), table.widgetStrokeColor)
-                        when {
-                            c.color.length == 7 -> myGrad.setColor(Color.parseColor("#$alphaStr${c.color.substring(1, 7)}"))
-                            c.color.isEmpty() -> {
-                                myGrad.setColor(Color.parseColor("#${alphaStr}fa6278"))
-                            }
-                            else -> myGrad.setColor(Color.parseColor("#$alphaStr${c.color.substring(3, 9)}"))
-                        }
-                    }
-
-                    addView(LinearLayout(context).apply {
-                        orientation = LinearLayout.VERTICAL
-                        gravity = Gravity.CENTER
-                        // 开始节
-                        addView(TextView(context).apply {
-                            text = c.startNode.toString()
-                            alpha = 0.8f
-                            setTextColor(table.widgetCourseTextColor)
-                            textSize = widgetTextSize
-                            typeface = Typeface.DEFAULT_BOLD
-                        }, LinearLayout.LayoutParams(LinearLayout.LayoutParams.WRAP_CONTENT, LinearLayout.LayoutParams.WRAP_CONTENT).apply {
-                            bottomMargin = dip(dp * 2)
-                        })
-                        // 结束节
-                        addView(TextView(context).apply {
-                            text = "${c.startNode + c.step - 1}"
-                            alpha = 0.8f
-                            setTextColor(table.widgetCourseTextColor)
-                            textSize = widgetTextSize
-                            typeface = Typeface.DEFAULT_BOLD
-                        }, LinearLayout.LayoutParams(LinearLayout.LayoutParams.WRAP_CONTENT, LinearLayout.LayoutParams.WRAP_CONTENT).apply {
-                            topMargin = dip(dp * 2)
-                        })
-
-                    }, LinearLayout.LayoutParams(dip(dp * 10), LinearLayout.LayoutParams.MATCH_PARENT))
-
-                    addView(LinearLayout(context).apply {
-                        orientation = LinearLayout.VERTICAL
-                        gravity = Gravity.CENTER
-
-                        addView(TextView(context).apply {
-                            alpha = 0.8f
-                            text = timeList[c.startNode - 1].startTime
-                            setTextColor(table.widgetCourseTextColor)
-                            textSize = widgetTextSize
-                        }, LinearLayout.LayoutParams(LinearLayout.LayoutParams.WRAP_CONTENT, LinearLayout.LayoutParams.WRAP_CONTENT).apply {
-                            setMargins(dip(dp * 2))
-                        })
-
-                        addView(TextView(context).apply {
-                            text = timeList[c.startNode + c.step - 2].endTime
-                            alpha = 0.8f
-                            setTextColor(table.widgetCourseTextColor)
-                            textSize = widgetTextSize
-                        }, LinearLayout.LayoutParams(LinearLayout.LayoutParams.WRAP_CONTENT, LinearLayout.LayoutParams.WRAP_CONTENT).apply {
-                            setMargins(dip(dp * 2))
-                        })
-
-                    }, LinearLayout.LayoutParams(LinearLayout.LayoutParams.WRAP_CONTENT, LinearLayout.LayoutParams.MATCH_PARENT))
-
-                    addView(LinearLayout(context).apply {
-                        orientation = LinearLayout.VERTICAL
-                        gravity = Gravity.CENTER_VERTICAL
-
-                        addView(TextView(context).apply {
-                            text = c.courseName
-                            setTextColor(table.widgetCourseTextColor)
-                            textSize = widgetTextSize + 2
-                            typeface = Typeface.DEFAULT_BOLD
-                        }, LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.WRAP_CONTENT))
-
-                        if (c.room != "" || c.teacher != "") {
-                            addView(LinearLayout(context).apply {
-                                if (c.room != "") {
-
-                                    addView(ImageView(context).apply {
-                                        setImageResource(R.drawable.ic_outline_location_on_24)
-                                        alpha = 0.8f
-                                        imageTintList = ViewUtils.createColorStateList(table.widgetCourseTextColor)
-                                    }, LinearLayout.LayoutParams(LinearLayout.LayoutParams.WRAP_CONTENT, LinearLayout.LayoutParams.MATCH_PARENT))
-
-                                    addView(TextView(context).apply {
-                                        text = c.room
-                                        alpha = 0.8f
-                                        setTextColor(table.widgetCourseTextColor)
-                                        maxLines = 1
-                                        textSize = widgetTextSize + 2
-                                    }, LinearLayout.LayoutParams(LinearLayout.LayoutParams.WRAP_CONTENT, LinearLayout.LayoutParams.WRAP_CONTENT).apply {
-                                        marginStart = dip(dp * 2)
-                                        marginEnd = dip(dp * 8)
-                                    })
-                                }
-                                if (c.teacher != "") {
-                                    addView(ImageView(context).apply {
-                                        setImageResource(R.drawable.ic_outline_person_outline_24)
-                                        alpha = 0.8f
-                                        imageTintList = ViewUtils.createColorStateList(table.widgetCourseTextColor)
-                                    }, LinearLayout.LayoutParams(LinearLayout.LayoutParams.WRAP_CONTENT, LinearLayout.LayoutParams.MATCH_PARENT))
-
-                                    addView(TextView(context).apply {
-                                        alpha = 0.8f
-                                        text = c.teacher
-                                        setTextColor(table.widgetCourseTextColor)
-                                        maxLines = 1
-                                        ellipsize = TextUtils.TruncateAt.END
-                                        textSize = widgetTextSize + 2
-                                    }, LinearLayout.LayoutParams(LinearLayout.LayoutParams.WRAP_CONTENT, LinearLayout.LayoutParams.WRAP_CONTENT).apply {
-                                        marginStart = dip(dp * 2)
-                                    })
-                                }
-                            }, LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.WRAP_CONTENT).apply {
-                                topMargin = dip(dp * 4)
-                            })
-                        }
-
-                    }, LinearLayout.LayoutParams(LinearLayout.LayoutParams.WRAP_CONTENT, LinearLayout.LayoutParams.MATCH_PARENT).apply {
-                        marginStart = dip(dp)
-                    })
-
-                }, LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.WRAP_CONTENT))
-
-            }
-
         }
 
         override fun getLoadingView(): RemoteViews? {

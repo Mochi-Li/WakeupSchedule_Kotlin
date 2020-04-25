@@ -92,7 +92,8 @@ class ImportViewModel(application: Application) : AndroidViewModel(application) 
             if (!newFlag) {
                 courseDao.coverImport(baseList, detailList)
             } else {
-                tableDao.insertTable(TableBean(id = importId, tableName = "未命名"))
+                tableDao.insertTable(TableBean(id = importId))
+                TableConfig(getApplication(), importId).tableName = "未命名"
                 courseDao.insertCourses(baseList, detailList)
             }
         } ?: throw Exception("请确保选择正确的教务类型，以及到达显示课程的页面")
@@ -607,7 +608,7 @@ class ImportViewModel(application: Application) : AndroidViewModel(application) 
         val gson = Gson()
         val timeTable = gson.fromJson<TimeTableBean>(list[0], object : TypeToken<TimeTableBean>() {}.type)
         val timeDetails = gson.fromJson<List<TimeDetailBean>>(list[1], object : TypeToken<List<TimeDetailBean>>() {}.type)
-        val table = gson.fromJson<TableBean>(list[2], object : TypeToken<TableBean>() {}.type)
+        val tableCompat = gson.fromJson<TableCompat>(list[2], object : TypeToken<TableCompat>() {}.type)
         val courseBaseList = gson.fromJson<List<CourseBaseBean>>(list[3], object : TypeToken<List<CourseBaseBean>>() {}.type)
         val courseDetailList = gson.fromJson<List<CourseDetailBean>>(list[4], object : TypeToken<List<CourseDetailBean>>() {}.type)
         val timeTableId = timeTableDao.getMaxId() + 1
@@ -617,10 +618,8 @@ class ImportViewModel(application: Application) : AndroidViewModel(application) 
             it.timeTable = timeTableId
         }
         val tableId = getNewId()
-        table.background = ""
-        table.id = tableId
-        table.timeTable = timeTableId
-        table.type = 0
+        TableConfig(getApplication(), tableId, tableCompat)
+        val table = TableBean(tableId, tableCompat.timeTable, 0)
         courseBaseList.forEach {
             it.tableId = tableId
         }
@@ -655,7 +654,8 @@ class ImportViewModel(application: Application) : AndroidViewModel(application) 
             if (!newFlag) {
                 courseDao.coverImport(baseList, detailList)
             } else {
-                tableDao.insertTable(TableBean(id = importId, tableName = "未命名"))
+                tableDao.insertTable(TableBean(id = importId))
+                TableConfig(getApplication(), importId).tableName = "未命名"
                 courseDao.insertCourses(baseList, detailList)
             }
         }
@@ -668,7 +668,8 @@ class ImportViewModel(application: Application) : AndroidViewModel(application) 
         if (!newFlag) {
             courseDao.coverImport(baseList, detailList)
         } else {
-            tableDao.insertTable(TableBean(id = importId, tableName = "未命名"))
+            tableDao.insertTable(TableBean(id = importId))
+            TableConfig(getApplication(), importId).tableName = "未命名"
             courseDao.insertCourses(baseList, detailList)
         }
         return baseList.size

@@ -162,7 +162,6 @@ class SelectWeekFragment : BaseDialogFragment() {
     }
 
     companion object {
-
         @JvmStatic
         fun newInstance(arg: Int) =
                 SelectWeekFragment().apply {

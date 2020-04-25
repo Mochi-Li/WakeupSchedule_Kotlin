@@ -9,7 +9,6 @@ import androidx.navigation.NavController
 import androidx.navigation.Navigation
 import com.suda.yzune.wakeupschedule.R
 import com.suda.yzune.wakeupschedule.base_view.BaseTitleActivity
-import com.suda.yzune.wakeupschedule.bean.TableSelectBean
 import splitties.resources.color
 
 class ScheduleManageActivity : BaseTitleActivity() {
@@ -19,7 +18,8 @@ class ScheduleManageActivity : BaseTitleActivity() {
 
     var subButton: AppCompatTextView? = null
 
-    override fun onSetupSubButton(tvButton: AppCompatTextView): AppCompatTextView? {
+    override fun onSetupSubButton(): AppCompatTextView? {
+        val tvButton = AppCompatTextView(this)
         tvButton.text = "清空"
         tvButton.typeface = Typeface.DEFAULT_BOLD
         tvButton.setTextColor(color(R.color.colorAccent))
@@ -46,9 +46,9 @@ class ScheduleManageActivity : BaseTitleActivity() {
                 subButton?.visibility = View.INVISIBLE
             }
         }
-        intent.extras?.getParcelable<TableSelectBean>("selectedTable")?.let {
+        intent.extras?.getInt("selectedTableId")?.let {
             val bundle = Bundle()
-            bundle.putParcelable("selectedTable", it)
+            bundle.putInt("selectedTableId", it)
             navController.navigate(R.id.scheduleManageFragment_to_courseManageFragment, bundle)
         }
     }

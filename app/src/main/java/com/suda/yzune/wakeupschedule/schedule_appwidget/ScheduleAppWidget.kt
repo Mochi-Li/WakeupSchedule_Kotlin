@@ -5,6 +5,7 @@ import android.appwidget.AppWidgetProvider
 import android.content.Context
 import android.content.Intent
 import com.suda.yzune.wakeupschedule.AppDatabase
+import com.suda.yzune.wakeupschedule.bean.WidgetStyleConfig
 import com.suda.yzune.wakeupschedule.utils.AppWidgetUtils
 import com.suda.yzune.wakeupschedule.utils.UpdateUtils
 import com.suda.yzune.wakeupschedule.utils.goAsync
@@ -18,17 +19,9 @@ class ScheduleAppWidget : AppWidgetProvider() {
         if (intent.action == "WAKEUP_NEXT_WEEK") {
             val dataBase = AppDatabase.getDatabase(context)
             val widgetDao = dataBase.appWidgetDao()
-            val tableDao = dataBase.tableDao()
             goAsync {
                 for (appWidget in widgetDao.getWidgetsByTypes(0, 0)) {
-                    val table = if (appWidget.info.isEmpty()) {
-                        tableDao.getDefaultTable()
-                    } else {
-                        tableDao.getTableById(appWidget.info.toInt())
-                    }
-                    if (table != null) {
-                        AppWidgetUtils.refreshScheduleWidget(context, AppWidgetManager.getInstance(context), appWidget.id, table, true)
-                    }
+                    AppWidgetUtils.refreshScheduleWidget(context, AppWidgetManager.getInstance(context), appWidget.id, true)
                 }
             }
         }
@@ -38,14 +31,7 @@ class ScheduleAppWidget : AppWidgetProvider() {
             val tableDao = dataBase.tableDao()
             goAsync {
                 for (appWidget in widgetDao.getWidgetsByTypes(0, 0)) {
-                    val table = if (appWidget.info.isEmpty()) {
-                        tableDao.getDefaultTable()
-                    } else {
-                        tableDao.getTableById(appWidget.info.toInt())
-                    }
-                    if (table != null) {
-                        AppWidgetUtils.refreshScheduleWidget(context, AppWidgetManager.getInstance(context), appWidget.id, table)
-                    }
+                    AppWidgetUtils.refreshScheduleWidget(context, AppWidgetManager.getInstance(context), appWidget.id)
                 }
             }
         }
@@ -60,14 +46,7 @@ class ScheduleAppWidget : AppWidgetProvider() {
         goAsync {
             UpdateUtils.tranOldData(context.applicationContext)
             for (appWidget in widgetDao.getWidgetsByTypes(0, 0)) {
-                val table = if (appWidget.info.isEmpty()) {
-                    tableDao.getDefaultTable()
-                } else {
-                    tableDao.getTableById(appWidget.info.toInt())
-                }
-                if (table != null) {
-                    AppWidgetUtils.refreshScheduleWidget(context, AppWidgetManager.getInstance(context), appWidget.id, table)
-                }
+                AppWidgetUtils.refreshScheduleWidget(context, AppWidgetManager.getInstance(context), appWidget.id)
             }
         }
     }
@@ -78,6 +57,7 @@ class ScheduleAppWidget : AppWidgetProvider() {
         goAsync {
             for (id in appWidgetIds) {
                 widgetDao.deleteAppWidget(id)
+                WidgetStyleConfig(context, id).clear()
             }
         }
     }

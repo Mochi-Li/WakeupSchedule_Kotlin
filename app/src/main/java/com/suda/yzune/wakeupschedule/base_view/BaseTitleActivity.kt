@@ -4,6 +4,8 @@ import android.graphics.Typeface
 import android.os.Bundle
 import android.util.TypedValue
 import android.view.Gravity
+import android.view.View
+import android.widget.TextView
 import androidx.annotation.LayoutRes
 import androidx.appcompat.widget.AppCompatImageButton
 import androidx.appcompat.widget.AppCompatTextView
@@ -21,7 +23,7 @@ abstract class BaseTitleActivity : BaseActivity() {
     @get:LayoutRes
     protected abstract val layoutId: Int
 
-    open fun onSetupSubButton(tvButton: AppCompatTextView): AppCompatTextView? {
+    open fun onSetupSubButton(): View? {
         return null
     }
 
@@ -67,11 +69,10 @@ abstract class BaseTitleActivity : BaseActivity() {
             weight = 1f
         })
 
-        onSetupSubButton(AppCompatTextView(context).apply {
-            gravity = Gravity.CENTER_VERTICAL
-            setBackgroundResource(outValue.resourceId)
-            setPadding(dip(24), 0, dip(24), 0)
-        })?.let {
+        onSetupSubButton()?.let {
+            (it as? TextView)?.gravity = Gravity.CENTER_VERTICAL
+            it.setBackgroundResource(outValue.resourceId)
+            it.setPadding(dip(24), 0, dip(24), 0)
             addView(it, LinearLayoutCompat.LayoutParams(LinearLayoutCompat.LayoutParams.WRAP_CONTENT, dip(48)))
         }
 

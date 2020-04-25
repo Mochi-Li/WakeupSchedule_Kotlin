@@ -17,6 +17,8 @@ object Const {
     const val REQUEST_CODE_IMPORT_CSV = 106
     const val REQUEST_CODE_CHOOSE_SCHOOL = 107
     const val REQUEST_CODE_ADD_COURSE = 108
+    const val REQUEST_CODE_CHOOSE_BG = 109
+    const val REQUEST_CODE_CHOOSE_TABLE = 110
 
     const val KEY_OLD_VERSION_COURSE = "course"
     const val KEY_OLD_VERSION_BG_URI = "pic_uri"
@@ -47,4 +49,11 @@ object Const {
     const val KEY_SCHEDULE_TEACHER = "schedule_teacher"
     const val KEY_SHOW_DONATE = "show_donate"
     const val KEY_SHOW_TABLE_ID = "show_table_id"
+
+    const val MIN_TEXT_COLOR_ALPHA = 60
+
+    const val TITLE_COLOR = 1
+    const val COURSE_TEXT_COLOR = 2
+    const val STROKE_COLOR = 3
+    const val BG_COLOR = 4
 }

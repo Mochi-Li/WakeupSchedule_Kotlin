@@ -19,7 +19,7 @@ import com.google.android.material.textfield.TextInputEditText
 import com.google.android.material.textfield.TextInputLayout
 import com.suda.yzune.wakeupschedule.R
 import com.suda.yzune.wakeupschedule.base_view.BaseFragment
-import com.suda.yzune.wakeupschedule.bean.TableSelectBean
+import com.suda.yzune.wakeupschedule.bean.TableConfig
 import com.suda.yzune.wakeupschedule.schedule_settings.ScheduleSettingsActivity
 import com.suda.yzune.wakeupschedule.utils.Const
 import com.suda.yzune.wakeupschedule.utils.ViewUtils
@@ -73,8 +73,7 @@ class ScheduleManageFragment : BaseFragment() {
                     launch {
                         try {
                             val tableName = editText.text.toString()
-                            val tableId = viewModel.addBlankTable(tableName)
-                            adapter.addData(TableSelectBean(id = tableId.toInt(), tableName = tableName))
+                            adapter.addData(viewModel.addBlankTable(tableName))
                             Toasty.success(requireContext(), "新建成功~").show()
                         } catch (e: Exception) {
                             Toasty.error(requireContext(), "操作失败>_<").show()
@@ -86,7 +85,7 @@ class ScheduleManageFragment : BaseFragment() {
         }
     }
 
-    private fun initTableRecyclerView(fragmentView: View, rvTableList: RecyclerView, data: MutableList<TableSelectBean>) {
+    private fun initTableRecyclerView(fragmentView: View, rvTableList: RecyclerView, data: MutableList<TableConfig>) {
         if (ViewUtils.getScreenInfo(requireContext())[0] < dimenPxSize(R.dimen.wide_screen)) {
             rvTableList.layoutManager = LinearLayoutManager(context)
         } else {
@@ -95,7 +94,7 @@ class ScheduleManageFragment : BaseFragment() {
         adapter = TableListAdapter(R.layout.item_table_list, data)
         adapter.setOnItemClickListener { _, _, position ->
             val bundle = Bundle()
-            bundle.putParcelable("selectedTable", data[position])
+            bundle.putInt("selectedTableId", data[position].id)
             Navigation.findNavController(fragmentView).navigate(R.id.scheduleManageFragment_to_courseManageFragment, bundle)
         }
         adapter.addChildClickViewIds(R.id.ib_share, R.id.ib_edit, R.id.ib_delete)

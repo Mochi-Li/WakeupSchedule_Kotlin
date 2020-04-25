@@ -8,6 +8,7 @@ import android.text.Layout
 import android.text.StaticLayout
 import android.text.TextPaint
 import android.view.View
+import com.suda.yzune.wakeupschedule.bean.ScheduleStyleConfig
 import splitties.dimensions.dp
 
 @SuppressLint("ViewConstructor")
@@ -34,23 +35,26 @@ class TipTextView(context: Context) : View(context) {
     private var otherWeekTextAlpha = 255
     private var otherWeekBgAlpha = 255
     private var otherWeekStrokeAlpha = 255
+    private var centerHorizontal = false
+    private var centerVertical = false
+    private var textAlignment = Layout.Alignment.ALIGN_NORMAL
 
-    fun init(text: String, detail: String, txtSize: Int, txtColor: Int, bgColor: Int, bgAlpha: Int, stroke: Int) {
+    fun init(text: String, detail: String, bgColor: Int, bgAlpha: Int, styleConfig: ScheduleStyleConfig) {
         this.text = text
         this.detail = detail
         mTextPaint = TextPaint(Paint.ANTI_ALIAS_FLAG).apply {
             // textSize = mSize * resources.displayMetrics.scaledDensity
-            textSize = txtSize * dpUnit
+            textSize = styleConfig.itemTextSize * dpUnit
             typeface = Typeface.DEFAULT_BOLD
-            color = txtColor
+            color = styleConfig.courseTextColor
         }
         mDetailPaint = TextPaint(Paint.ANTI_ALIAS_FLAG).apply {
             // textSize = mSize * resources.displayMetrics.scaledDensity
-            textSize = (txtSize - 1) * dpUnit
-            color = txtColor
+            textSize = (styleConfig.itemTextSize - 1) * dpUnit
+            color = styleConfig.courseTextColor
         }
         mPaint = Paint(Paint.ANTI_ALIAS_FLAG).apply {
-            color = txtColor
+            color = styleConfig.courseTextColor
             isDither = true
             style = Paint.Style.FILL_AND_STROKE
             strokeWidth = 2 * dpUnit
@@ -64,7 +68,7 @@ class TipTextView(context: Context) : View(context) {
             alpha = bgAlpha
         }
         strokePaint = Paint(Paint.ANTI_ALIAS_FLAG).apply {
-            color = stroke
+            color = styleConfig.strokeColor
             isDither = true
             style = Paint.Style.STROKE
             strokeWidth = 2 * dpUnit
@@ -74,6 +78,11 @@ class TipTextView(context: Context) : View(context) {
         otherWeekTextAlpha = (mTextPaint.alpha * 0.2).toInt()
         otherWeekBgAlpha = (bgPaint.alpha * 0.2).toInt()
         otherWeekStrokeAlpha = (strokePaint.alpha * 0.2).toInt()
+        centerHorizontal = styleConfig.itemCenterHorizontal
+        centerVertical = styleConfig.itemCenterVertical
+        if (centerHorizontal) {
+            textAlignment = Layout.Alignment.ALIGN_CENTER
+        }
     }
 
     override fun onMeasure(widthMeasureSpec: Int, heightMeasureSpec: Int) {
@@ -107,13 +116,14 @@ class TipTextView(context: Context) : View(context) {
                         .Builder
                         .obtain(text, 0, text.length, mTextPaint, width - paddingRight - paddingLeft)
                         .setIncludePad(false)
+                        .setAlignment(textAlignment)
                         .build()
             } else {
                 StaticLayout(
                         text,
                         mTextPaint,
                         width - paddingRight - paddingLeft,
-                        Layout.Alignment.ALIGN_NORMAL,
+                        textAlignment,
                         1.0f,
                         0f,
                         false
@@ -126,13 +136,14 @@ class TipTextView(context: Context) : View(context) {
                         .Builder
                         .obtain(detail, 0, detail.length, mDetailPaint, width - paddingRight - paddingLeft)
                         .setIncludePad(false)
+                        .setAlignment(textAlignment)
                         .build()
             } else {
                 StaticLayout(
                         detail,
                         mDetailPaint,
                         width - paddingRight - paddingLeft,
-                        Layout.Alignment.ALIGN_NORMAL,
+                        textAlignment,
                         1.0f,
                         0f,
                         false
@@ -145,7 +156,7 @@ class TipTextView(context: Context) : View(context) {
         canvas.save()
         canvas.translate(paddingLeft.toFloat(), paddingTop.toFloat())
         mStaticLayout!!.draw(canvas)
-        canvas.translate(0f, mStaticLayout!!.height.toFloat() - paddingTop)
+        canvas.translate(0f, mStaticLayout!!.height.toFloat() - paddingTop * 2)
         detailStaticLayout!!.draw(canvas)
         canvas.restore()
         if (tipVisibility == 1) {

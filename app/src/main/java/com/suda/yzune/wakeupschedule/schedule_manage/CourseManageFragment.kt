@@ -22,7 +22,7 @@ import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import com.suda.yzune.wakeupschedule.R
 import com.suda.yzune.wakeupschedule.base_view.BaseFragment
 import com.suda.yzune.wakeupschedule.bean.CourseBaseBean
-import com.suda.yzune.wakeupschedule.bean.TableSelectBean
+import com.suda.yzune.wakeupschedule.bean.TableConfig
 import com.suda.yzune.wakeupschedule.course_add.AddCourseActivity
 import com.suda.yzune.wakeupschedule.utils.Const
 import com.suda.yzune.wakeupschedule.utils.ViewUtils
@@ -37,16 +37,15 @@ class CourseManageFragment : BaseFragment() {
 
     private val viewModel by activityViewModels<ScheduleManageViewModel>()
     private val table by lazy(LazyThreadSafetyMode.NONE) {
-        arguments?.getParcelable<TableSelectBean>("selectedTable")
+        val id = arguments?.getInt("selectedTableId") ?: return@lazy null
+        TableConfig(requireContext(), id)
     }
     private lateinit var adapter: CourseListAdapter
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?,
                               savedInstanceState: Bundle?): View? {
         val view = inflater.inflate(R.layout.fragment_list_manage, container, false)
-        if (table == null) {
-            return view
-        }
+        if (table == null) return view
         val rvCourseList = view.findViewById<RecyclerView>(R.id.rv_list)
         val space = requireContext().dip(8)
         rvCourseList.setPadding(space, 0, space, 0)

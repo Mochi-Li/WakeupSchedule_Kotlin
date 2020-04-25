@@ -26,6 +26,7 @@ import androidx.core.content.edit
 import androidx.core.view.ViewCompat
 import androidx.core.view.updateLayoutParams
 import androidx.lifecycle.Observer
+import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.viewpager.widget.ViewPager
 import com.bumptech.glide.Glide
 import com.bumptech.glide.load.resource.drawable.DrawableTransitionOptions
@@ -40,14 +41,14 @@ import com.suda.yzune.wakeupschedule.R
 import com.suda.yzune.wakeupschedule.UpdateFragment
 import com.suda.yzune.wakeupschedule.base_view.BaseActivity
 import com.suda.yzune.wakeupschedule.bean.MyResponse
-import com.suda.yzune.wakeupschedule.bean.TableBean
-import com.suda.yzune.wakeupschedule.bean.TableSelectBean
+import com.suda.yzune.wakeupschedule.bean.TableConfig
 import com.suda.yzune.wakeupschedule.bean.UpdateInfo
 import com.suda.yzune.wakeupschedule.course_add.AddCourseActivity
 import com.suda.yzune.wakeupschedule.intro.AboutActivity
 import com.suda.yzune.wakeupschedule.schedule_manage.ScheduleManageActivity
 import com.suda.yzune.wakeupschedule.schedule_settings.ScheduleSettingsActivity
 import com.suda.yzune.wakeupschedule.settings.SettingsActivity
+import com.suda.yzune.wakeupschedule.settings.TimeSettingsActivity
 import com.suda.yzune.wakeupschedule.suda_life.SudaLifeActivity
 import com.suda.yzune.wakeupschedule.utils.*
 import com.suda.yzune.wakeupschedule.utils.UpdateUtils.getVersionCode
@@ -158,17 +159,6 @@ class ScheduleActivity : BaseActivity() {
             }
         })
 
-        viewModel.initTableSelectList().observe(this, Observer {
-            if (it == null) return@Observer
-            viewModel.tableSelectList.clear()
-            viewModel.tableSelectList.addAll(it)
-            if (ui.rvTableName.adapter == null) {
-                initTableMenu(viewModel.tableSelectList)
-            } else {
-                ui.rvTableName.adapter?.notifyDataSetChanged()
-            }
-        })
-
         initBottomSheetAction()
 
         if (getPrefer().getBoolean(Const.KEY_HIDE_NAV_BAR, false)) {
@@ -187,13 +177,25 @@ class ScheduleActivity : BaseActivity() {
         }
     }
 
+    override fun onResume() {
+        super.onResume()
+        launch {
+            val data = viewModel.initTableSelectList()
+            if (ui.rvTableName.adapter == null) {
+                initTableMenu(data)
+            } else {
+                (ui.rvTableName.adapter as TableNameAdapter).setList(data)
+            }
+        }
+    }
+
     private fun initTheme() {
-        if (viewModel.table.background != "") {
+        if (viewModel.tableConfig.background != "") {
             //ui.bg.clearColorFilter()
-            if (viewModel.table.background.startsWith("#")) {
+            if (viewModel.tableConfig.background.startsWith("#")) {
                 val bitmap = try {
                     Bitmap.createBitmap(200, 200, Bitmap.Config.ARGB_8888).apply {
-                        eraseColor(viewModel.table.background.removePrefix("#").toInt())
+                        eraseColor(viewModel.tableConfig.background.removePrefix("#").toInt())
                     }
                 } catch (e: Exception) {
                     Bitmap.createBitmap(100, 100, Bitmap.Config.ARGB_8888).apply {
@@ -205,10 +207,11 @@ class ScheduleActivity : BaseActivity() {
                         .transition(DrawableTransitionOptions.withCrossFade())
                         .into(ui.bg)
             } else {
-                val x = (ViewUtils.getRealSize(this).x * 0.5).toInt()
-                val y = (ViewUtils.getRealSize(this).y * 0.5).toInt()
+                val p = ViewUtils.getRealSize(this)
+                val x = (p.x * 0.5).toInt()
+                val y = (p.y * 0.5).toInt()
                 Glide.with(this)
-                        .load(viewModel.table.background)
+                        .load(viewModel.tableConfig.background)
                         .override(x, y)
                         .transition(DrawableTransitionOptions.withCrossFade())
                         .error(BitmapDrawable(resources, Bitmap.createBitmap(100, 100, Bitmap.Config.ARGB_8888).apply {
@@ -217,8 +220,9 @@ class ScheduleActivity : BaseActivity() {
                         .into(ui.bg)
             }
         } else {
-            val x = (ViewUtils.getRealSize(this).x * 0.5).toInt()
-            val y = (ViewUtils.getRealSize(this).y * 0.5).toInt()
+            val p = ViewUtils.getRealSize(this)
+            val x = (p.x * 0.5).toInt()
+            val y = (p.y * 0.5).toInt()
             Glide.with(this)
                     .load(R.drawable.main_background_2020_1)
                     .override(x, y)
@@ -229,16 +233,16 @@ class ScheduleActivity : BaseActivity() {
         for (i in 0 until ui.content.childCount) {
             val view = ui.content.getChildAt(i)
             when (view) {
-                is AppCompatTextView -> view.setTextColor(viewModel.table.textColor)
+                is AppCompatTextView -> view.setTextColor(viewModel.tableConfig.textColor)
                 is AppCompatImageButton -> {
-                    view.imageTintList = ViewUtils.createColorStateList(viewModel.table.textColor)
+                    view.imageTintList = ViewUtils.createColorStateList(viewModel.tableConfig.textColor)
                 }
             }
         }
 
         if (getPrefer().getBoolean(Const.KEY_HIDE_NAV_BAR, false)) {
             val decorView = window.decorView
-            val currentStatusBar = if (!ViewUtils.judgeColorIsLight(viewModel.table.textColor) && Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+            val currentStatusBar = if (!ViewUtils.judgeColorIsLight(viewModel.tableConfig.textColor) && Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
                 View.SYSTEM_UI_FLAG_LAYOUT_FULLSCREEN or View.SYSTEM_UI_FLAG_LAYOUT_STABLE or View.SYSTEM_UI_FLAG_LIGHT_STATUS_BAR
             } else {
                 View.SYSTEM_UI_FLAG_LAYOUT_FULLSCREEN or View.SYSTEM_UI_FLAG_LAYOUT_STABLE
@@ -246,7 +250,7 @@ class ScheduleActivity : BaseActivity() {
             val systemUiVisibility = View.SYSTEM_UI_FLAG_LAYOUT_HIDE_NAVIGATION or View.SYSTEM_UI_FLAG_LAYOUT_STABLE or currentStatusBar
             decorView.systemUiVisibility = systemUiVisibility
         } else {
-            if (ViewUtils.judgeColorIsLight(viewModel.table.textColor)) {
+            if (ViewUtils.judgeColorIsLight(viewModel.tableConfig.textColor)) {
                 window.decorView.systemUiVisibility = (View.SYSTEM_UI_FLAG_LAYOUT_FULLSCREEN
                         or View.SYSTEM_UI_FLAG_LAYOUT_STABLE)
             } else {
@@ -257,10 +261,10 @@ class ScheduleActivity : BaseActivity() {
             }
         }
 
-        viewModel.itemHeight = dip(viewModel.table.itemHeight)
+        viewModel.itemHeight = dip(viewModel.tableConfig.itemHeight)
     }
 
-    private fun initTableMenu(data: MutableList<TableSelectBean>) {
+    private fun initTableMenu(data: MutableList<TableConfig>) {
         val appWidgetManager = AppWidgetManager.getInstance(applicationContext)
         val adapter = TableNameAdapter(R.layout.item_table_select_main, data)
         adapter.addChildClickViewIds(R.id.menu_setting)
@@ -279,12 +283,12 @@ class ScheduleActivity : BaseActivity() {
                 if (data[position].id != viewModel.table.id) {
                     launch {
                         viewModel.changeDefaultTable(data[position].id)
+                        adapter.notifyDataSetChanged()
                         initView()
                         val list = viewModel.getScheduleWidgetIds()
-                        val table = viewModel.getDefaultTable()
                         list.forEach {
                             when (it.detailType) {
-                                1 -> AppWidgetUtils.refreshTodayWidget(applicationContext, appWidgetManager, it.id, table)
+                                1 -> AppWidgetUtils.refreshTodayWidget(applicationContext, appWidgetManager, it.id)
                             }
                         }
                     }
@@ -303,8 +307,8 @@ class ScheduleActivity : BaseActivity() {
             override fun onStateChanged(bottomSheet: View, newState: Int) {
                 if (newState == BottomSheetBehavior.STATE_EXPANDED) {
                     ui.weekSlider.value = when {
-                        viewModel.selectedWeek > viewModel.table.maxWeek -> {
-                            viewModel.table.maxWeek.toFloat()
+                        viewModel.selectedWeek > viewModel.tableConfig.maxWeek -> {
+                            viewModel.tableConfig.maxWeek.toFloat()
                         }
                         viewModel.selectedWeek < 1 -> {
                             1f
@@ -313,6 +317,11 @@ class ScheduleActivity : BaseActivity() {
                             viewModel.selectedWeek.toFloat()
                         }
                     }
+                    val i = (ui.rvTableName.adapter as TableNameAdapter).data.indexOfFirst {
+                        it.id == viewModel.table.id
+                    }
+                    // ui.rvTableName.smoothScrollToPosition(i)
+                    (ui.rvTableName.layoutManager as LinearLayoutManager).scrollToPositionWithOffset(i, dip(64))
                 }
             }
         })
@@ -345,7 +354,8 @@ class ScheduleActivity : BaseActivity() {
                 } else {
                     launch {
                         try {
-                            viewModel.addBlankTable(editText.text.toString())
+                            val tmp = viewModel.addBlankTable(editText.text.toString())
+                            (ui.rvTableName.adapter as TableNameAdapter).addData(tmp)
                             Toasty.success(this@ScheduleActivity, "新建成功~").show()
                         } catch (e: Exception) {
                             Toasty.error(this@ScheduleActivity, "操作失败>_<").show()
@@ -364,6 +374,7 @@ class ScheduleActivity : BaseActivity() {
             startActivityForResult(Intent(this,
                     ScheduleSettingsActivity::class.java).apply {
                 putExtra("tableData", viewModel.table)
+                putExtra("action", R.id.action_scheduleSettingsFragment_to_tableConfigFragment)
                 putExtra("settingItem", "当前周")
             }, Const.REQUEST_CODE_SCHEDULE_SETTING)
         }
@@ -372,28 +383,21 @@ class ScheduleActivity : BaseActivity() {
             when (it.itemId) {
                 R.id.nav_time -> {
                     startActivityForResult(Intent(this,
-                            ScheduleSettingsActivity::class.java).apply {
+                            TimeSettingsActivity::class.java).apply {
                         putExtra("tableData", viewModel.table)
-                        putExtra("settingItem", "上课时间")
                     }, Const.REQUEST_CODE_SCHEDULE_SETTING)
                 }
                 R.id.nav_bg -> {
                     startActivityForResult(Intent(this,
                             ScheduleSettingsActivity::class.java).apply {
                         putExtra("tableData", viewModel.table)
+                        putExtra("action", R.id.action_scheduleSettingsFragment_to_mainStyleFragment)
                         putExtra("settingItem", "课程表背景")
                     }, Const.REQUEST_CODE_SCHEDULE_SETTING)
                 }
                 R.id.nav_course -> {
                     start<ScheduleManageActivity> {
-                        putExtra("selectedTable", TableSelectBean(
-                                id = viewModel.table.id,
-                                background = viewModel.table.background,
-                                tableName = viewModel.table.tableName,
-                                maxWeek = viewModel.table.maxWeek,
-                                nodes = viewModel.table.nodes,
-                                type = viewModel.table.type
-                        ))
+                        putExtra("selectedTableId", viewModel.table.id)
                     }
                 }
                 R.id.nav_help -> {
@@ -510,7 +514,7 @@ class ScheduleActivity : BaseActivity() {
         ui.dateView.text = CourseUtils.getTodayDate()
     }
 
-    private fun initViewPage(maxWeek: Int, table: TableBean) {
+    private fun initViewPage(maxWeek: Int, table: TableConfig) {
         if (mAdapter == null) {
             mAdapter = SchedulePagerAdapter(maxWeek, preLoad, supportFragmentManager)
             ui.viewPager.adapter = mAdapter
@@ -529,8 +533,8 @@ class ScheduleActivity : BaseActivity() {
         ui.addBtn.setOnClickListener {
             start<AddCourseActivity> {
                 putExtra("tableId", viewModel.table.id)
-                putExtra("maxWeek", viewModel.table.maxWeek)
-                putExtra("nodes", viewModel.table.nodes)
+                putExtra("maxWeek", viewModel.tableConfig.maxWeek)
+                putExtra("nodes", viewModel.tableConfig.nodes)
                 putExtra("id", -1)
             }
         }
@@ -598,14 +602,16 @@ class ScheduleActivity : BaseActivity() {
     }
 
     private fun initView() {
+        val tableId = getPrefer().getInt(Const.KEY_SHOW_TABLE_ID, 1)
+        viewModel.tableConfig = TableConfig(this@ScheduleActivity, tableId)
         launch {
-            val tableId = getPrefer().getInt(Const.KEY_SHOW_TABLE_ID, 0)
-
-            viewModel.table = viewModel.getDefaultTable()
-            viewModel.currentWeek = CourseUtils.countWeek(viewModel.table.startDate, viewModel.table.sundayFirst)
+            viewModel.table = viewModel.getTableById(tableId)
+            viewModel.timeList = viewModel.getTimeList(viewModel.table.timeTable)
+            initEvent()
+            viewModel.currentWeek = CourseUtils.countWeek(viewModel.tableConfig.startDate, viewModel.tableConfig.sundayFirst)
             viewModel.selectedWeek = viewModel.currentWeek
             if (viewModel.currentWeek > 0) {
-                if (viewModel.currentWeek <= viewModel.table.maxWeek) {
+                if (viewModel.currentWeek <= viewModel.tableConfig.maxWeek) {
                     ui.weekView.text = "第${viewModel.currentWeek}周"
                 } else {
                     ui.weekView.text = "当前周已超出设定范围"
@@ -622,37 +628,19 @@ class ScheduleActivity : BaseActivity() {
                             .show()
                 }
             }
-
-            ui.weekSlider.value = 1f
-            ui.weekDayView.text = CourseUtils.getWeekday()
-            if (viewModel.table.maxWeek > 1) {
-                ui.weekSlider.valueTo = viewModel.table.maxWeek.toFloat()
-                ui.weekSlider.valueFrom = 1f
-            } else {
-                ui.weekSlider.valueFrom = 0f
-                ui.weekSlider.valueTo = 1f
-            }
             ui.weekSlider.value = when {
                 viewModel.currentWeek < 1 -> {
                     1f
                 }
-                viewModel.currentWeek > viewModel.table.maxWeek -> {
-                    viewModel.table.maxWeek.toFloat()
+                viewModel.currentWeek > viewModel.tableConfig.maxWeek -> {
+                    viewModel.tableConfig.maxWeek.toFloat()
                 }
                 else -> {
                     viewModel.currentWeek.toFloat()
                 }
             }
-
-            initTheme()
-
-            viewModel.timeList = viewModel.getTimeList(viewModel.table.timeTable)
-
-            viewModel.alphaInt = (255 * (viewModel.table.itemAlpha.toFloat() / 100)).roundToInt()
-
-            initViewPage(viewModel.table.maxWeek, viewModel.table)
-
-            initEvent()
+            viewModel.alphaInt = (255 * (viewModel.tableConfig.itemAlpha.toFloat() / 100)).roundToInt()
+            initViewPage(viewModel.tableConfig.maxWeek, viewModel.tableConfig)
 
             for (i in 1..7) {
                 viewModel.getRawCourseByDay(i, viewModel.table.id).observe(this@ScheduleActivity, Observer { list ->
@@ -662,6 +650,18 @@ class ScheduleActivity : BaseActivity() {
                 })
             }
         }
+
+        ui.weekSlider.value = 1f
+        ui.weekDayView.text = CourseUtils.getWeekday()
+        if (viewModel.tableConfig.maxWeek > 1) {
+            ui.weekSlider.valueTo = viewModel.tableConfig.maxWeek.toFloat()
+            ui.weekSlider.valueFrom = 1f
+        } else {
+            ui.weekSlider.valueFrom = 0f
+            ui.weekSlider.valueTo = 1f
+        }
+
+        initTheme()
     }
 
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {

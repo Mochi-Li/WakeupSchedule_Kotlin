@@ -148,7 +148,6 @@ class UMoocParser(source: String) : Parser(source) {
             }
         }
         return courseList.filter { it.type != -1 }
-        return courseList
     }
 
 }

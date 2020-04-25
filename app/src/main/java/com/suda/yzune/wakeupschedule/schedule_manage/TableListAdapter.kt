@@ -9,13 +9,15 @@ import com.bumptech.glide.Glide
 import com.chad.library.adapter.base.BaseQuickAdapter
 import com.chad.library.adapter.base.viewholder.BaseViewHolder
 import com.suda.yzune.wakeupschedule.R
-import com.suda.yzune.wakeupschedule.bean.TableSelectBean
+import com.suda.yzune.wakeupschedule.bean.TableConfig
+import com.suda.yzune.wakeupschedule.utils.Const
+import com.suda.yzune.wakeupschedule.utils.getPrefer
 
-class TableListAdapter(layoutResId: Int, data: MutableList<TableSelectBean>) :
-        BaseQuickAdapter<TableSelectBean, BaseViewHolder>(layoutResId, data) {
+class TableListAdapter(layoutResId: Int, data: MutableList<TableConfig>) :
+        BaseQuickAdapter<TableConfig, BaseViewHolder>(layoutResId, data) {
 
-    override fun convert(holder: BaseViewHolder, item: TableSelectBean) {
-        if (item.type == 1) {
+    override fun convert(holder: BaseViewHolder, item: TableConfig) {
+        if (item.id == context.getPrefer().getInt(Const.KEY_SHOW_TABLE_ID, 1)) {
             holder.getView<View>(R.id.ib_delete).visibility = View.GONE
         } else {
             holder.getView<View>(R.id.ib_delete).visibility = View.VISIBLE

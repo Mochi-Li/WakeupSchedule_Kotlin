@@ -29,9 +29,9 @@ class ColorPickerFragment : BaseDialogFragment(), ColorPickerView.OnColorChanged
         get() = R.layout.fragment_color_picker
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
-        showAlphaSlider = arguments!!.getBoolean("alpha")
-        dialogId = arguments!!.getInt("id")
-        color = savedInstanceState?.getInt("color") ?: arguments!!.getInt("color")
+        showAlphaSlider = requireArguments().getBoolean("alpha")
+        dialogId = requireArguments().getInt("id")
+        color = savedInstanceState?.getInt("color") ?: requireArguments().getInt("color")
 
         return super.onCreateView(inflater, container, savedInstanceState)
     }
@@ -55,7 +55,7 @@ class ColorPickerFragment : BaseDialogFragment(), ColorPickerView.OnColorChanged
         view.setOnTouchListener { v, _ ->
             if (v != et_color && et_color.hasFocus()) {
                 et_color.clearFocus()
-                val imm = activity!!.getSystemService(Context.INPUT_METHOD_SERVICE) as InputMethodManager
+                val imm = requireActivity().getSystemService(Context.INPUT_METHOD_SERVICE) as InputMethodManager
                 imm.hideSoftInputFromWindow(et_color.windowToken, 0)
                 et_color.clearFocus()
                 return@setOnTouchListener true
@@ -70,7 +70,7 @@ class ColorPickerFragment : BaseDialogFragment(), ColorPickerView.OnColorChanged
 
         et_color.onFocusChangeListener = View.OnFocusChangeListener { _, hasFocus ->
             if (hasFocus) {
-                val imm = activity!!.getSystemService(Context.INPUT_METHOD_SERVICE) as InputMethodManager
+                val imm = requireActivity().getSystemService(Context.INPUT_METHOD_SERVICE) as InputMethodManager
                 imm.showSoftInput(et_color, InputMethodManager.SHOW_IMPLICIT)
             }
         }
@@ -102,7 +102,7 @@ class ColorPickerFragment : BaseDialogFragment(), ColorPickerView.OnColorChanged
         if (!fromEditText) {
             setHex(newColor)
             if (et_color.hasFocus()) {
-                val imm = activity!!.getSystemService(Context.INPUT_METHOD_SERVICE) as InputMethodManager
+                val imm = requireActivity().getSystemService(Context.INPUT_METHOD_SERVICE) as InputMethodManager
                 imm.hideSoftInputFromWindow(et_color.windowToken, 0)
                 et_color.clearFocus()
             }

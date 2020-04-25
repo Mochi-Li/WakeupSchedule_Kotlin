@@ -3,21 +3,33 @@ package com.suda.yzune.wakeupschedule.utils
 import android.app.Activity
 import android.content.Context
 import android.content.res.ColorStateList
-import android.graphics.Bitmap
-import android.graphics.Canvas
-import android.graphics.Point
+import android.graphics.*
+import android.graphics.drawable.GradientDrawable
 import android.os.Build
 import android.os.Environment
 import android.text.Html
 import android.text.Spanned
+import android.text.TextUtils
 import android.util.DisplayMetrics
+import android.view.Gravity
 import android.view.View
 import android.view.ViewGroup
 import android.view.WindowManager
+import android.widget.ImageView
+import android.widget.LinearLayout
+import android.widget.TextView
+import androidx.core.content.ContextCompat
 import androidx.core.text.HtmlCompat
+import androidx.core.view.setMargins
+import androidx.core.view.setPadding
 import com.suda.yzune.wakeupschedule.R
+import com.suda.yzune.wakeupschedule.bean.CourseBean
+import com.suda.yzune.wakeupschedule.bean.TimeDetailBean
+import com.suda.yzune.wakeupschedule.bean.WidgetStyleConfig
+import splitties.dimensions.dip
 import java.io.File
 import java.io.FileOutputStream
+import kotlin.math.roundToInt
 
 object ViewUtils {
 
@@ -198,4 +210,150 @@ object ViewUtils {
         val customizedColors = context.resources.getIntArray(R.array.customizedColors)
         return customizedColors[index]
     }
+
+    fun initTodayCourseView(context: Context, styleConfig: WidgetStyleConfig, course: CourseBean, timeList: List<TimeDetailBean>): View {
+        val dp = 2
+        val alphaInt = (255 * (styleConfig.itemAlpha.toFloat() / 100)).roundToInt()
+        var alphaStr = if (alphaInt != 0) {
+            Integer.toHexString(alphaInt)
+        } else {
+            "00"
+        }
+        if (alphaStr.length < 2) {
+            alphaStr = "0$alphaStr"
+        }
+        val widgetTextSize = styleConfig.itemTextSize.toFloat()
+        return LinearLayout(context).apply {
+            id = R.id.anko_layout
+            orientation = LinearLayout.VERTICAL
+
+            addView(LinearLayout(context).apply {
+                setPadding(dip(dp * 4))
+
+                if (styleConfig.showColor) {
+                    background = ContextCompat.getDrawable(context.applicationContext, R.drawable.course_item_bg_today)
+                    val myGrad = background as GradientDrawable
+//                                myGrad.cornerRadius = dip(dp * 4).toFloat()
+                    myGrad.setStroke(dip(dp), styleConfig.strokeColor)
+                    when {
+                        course.color.length == 7 -> myGrad.setColor(Color.parseColor("#$alphaStr${course.color.substring(1, 7)}"))
+                        course.color.isEmpty() -> {
+                            myGrad.setColor(Color.parseColor("#${alphaStr}fa6278"))
+                        }
+                        else -> myGrad.setColor(Color.parseColor("#$alphaStr${course.color.substring(3, 9)}"))
+                    }
+                }
+
+                addView(LinearLayout(context).apply {
+                    orientation = LinearLayout.VERTICAL
+                    gravity = Gravity.CENTER
+                    // 开始节
+                    addView(TextView(context).apply {
+                        text = course.startNode.toString()
+                        alpha = 0.8f
+                        setTextColor(styleConfig.courseTextColor)
+                        textSize = widgetTextSize
+                        typeface = Typeface.DEFAULT_BOLD
+                    }, LinearLayout.LayoutParams(LinearLayout.LayoutParams.WRAP_CONTENT, LinearLayout.LayoutParams.WRAP_CONTENT).apply {
+                        bottomMargin = dip(dp * 2)
+                    })
+                    // 结束节
+                    addView(TextView(context).apply {
+                        text = "${course.startNode + course.step - 1}"
+                        alpha = 0.8f
+                        setTextColor(styleConfig.courseTextColor)
+                        textSize = widgetTextSize
+                        typeface = Typeface.DEFAULT_BOLD
+                    }, LinearLayout.LayoutParams(LinearLayout.LayoutParams.WRAP_CONTENT, LinearLayout.LayoutParams.WRAP_CONTENT).apply {
+                        topMargin = dip(dp * 2)
+                    })
+
+                }, LinearLayout.LayoutParams(dip(dp * 10), LinearLayout.LayoutParams.MATCH_PARENT))
+
+                addView(LinearLayout(context).apply {
+                    orientation = LinearLayout.VERTICAL
+                    gravity = Gravity.CENTER
+
+                    addView(TextView(context).apply {
+                        alpha = 0.8f
+                        text = timeList[course.startNode - 1].startTime
+                        setTextColor(styleConfig.courseTextColor)
+                        textSize = widgetTextSize
+                    }, LinearLayout.LayoutParams(LinearLayout.LayoutParams.WRAP_CONTENT, LinearLayout.LayoutParams.WRAP_CONTENT).apply {
+                        setMargins(dip(dp * 2))
+                    })
+
+                    addView(TextView(context).apply {
+                        text = timeList[course.startNode + course.step - 2].endTime
+                        alpha = 0.8f
+                        setTextColor(styleConfig.courseTextColor)
+                        textSize = widgetTextSize
+                    }, LinearLayout.LayoutParams(LinearLayout.LayoutParams.WRAP_CONTENT, LinearLayout.LayoutParams.WRAP_CONTENT).apply {
+                        setMargins(dip(dp * 2))
+                    })
+
+                }, LinearLayout.LayoutParams(LinearLayout.LayoutParams.WRAP_CONTENT, LinearLayout.LayoutParams.MATCH_PARENT))
+
+                addView(LinearLayout(context).apply {
+                    orientation = LinearLayout.VERTICAL
+                    gravity = Gravity.CENTER_VERTICAL
+
+                    addView(TextView(context).apply {
+                        text = course.courseName
+                        setTextColor(styleConfig.courseTextColor)
+                        textSize = widgetTextSize + 2
+                        typeface = Typeface.DEFAULT_BOLD
+                    }, LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.WRAP_CONTENT))
+
+                    if (course.room != "" || course.teacher != "") {
+                        addView(LinearLayout(context).apply {
+                            if (course.room != "") {
+
+                                addView(ImageView(context).apply {
+                                    setImageResource(R.drawable.ic_outline_location_on_24)
+                                    alpha = 0.8f
+                                    imageTintList = ViewUtils.createColorStateList(styleConfig.courseTextColor)
+                                }, LinearLayout.LayoutParams(LinearLayout.LayoutParams.WRAP_CONTENT, LinearLayout.LayoutParams.MATCH_PARENT))
+
+                                addView(TextView(context).apply {
+                                    text = course.room
+                                    alpha = 0.8f
+                                    setTextColor(styleConfig.courseTextColor)
+                                    maxLines = 1
+                                    textSize = widgetTextSize + 2
+                                }, LinearLayout.LayoutParams(LinearLayout.LayoutParams.WRAP_CONTENT, LinearLayout.LayoutParams.WRAP_CONTENT).apply {
+                                    marginEnd = dip(dp * 8)
+                                })
+                            }
+                            if (course.teacher != "") {
+                                addView(ImageView(context).apply {
+                                    setImageResource(R.drawable.ic_outline_person_outline_24)
+                                    alpha = 0.8f
+                                    imageTintList = ViewUtils.createColorStateList(styleConfig.courseTextColor)
+                                }, LinearLayout.LayoutParams(LinearLayout.LayoutParams.WRAP_CONTENT, LinearLayout.LayoutParams.MATCH_PARENT))
+
+                                addView(TextView(context).apply {
+                                    alpha = 0.8f
+                                    text = course.teacher
+                                    setTextColor(styleConfig.courseTextColor)
+                                    maxLines = 1
+                                    ellipsize = TextUtils.TruncateAt.END
+                                    textSize = widgetTextSize + 2
+                                }, LinearLayout.LayoutParams(LinearLayout.LayoutParams.WRAP_CONTENT, LinearLayout.LayoutParams.WRAP_CONTENT).apply {
+
+                                })
+                            }
+                        }, LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.WRAP_CONTENT).apply {
+                            topMargin = dip(dp * 4)
+                        })
+                    }
+
+                }, LinearLayout.LayoutParams(LinearLayout.LayoutParams.WRAP_CONTENT, LinearLayout.LayoutParams.MATCH_PARENT).apply {
+                    marginStart = dip(dp)
+                })
+            }, LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.WRAP_CONTENT))
+        }
+
+    }
+
 }

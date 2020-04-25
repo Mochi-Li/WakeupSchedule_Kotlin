@@ -27,10 +27,10 @@ class ExportSettingsFragment : BaseDialogFragment() {
     private val viewModel by activityViewModels<ScheduleViewModel>()
 
     val tableName by lazy(LazyThreadSafetyMode.NONE) {
-        if (viewModel.table.tableName == "") {
+        if (viewModel.tableConfig.tableName == "") {
             "我的课表"
         } else {
-            viewModel.table.tableName
+            viewModel.tableConfig.tableName
         }
     }
 
@@ -44,13 +44,13 @@ class ExportSettingsFragment : BaseDialogFragment() {
                 type = "application/octet-stream"
                 putExtra(Intent.EXTRA_TITLE, "$tableName.wakeup_schedule")
             }
-            Toasty.info(activity!!, "请自行选择导出的地方\n不要修改文件的扩展名哦", Toasty.LENGTH_LONG).show()
+            Toasty.info(requireActivity(), "请自行选择导出的地方\n不要修改文件的扩展名哦", Toasty.LENGTH_LONG).show()
             activity?.startActivityForResult(intent, Const.REQUEST_CODE_EXPORT)
             dismiss()
         }
 
         tv_export_ics.setOnLongClickListener {
-            Utils.openUrl(activity!!, "https://www.jianshu.com/p/de3524cbe8aa")
+            Utils.openUrl(requireActivity(), "https://www.jianshu.com/p/de3524cbe8aa")
             return@setOnLongClickListener true
         }
 
@@ -60,7 +60,7 @@ class ExportSettingsFragment : BaseDialogFragment() {
                 type = "text/calendar"
                 putExtra(Intent.EXTRA_TITLE, "日历-$tableName")
             }
-            Toasty.info(activity!!, "请自行选择导出的地方\n不要修改文件的扩展名哦", Toasty.LENGTH_LONG).show()
+            Toasty.info(requireActivity(), "请自行选择导出的地方\n不要修改文件的扩展名哦", Toasty.LENGTH_LONG).show()
             activity?.startActivityForResult(intent, Const.REQUEST_CODE_EXPORT_ICS)
             dismiss()
         }
@@ -71,7 +71,7 @@ class ExportSettingsFragment : BaseDialogFragment() {
             launch {
                 try {
                     val content = viewModel.exportData()
-                    val versionCode = UpdateUtils.getVersionCode(activity!!)
+                    val versionCode = UpdateUtils.getVersionCode(requireActivity())
                     val response = withContext(Dispatchers.IO) {
                         MyRetrofitUtils.instance.getService()
                                 .shareSchedule(versionCode, content)
@@ -83,7 +83,7 @@ class ExportSettingsFragment : BaseDialogFragment() {
                         }
                         if (body.data.isBlank()) throw Exception("分享码为空")
                         if (body.status != "1" || body.message != "success") {
-                            Toasty.info(activity!!, body.message, Toasty.LENGTH_LONG).show()
+                            Toasty.info(requireActivity(), body.message, Toasty.LENGTH_LONG).show()
                             dismiss()
                             return@launch
                         }
@@ -92,7 +92,7 @@ class ExportSettingsFragment : BaseDialogFragment() {
                         }
                         dismiss()
                     } else {
-                        Toasty.error(activity!!, "服务器似乎在开小差呢>_<请稍后再试", Toasty.LENGTH_LONG).show()
+                        Toasty.error(requireActivity(), "服务器似乎在开小差呢>_<请稍后再试", Toasty.LENGTH_LONG).show()
                         dismiss()
                     }
                 } catch (e: Exception) {
@@ -101,7 +101,7 @@ class ExportSettingsFragment : BaseDialogFragment() {
                     } else {
                         "发生异常>_<${e.message}"
                     }
-                    Toasty.error(activity!!, msg, Toasty.LENGTH_LONG).show()
+                    Toasty.error(requireActivity(), msg, Toasty.LENGTH_LONG).show()
                     dismiss()
                 }
             }

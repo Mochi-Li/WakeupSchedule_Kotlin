@@ -10,14 +10,16 @@ import com.bumptech.glide.load.resource.bitmap.RoundedCorners
 import com.chad.library.adapter.base.BaseQuickAdapter
 import com.chad.library.adapter.base.viewholder.BaseViewHolder
 import com.suda.yzune.wakeupschedule.R
-import com.suda.yzune.wakeupschedule.bean.TableSelectBean
+import com.suda.yzune.wakeupschedule.bean.TableConfig
+import com.suda.yzune.wakeupschedule.utils.Const
+import com.suda.yzune.wakeupschedule.utils.getPrefer
 import splitties.dimensions.dip
 
-class TableNameAdapter(layoutResId: Int, data: MutableList<TableSelectBean>) :
-        BaseQuickAdapter<TableSelectBean, BaseViewHolder>(layoutResId, data) {
+class TableNameAdapter(layoutResId: Int, data: MutableList<TableConfig>) :
+        BaseQuickAdapter<TableConfig, BaseViewHolder>(layoutResId, data) {
 
-    override fun convert(holder: BaseViewHolder, item: TableSelectBean) {
-        holder.setGone(R.id.menu_setting, item.type != 1)
+    override fun convert(holder: BaseViewHolder, item: TableConfig) {
+        holder.setGone(R.id.menu_setting, item.id != context.getPrefer().getInt(Const.KEY_SHOW_TABLE_ID, 1))
 
         if (item.tableName != "") {
             holder.setText(R.id.tv_table_name, item.tableName)
@@ -25,7 +27,7 @@ class TableNameAdapter(layoutResId: Int, data: MutableList<TableSelectBean>) :
             holder.setText(R.id.tv_table_name, "我的课表")
         }
         val imageView = holder.getView<AppCompatImageView>(R.id.iv_table_bg)
-        if (item.type == 1) {
+        if (item.id == context.getPrefer().getInt(Const.KEY_SHOW_TABLE_ID, 1)) {
             imageView.setColorFilter(ContextCompat.getColor(context, R.color.deep_grey))
         } else {
             imageView.clearColorFilter()

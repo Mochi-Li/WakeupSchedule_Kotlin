@@ -78,17 +78,6 @@ class SchoolListActivity : BaseTitleActivity(), OnQuickSideBarTouchListener {
     override val layoutId: Int
         get() = R.layout.activity_school_list
 
-    override fun onSetupSubButton(tvButton: AppCompatTextView): AppCompatTextView? {
-        tvButton.text = "申请适配"
-        tvButton.setOnClickListener {
-            start<LoginWebActivity> {
-                putExtra("import_type", "apply")
-            }
-            finish()
-        }
-        return tvButton
-    }
-
     override fun createTitleBar() = LinearLayoutCompat(this).apply {
         orientation = LinearLayoutCompat.VERTICAL
         setBackgroundColor(styledColor(R.attr.colorSurface))
@@ -683,7 +672,7 @@ class SchoolListActivity : BaseTitleActivity(), OnQuickSideBarTouchListener {
             add(SchoolInfo("L", "丽水学院", "", TYPE_ZF))
             add(SchoolInfo("S", "三明学院", "", TYPE_ZF))
             add(SchoolInfo("H", "河南工业大学", "", TYPE_ZF))
-            add(SchoolInfo("Y", "云南国土资源职业学院", "", TYPE_ZF))
+            add(SchoolInfo("Y", "云南国土资源职业学院", "http://jwgl.yngtxy.cn/", TYPE_ZF))
             add(SchoolInfo("L", "陇东学院", "", TYPE_ZF))
             add(SchoolInfo("J", "吉林外国语大学", "", TYPE_ZF))
             add(SchoolInfo("Z", "中国矿业大学银川学院", "", TYPE_ZF))
@@ -838,6 +827,8 @@ class SchoolListActivity : BaseTitleActivity(), OnQuickSideBarTouchListener {
             add(SchoolInfo("X", "新疆农业职业技术学院", "", TYPE_ZF_1))
             add(SchoolInfo("H", "湖北交通职业技术学院", "", TYPE_ZF_NEW))
             add(SchoolInfo("A", "安康学院", "", TYPE_ZF_NEW))
+
+            add(SchoolInfo("F", "福建中医药大学", "", TYPE_QZ))
         }
 
         schools.sortWith(compareBy({ it.sortKey }, { it.name }))
@@ -887,7 +878,7 @@ class SchoolListActivity : BaseTitleActivity(), OnQuickSideBarTouchListener {
                     getPrefer().edit {
                         putString(Const.KEY_IMPORT_SCHOOL, gson.toJson(showList[position]))
                     }
-                    val tableId = tableDao.getDefaultTableId()
+                    val tableId = getPrefer().getInt(Const.KEY_SHOW_TABLE_ID, 1)
                     startActivityForResult(Intent(this@SchoolListActivity, LoginWebActivity::class.java).apply {
                         putExtra("school_name", showList[position].name)
                         putExtra("import_type", showList[position].type)

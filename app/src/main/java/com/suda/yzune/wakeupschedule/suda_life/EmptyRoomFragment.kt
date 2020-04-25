@@ -38,24 +38,24 @@ class EmptyRoomFragment : BaseFragment() {
                 layoutParams = ViewGroup.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, dip(240))
             })
         }
-        rv_room.layoutManager = LinearLayoutManager(activity!!)
+        rv_room.layoutManager = LinearLayoutManager(requireActivity())
     }
 
     private fun initData() {
         launch {
             try {
                 viewModel.getBuildingData()
-                spinner_campus.adapter = ArrayAdapter(activity!!, android.R.layout.simple_spinner_item, viewModel.buildingData.keys.toList())
+                spinner_campus.adapter = ArrayAdapter(requireActivity(), android.R.layout.simple_spinner_item, viewModel.buildingData.keys.toList())
                         .apply {
                             setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item)
                         }
             } catch (e: Exception) {
-                Toasty.error(activity!!, "发生异常>_<${e.message}").show()
+                Toasty.error(requireActivity(), "发生异常>_<${e.message}").show()
             }
         }
 
         launch {
-            spinner_date.adapter = ArrayAdapter(activity!!, android.R.layout.simple_spinner_item, viewModel.getDateList())
+            spinner_date.adapter = ArrayAdapter(requireActivity(), android.R.layout.simple_spinner_item, viewModel.getDateList())
                     .apply {
                         setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item)
                     }
@@ -70,7 +70,7 @@ class EmptyRoomFragment : BaseFragment() {
             }
 
             override fun onItemSelected(parent: AdapterView<*>?, v: View?, position: Int, id: Long) {
-                spinner_building.adapter = ArrayAdapter(activity!!, android.R.layout.simple_spinner_item,
+                spinner_building.adapter = ArrayAdapter(requireActivity(), android.R.layout.simple_spinner_item,
                         viewModel.buildingData[(v as TextView).text]!!)
                         .apply {
                             setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item)
@@ -114,7 +114,7 @@ class EmptyRoomFragment : BaseFragment() {
                     viewModel.getRoomData(building, date)
                     rv_room.adapter?.notifyDataSetChanged()
                 } catch (e: Exception) {
-                    Toasty.error(activity!!, "发生异常>_<${e.message}").show()
+                    Toasty.error(requireActivity(), "发生异常>_<${e.message}").show()
                 }
             }
         }

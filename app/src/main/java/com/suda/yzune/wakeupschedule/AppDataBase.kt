@@ -122,7 +122,6 @@ abstract class AppDatabase : RoomDatabase() {
 class _8to9Migration(val context: Context) : Migration(8, 9) {
 
     override fun migrate(database: SupportSQLiteDatabase) {
-        database.beginTransaction()
         val cursor = database.query("SELECT * FROM TableBean")
         cursor.moveToFirst()
         val idIdx = cursor.getColumnIndex("id")
@@ -216,7 +215,6 @@ class _8to9Migration(val context: Context) : Migration(8, 9) {
                     putInt("itemHeight", widgetItemHeight)
                     putBoolean("showSat", showSat == 1)
                     putBoolean("showSun", showSun == 1)
-                    putBoolean("sundayFirst", sundayFirst == 1)
                     putBoolean("showOtherWeekCourse", showOtherWeekCourse == 1)
                     putBoolean("showTime", showTime == 1)
                     putBoolean(Const.KEY_SCHEDULE_TEACHER, context.getPrefer().getBoolean(Const.KEY_SCHEDULE_TEACHER, true))
@@ -251,8 +249,14 @@ class _8to9Migration(val context: Context) : Migration(8, 9) {
             if (!cursor.moveToNext()) break
         }
         cursor.close()
-        // throw Exception()
-        database.endTransaction()
+        database.execSQL("DROP INDEX index_TableBean_timeTable;")
+        // database.execSQL("ALTER TABLE TableBean RENAME TO TableBean_old;")
+        database.execSQL("CREATE TABLE TableBean_new (id INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT, timeTable INTEGER NOT NULL DEFAULT 1, type INTEGER NOT NULL, FOREIGN KEY (timeTable) REFERENCES TimeTableBean (id) ON DELETE SET DEFAULT ON UPDATE CASCADE);")
+        // database.execSQL("INSERT INTO sqlite_sequence (name, seq) VALUES (\"TableBean\", '5');")
+        database.execSQL("INSERT INTO TableBean_new (id, timeTable, type) SELECT id, timeTable, type FROM TableBean;")
+        database.execSQL("CREATE INDEX index_TableBean_timeTable ON TableBean_new(timeTable ASC);")
+        database.execSQL("DROP TABLE TableBean;")
+        database.execSQL("ALTER TABLE TableBean_new RENAME TO TableBean;")
     }
 
 }

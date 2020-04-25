@@ -1,14 +1,42 @@
 package com.suda.yzune.wakeupschedule.bean
 
 import android.content.Context
+import android.graphics.Color
 import androidx.core.content.edit
-import com.suda.yzune.wakeupschedule.utils.Const
-import com.suda.yzune.wakeupschedule.utils.getPrefer
+import com.suda.yzune.wakeupschedule.utils.ViewUtils
 
-class TableConfig(context: Context, val id: Int) : ScheduleStyleConfig {
+class TableConfig(context: Context, val id: Int)
+    : ScheduleStyleConfig(context, "table${id}_config") {
 
-    private val sp by lazy(LazyThreadSafetyMode.NONE) {
-        context.getPrefer("table${id}_config")
+    fun getTableCompat(): TableCompat {
+        return TableCompat(
+                id = id, tableName = tableName, nodes = nodes, startDate = startDate,
+                maxWeek = maxWeek, sundayFirst = sundayFirst, itemHeight = itemHeight,
+                itemAlpha = itemAlpha, itemTextSize = itemTextSize, strokeColor = strokeColor,
+                textColor = textColor, courseTextColor = courseTextColor, showSat = showSat,
+                showSun = showSun, showOtherWeekCourse = showOtherWeekCourse, showTime = showTime
+        )
+    }
+
+    constructor(context: Context, id: Int, tableCompat: TableCompat) : this(context, id) {
+        tableName = tableCompat.tableName
+        nodes = tableCompat.nodes
+        background = if (ViewUtils.judgeColorIsLight(tableCompat.textColor)) {
+            "#${Color.GRAY}"
+        } else ""
+        startDate = tableCompat.startDate
+        maxWeek = tableCompat.maxWeek
+        sundayFirst = tableCompat.sundayFirst
+        itemHeight = tableCompat.itemHeight
+        itemAlpha = tableCompat.itemAlpha
+        itemTextSize = tableCompat.itemTextSize
+        strokeColor = tableCompat.strokeColor
+        textColor = tableCompat.textColor
+        courseTextColor = tableCompat.courseTextColor
+        showSat = tableCompat.showSat
+        showSun = tableCompat.showSun
+        showOtherWeekCourse = tableCompat.showOtherWeekCourse
+        showTime = tableCompat.showTime
     }
 
     var tableName: String = "未命名"
@@ -56,122 +84,12 @@ class TableConfig(context: Context, val id: Int) : ScheduleStyleConfig {
             }
         }
 
-    //----------------------------------------//
-
-    override var itemHeight: Int = DefaultValue.itemHeight
-        get() = sp.getInt("itemHeight", DefaultValue.itemHeight)
-        set(value) {
-            field = value
-            sp.edit {
-                putInt("itemHeight", value)
-            }
-        }
-
-    override var itemAlpha: Int = DefaultValue.itemAlpha
-        get() = sp.getInt("itemAlpha", DefaultValue.itemAlpha)
-        set(value) {
-            field = value
-            sp.edit {
-                putInt("itemAlpha", value)
-            }
-        }
-
-    override var itemTextSize: Int = DefaultValue.itemTextSize
-        get() = sp.getInt("itemTextSize", DefaultValue.itemTextSize)
-        set(value) {
-            field = value
-            sp.edit {
-                putInt("itemTextSize", value)
-            }
-        }
-
-    override var strokeColor: Int = DefaultValue.strokeColor
-        get() = sp.getInt("strokeColor", DefaultValue.strokeColor)
-        set(value) {
-            field = value
-            sp.edit {
-                putInt("strokeColor", value)
-            }
-        }
-
-    override var textColor: Int = DefaultValue.textColor
-        get() = sp.getInt("textColor", DefaultValue.textColor)
-        set(value) {
-            field = value
-            sp.edit {
-                putInt("textColor", value)
-            }
-        }
-
-    override var courseTextColor: Int = DefaultValue.courseTextColor
-        get() = sp.getInt("courseTextColor", DefaultValue.courseTextColor)
-        set(value) {
-            field = value
-            sp.edit {
-                putInt("courseTextColor", value)
-            }
-        }
-
-    override var showSat: Boolean = DefaultValue.showSat
-        get() = sp.getBoolean("showSat", DefaultValue.showSat)
-        set(value) {
-            field = value
-            sp.edit {
-                putBoolean("showSat", value)
-            }
-        }
-
-    override var showSun: Boolean = DefaultValue.showSun
-        get() = sp.getBoolean("showSun", DefaultValue.showSat)
-        set(value) {
-            field = value
-            sp.edit {
-                putBoolean("showSun", value)
-            }
-        }
-
-    override var sundayFirst: Boolean = DefaultValue.sundayFirst
-        get() = sp.getBoolean("sundayFirst", DefaultValue.showSat)
+    var sundayFirst: Boolean = DefaultValue.sundayFirst
+        get() = sp.getBoolean("sundayFirst", DefaultValue.sundayFirst)
         set(value) {
             field = value
             sp.edit {
                 putBoolean("sundayFirst", value)
-            }
-        }
-
-    override var showOtherWeekCourse: Boolean = DefaultValue.showOtherWeekCourse
-        get() = sp.getBoolean("showOtherWeekCourse", DefaultValue.showSat)
-        set(value) {
-            field = value
-            sp.edit {
-                putBoolean("showOtherWeekCourse", value)
-            }
-        }
-
-    override var showTime: Boolean = DefaultValue.showTime
-        get() = sp.getBoolean("showTime", DefaultValue.showSat)
-        set(value) {
-            field = value
-            sp.edit {
-                putBoolean("showTime", value)
-            }
-        }
-
-    override var showTeacher: Boolean = DefaultValue.showTeacher
-        get() = sp.getBoolean(Const.KEY_SCHEDULE_TEACHER, DefaultValue.showTeacher)
-        set(value) {
-            field = value
-            sp.edit {
-                putBoolean(Const.KEY_SCHEDULE_TEACHER, value)
-            }
-        }
-
-    override var showTimeBar: Boolean = DefaultValue.showTimeBar
-        get() = sp.getBoolean(Const.KEY_SCHEDULE_DETAIL_TIME, DefaultValue.showTimeBar)
-        set(value) {
-            field = value
-            sp.edit {
-                putBoolean(Const.KEY_SCHEDULE_DETAIL_TIME, value)
             }
         }
 

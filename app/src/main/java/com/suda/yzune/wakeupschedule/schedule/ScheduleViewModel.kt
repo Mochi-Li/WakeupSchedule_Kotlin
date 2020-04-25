@@ -36,18 +36,20 @@ class ScheduleViewModel(application: Application) : AndroidViewModel(application
     private val timeDao = dataBase.timeDetailDao()
 
     lateinit var table: TableBean
+    lateinit var tableConfig: TableConfig
     lateinit var timeList: List<TimeDetailBean>
     var selectedWeek = 1
     val marTop = application.resources.getDimensionPixelSize(R.dimen.weekItemMarTop)
     var itemHeight = 0
     var alphaInt = 225
-    val tableSelectList = arrayListOf<TableSelectBean>()
     val allCourseList = Array(7) { MutableLiveData<List<CourseBean>>() }
     val daysArray = arrayOf("日", "一", "二", "三", "四", "五", "六", "日")
     var currentWeek = 1
 
-    fun initTableSelectList(): LiveData<List<TableSelectBean>> {
-        return tableDao.getTableSelectListLiveData()
+    suspend fun initTableSelectList(): MutableList<TableConfig> {
+        return tableDao.getTableList().map {
+            TableConfig(getApplication(), it.id)
+        }.toMutableList()
     }
 
     fun getMultiCourse(week: Int, day: Int, startNode: Int): List<CourseBean> {
@@ -56,20 +58,25 @@ class ScheduleViewModel(application: Application) : AndroidViewModel(application
         }
     }
 
-    suspend fun getDefaultTable(): TableBean {
-        return tableDao.getDefaultTable()
+    suspend fun getTableById(id: Int): TableBean {
+        return tableDao.getTableById(id) ?: TableBean(id)
     }
 
     suspend fun getTimeList(timeTableId: Int): List<TimeDetailBean> {
         return timeDao.getTimeList(timeTableId)
     }
 
-    suspend fun addBlankTable(tableName: String) {
-        tableDao.insertTable(TableBean(id = 0, tableName = tableName))
+    suspend fun addBlankTable(tableName: String): TableConfig {
+        val id = tableDao.insertTable(TableBean(id = 0))
+        return TableConfig(getApplication(), id.toInt()).apply {
+            this.tableName = tableName
+        }
     }
 
-    suspend fun changeDefaultTable(id: Int) {
-        tableDao.changeDefaultTable(table.id, id)
+    fun changeDefaultTable(id: Int) {
+        getApplication<App>().getPrefer().edit {
+            putInt(Const.KEY_SHOW_TABLE_ID, id)
+        }
     }
 
     suspend fun getScheduleWidgetIds(): List<AppWidgetBean> {
@@ -81,7 +88,7 @@ class ScheduleViewModel(application: Application) : AndroidViewModel(application
     }
 
     fun getShowCourseNumber(week: Int): LiveData<Int> {
-        return if (table.showOtherWeekCourse) {
+        return if (tableConfig.showOtherWeekCourse) {
             courseDao.getShowCourseNumberWithOtherWeek(table.id, week)
         } else {
             courseDao.getShowCourseNumber(table.id, week)
@@ -90,6 +97,15 @@ class ScheduleViewModel(application: Application) : AndroidViewModel(application
 
     suspend fun deleteCourseBean(courseBean: CourseBean) {
         courseDao.deleteCourseDetail(CourseUtils.courseBean2DetailBean(courseBean))
+    }
+
+    suspend fun deleteCourseDetailThisWeek(courseBean: CourseBean, week: Int) {
+        courseDao.deleteCourseDetailThisWeek(CourseUtils.courseBean2DetailBean(courseBean), week)
+    }
+
+    suspend fun deleteCourseDetailOfDayAllWeek(c: CourseBean) {
+        courseDao.deleteCourseDetailOfDayAllWeek(c.tableId, c.id, c.day, c.startNode, c.step,
+                c.room ?: "", c.teacher ?: "")
     }
 
     suspend fun deleteCourseBaseBean(id: Int, tableId: Int) {
@@ -146,7 +162,7 @@ class ScheduleViewModel(application: Application) : AndroidViewModel(application
         val strBuilder = StringBuilder()
         strBuilder.append(gson.toJson(timeTableDao.getTimeTable(table.timeTable)))
         strBuilder.append("\n${gson.toJson(timeList)}")
-        strBuilder.append("\n${gson.toJson(table)}")
+        strBuilder.append("\n${gson.toJson(tableConfig.getTableCompat())}")
         strBuilder.append("\n${gson.toJson(courseDao.getCourseBaseBeanOfTable(table.id))}")
         strBuilder.append("\n${gson.toJson(courseDao.getDetailOfTable(table.id))}")
         return strBuilder.toString()
@@ -172,11 +188,13 @@ class ScheduleViewModel(application: Application) : AndroidViewModel(application
             val startTimeMap = ICalUtils.getClassTime(timeList, true)
             val endTimeMap = ICalUtils.getClassTime(timeList, false)
             val sdf = SimpleDateFormat("yyyy-MM-dd", Locale.CHINA)
-            val date = sdf.parse(table.startDate)
+            val date = sdf.parse(tableConfig.startDate)
+            val cal = Calendar.getInstance()
+            cal.time = date
             allCourseList.forEach {
                 it.value?.forEach { course ->
                     try {
-                        ICalUtils.getClassEvents(ical, startTimeMap, endTimeMap, table.maxWeek, course, date)
+                        ICalUtils.getClassEvents(ical, startTimeMap, endTimeMap, tableConfig.maxWeek, course, cal)
                     } catch (ignored: Exception) {
 
                     }

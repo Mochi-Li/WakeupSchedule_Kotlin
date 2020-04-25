@@ -13,14 +13,16 @@ import androidx.fragment.app.BaseDialogFragment
 import androidx.fragment.app.DialogFragment
 import androidx.fragment.app.activityViewModels
 import com.google.android.material.card.MaterialCardView
+import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import com.suda.yzune.wakeupschedule.R
 import com.suda.yzune.wakeupschedule.bean.CourseBean
 import com.suda.yzune.wakeupschedule.course_add.AddCourseActivity
+import com.suda.yzune.wakeupschedule.schedule_import.Common
+import com.suda.yzune.wakeupschedule.utils.CourseUtils
 import com.suda.yzune.wakeupschedule.utils.ViewUtils
 import es.dmoral.toasty.Toasty
 import kotlinx.android.synthetic.main.fragment_course_detail.*
 import kotlinx.android.synthetic.main.item_add_course_detail.*
-import kotlinx.coroutines.delay
 import splitties.activities.start
 import splitties.dimensions.dip
 import splitties.resources.dimenPxSize
@@ -33,15 +35,15 @@ class CourseDetailFragment : BaseDialogFragment() {
 
     private lateinit var course: CourseBean
     private var nested: Boolean = false
+    private var week = 0
     private val viewModel by activityViewModels<ScheduleViewModel>()
-
-    private var makeSure = 0
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         arguments?.let {
             course = it.getParcelable<CourseBean>("course") as CourseBean
             nested = it.getBoolean("nested")
+            week = it.getInt("week")
         }
     }
 
@@ -85,12 +87,21 @@ class CourseDetailFragment : BaseDialogFragment() {
         tv_item.text = course.courseName
         et_teacher.text = course.teacher
         et_room.text = course.room
-        val type = when (course.type) {
-            1 -> "单周"
-            2 -> "双周"
-            else -> ""
+        val weekList = arrayListOf<Int>()
+        viewModel.allCourseList[course.day - 1].value!!.filter {
+            it.id == course.id && it.day == course.day && it.startNode == course.startNode
+                    && it.step == course.step && it.teacher == course.teacher && it.room == course.room
+        }.forEach {
+            weekList.addAll(when (it.type) {
+                0 -> {
+                    (it.startWeek..it.endWeek).toList()
+                }
+                else -> {
+                    (it.startWeek..it.endWeek step 2).toList()
+                }
+            })
         }
-        et_weeks.text = "第${course.startWeek} - ${course.endWeek}周    $type"
+        et_weeks.text = Common.weekIntList2WeekBeanList(weekList).toString().removeSurrounding("[", "]")
         try {
             et_time.text = "第${course.startNode} - ${course.startNode + course.step - 1}节    ${viewModel.timeList[course.startNode - 1].startTime} - ${viewModel.timeList[course.startNode + course.step - 2].endTime}"
         } catch (e: Exception) {
@@ -116,70 +127,66 @@ class CourseDetailFragment : BaseDialogFragment() {
             requireActivity().start<AddCourseActivity> {
                 putExtra("id", course.id)
                 putExtra("tableId", course.tableId)
-                putExtra("maxWeek", viewModel.table.maxWeek)
-                putExtra("nodes", viewModel.table.nodes)
+                putExtra("maxWeek", viewModel.tableConfig.maxWeek)
+                putExtra("nodes", viewModel.tableConfig.nodes)
             }
         }
 
         ib_delete_course.setOnClickListener {
-            if (makeSure == 0) {
-                tv_tips.visibility = View.VISIBLE
-                makeSure++
-                launch {
-                    delay(5000)
-                    tv_tips.visibility = View.GONE
-                    makeSure = 0
-                }
-            } else {
-                launch {
-                    try {
-                        viewModel.deleteCourseBean(course)
-                        Toasty.success(requireContext(), "删除成功").show()
-                        val appWidgetManager = AppWidgetManager.getInstance(requireActivity().applicationContext)
-                        val list = viewModel.getScheduleWidgetIds()
-                        list.forEach {
-                            when (it.detailType) {
-                                0 -> appWidgetManager.notifyAppWidgetViewDataChanged(it.id, R.id.lv_schedule)
-                                1 -> appWidgetManager.notifyAppWidgetViewDataChanged(it.id, R.id.lv_course)
-                            }
-                        }
-                        dismiss()
-                    } catch (e: Exception) {
-                        Toasty.error(requireContext(), "出现异常>_<\n" + e.message).show()
-                    }
-                }
+            if (!course.inWeek(week)) {
+                Toasty.info(requireContext(), "非本周课程请翻到含有这节课的周进行删除操作", Toasty.LENGTH_LONG).show()
+                return@setOnClickListener
             }
+            showDeleteDialog()
         }
 
-        ib_delete_course.setOnLongClickListener {
-            launch {
-                try {
-                    viewModel.deleteCourseBaseBean(course.id, course.tableId)
-                    Toasty.success(requireContext(), "删除成功").show()
-                    val appWidgetManager = AppWidgetManager.getInstance(requireActivity().applicationContext)
-                    val list = viewModel.getScheduleWidgetIds()
-                    list.forEach {
-                        when (it.detailType) {
-                            0 -> appWidgetManager.notifyAppWidgetViewDataChanged(it.id, R.id.lv_schedule)
-                            1 -> appWidgetManager.notifyAppWidgetViewDataChanged(it.id, R.id.lv_course)
+    }
+
+    private fun showDeleteDialog() {
+        var index = 0
+        val choices = arrayOf("仅第${week}周${CourseUtils.getDayStr(course.day)}的这节课",
+                "全部${CourseUtils.getDayStr(course.day)}同老师同地点的这节课",
+                "这门课程的全部时间段")
+        MaterialAlertDialogBuilder(requireContext())
+                .setTitle("选择删除范围，请三思😯")
+                //.setMessage("此操作不可恢复哦")
+                .setPositiveButton("确认删除") { _, _ ->
+                    launch {
+                        try {
+                            when (index) {
+                                0 -> viewModel.deleteCourseDetailThisWeek(course, week)
+                                1 -> viewModel.deleteCourseDetailOfDayAllWeek(course)
+                                2 -> viewModel.deleteCourseBaseBean(course.id, course.tableId)
+                            }
+                            Toasty.success(requireContext(), "删除成功").show()
+                            val appWidgetManager = AppWidgetManager.getInstance(requireActivity().applicationContext)
+                            val list = viewModel.getScheduleWidgetIds()
+                            list.forEach {
+                                when (it.detailType) {
+                                    0 -> appWidgetManager.notifyAppWidgetViewDataChanged(it.id, R.id.lv_schedule)
+                                    1 -> appWidgetManager.notifyAppWidgetViewDataChanged(it.id, R.id.lv_course)
+                                }
+                            }
+                            dismiss()
+                        } catch (e: Exception) {
+                            Toasty.error(requireContext(), "出现异常>_<\n" + e.message).show()
                         }
                     }
-                    dismiss()
-                } catch (e: Exception) {
-                    Toasty.error(requireContext(), "出现异常>_<\n" + e.message).show()
                 }
-            }
-            return@setOnLongClickListener true
-        }
+                .setSingleChoiceItems(choices, index) { _, which ->
+                    index = which
+                }
+                .show()
     }
 
     companion object {
         @JvmStatic
-        fun newInstance(arg: CourseBean, arg1: Boolean = false) =
+        fun newInstance(week: Int, c: CourseBean, isNested: Boolean = false) =
                 CourseDetailFragment().apply {
                     arguments = Bundle().apply {
-                        putParcelable("course", arg)
-                        putBoolean("nested", arg1)
+                        putInt("week", week)
+                        putParcelable("course", c)
+                        putBoolean("nested", isNested)
                     }
                 }
     }

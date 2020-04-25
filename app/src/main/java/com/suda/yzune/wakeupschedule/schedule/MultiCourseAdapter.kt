@@ -7,10 +7,10 @@ import androidx.fragment.app.FragmentStatePagerAdapter
 import androidx.viewpager.widget.PagerAdapter
 import com.suda.yzune.wakeupschedule.bean.CourseBean
 
-class MultiCourseAdapter(manager: FragmentManager, val data: List<CourseBean>) : FragmentStatePagerAdapter(manager, BEHAVIOR_RESUME_ONLY_CURRENT_FRAGMENT) {
+class MultiCourseAdapter(manager: FragmentManager, val data: List<CourseBean>, val week: Int) : FragmentStatePagerAdapter(manager, BEHAVIOR_RESUME_ONLY_CURRENT_FRAGMENT) {
 
     override fun getItem(position: Int): Fragment {
-        return CourseDetailFragment.newInstance(data[position], true)
+        return CourseDetailFragment.newInstance(week, data[position], true)
     }
 
     override fun getCount(): Int {

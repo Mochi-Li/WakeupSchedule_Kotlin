@@ -1,82 +1,56 @@
 package com.suda.yzune.wakeupschedule.schedule_settings
 
-import android.app.DatePickerDialog
 import android.appwidget.AppWidgetManager
-import android.content.ActivityNotFoundException
-import android.content.Intent
-import android.graphics.Color
 import android.os.Bundle
-import android.text.Editable
-import android.text.InputType
-import android.text.TextWatcher
-import android.view.View
-import android.widget.Toast
 import androidx.activity.viewModels
-import androidx.appcompat.app.AlertDialog
-import androidx.appcompat.widget.AppCompatCheckBox
 import androidx.appcompat.widget.AppCompatImageButton
-import androidx.core.content.edit
-import androidx.recyclerview.widget.LinearLayoutManager
-import com.google.android.material.dialog.MaterialAlertDialogBuilder
-import com.google.android.material.textfield.TextInputEditText
-import com.google.android.material.textfield.TextInputLayout
+import androidx.fragment.app.Fragment
+import androidx.navigation.NavController
+import androidx.navigation.Navigation
 import com.suda.yzune.wakeupschedule.BuildConfig
 import com.suda.yzune.wakeupschedule.DonateActivity
 import com.suda.yzune.wakeupschedule.R
-import com.suda.yzune.wakeupschedule.base_view.BaseListActivity
+import com.suda.yzune.wakeupschedule.base_view.BaseTitleActivity
 import com.suda.yzune.wakeupschedule.bean.TableBean
-import com.suda.yzune.wakeupschedule.bean.TableSelectBean
+import com.suda.yzune.wakeupschedule.bean.TableConfig
 import com.suda.yzune.wakeupschedule.schedule.DonateFragment
-import com.suda.yzune.wakeupschedule.schedule_manage.ScheduleManageActivity
-import com.suda.yzune.wakeupschedule.settings.AdvancedSettingsActivity
-import com.suda.yzune.wakeupschedule.settings.SettingItemAdapter
-import com.suda.yzune.wakeupschedule.settings.TimeSettingsActivity
-import com.suda.yzune.wakeupschedule.settings.items.*
 import com.suda.yzune.wakeupschedule.utils.AppWidgetUtils
 import com.suda.yzune.wakeupschedule.utils.Const
 import com.suda.yzune.wakeupschedule.utils.getPrefer
 import com.suda.yzune.wakeupschedule.widget.colorpicker.ColorPickerFragment
-import es.dmoral.toasty.Toasty
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.withContext
-import okio.BufferedSink
-import okio.BufferedSource
-import okio.Okio
 import splitties.activities.start
-import splitties.dimensions.dip
-import splitties.snackbar.longSnack
-import java.io.File
 
-private const val TITLE_COLOR = 1
-private const val COURSE_TEXT_COLOR = 2
-private const val STROKE_COLOR = 3
-private const val WIDGET_TITLE_COLOR = 4
-private const val WIDGET_COURSE_TEXT_COLOR = 5
-private const val WIDGET_STROKE_COLOR = 6
-private const val WIDGET_BG_COLOR = 7
-private const val BG_COLOR = 8
+class ScheduleSettingsActivity : BaseTitleActivity(), ColorPickerFragment.ColorPickerDialogListener {
 
-class ScheduleSettingsActivity : BaseListActivity(), ColorPickerFragment.ColorPickerDialogListener {
+    private val viewModel by viewModels<ScheduleSettingsViewModel>()
+    private lateinit var navController: NavController
 
-    override fun onColorSelected(dialogId: Int, color: Int) {
-        when (dialogId) {
-            TITLE_COLOR -> viewModel.table.textColor = color
-            COURSE_TEXT_COLOR -> viewModel.table.courseTextColor = color
-            STROKE_COLOR -> viewModel.table.strokeColor = color
-            WIDGET_TITLE_COLOR -> viewModel.table.widgetTextColor = color
-            WIDGET_COURSE_TEXT_COLOR -> viewModel.table.widgetCourseTextColor = color
-            WIDGET_STROKE_COLOR -> viewModel.table.widgetStrokeColor = color
-            WIDGET_BG_COLOR -> getPrefer().edit {
-                putInt(Const.KEY_APPWIDGET_BG_COLOR, color)
-                Toasty.info(this@ScheduleSettingsActivity, "记得退出当前页面再返回桌面，点小部件右上角箭头切换才能看到效果哦", Toasty.LENGTH_LONG).show()
-            }
-            BG_COLOR -> {
-                viewModel.table.background = "#${color}"
-            }
+    override fun onCreate(savedInstanceState: Bundle?) {
+        super.onCreate(savedInstanceState)
+        viewModel.table = intent.extras!!.getParcelable<TableBean>("tableData") as TableBean
+        viewModel.tableConfig = TableConfig(this, viewModel.table.id)
+        navController = Navigation.findNavController(this, R.id.nav_fragment)
+        navController.addOnDestinationChangedListener { _, destination, _ ->
+            mainTitle.text = destination.label
+        }
+        intent.extras?.getInt("action", 0)?.let {
+            if (it == 0) return@let
+            val bundle = Bundle()
+            bundle.putString("settingItem", intent.extras?.getString("settingItem"))
+            navController.navigate(it, bundle)
         }
     }
 
-    override fun onSetupSubButton(): View? {
+    override fun onColorSelected(dialogId: Int, color: Int) {
+        (getForegroundFragment() as ColorPickerFragment.ColorPickerDialogListener).onColorSelected(dialogId, color)
+    }
+
+    private fun getForegroundFragment(): Fragment {
+        val navHostFragment = supportFragmentManager.findFragmentById(R.id.nav_fragment)
+        return navHostFragment?.childFragmentManager?.fragments!![0]
+    }
+
+    override fun onSetupSubButton(): AppCompatImageButton? {
         val tvButton = AppCompatImageButton(this).apply {
             setImageResource(R.drawable.ic_outline_favorite_border_24)
         }
@@ -93,460 +67,33 @@ class ScheduleSettingsActivity : BaseListActivity(), ColorPickerFragment.ColorPi
         return tvButton
     }
 
-    private val viewModel by viewModels<ScheduleSettingsViewModel>()
-    private val mAdapter = SettingItemAdapter()
-    private val REQUEST_CODE_CHOOSE_BG = 23
-    private val REQUEST_CODE_CHOOSE_TABLE = 21
-    private val allItems = mutableListOf<BaseSettingItem>()
-    private val showItems = mutableListOf<BaseSettingItem>()
-
-    private val currentWeekItem by lazy(LazyThreadSafetyMode.NONE) {
-        SeekBarItem("当前周", viewModel.getCurrentWeek(), 1, viewModel.table.maxWeek, "周", "第", keys = listOf("学期", "周", "日期", "开学", "开始", "时间"))
-    }
-
-    private val widgetBgItem by lazy(LazyThreadSafetyMode.NONE) {
-        VerticalItem("小部件背景颜色设置", "颜色跟透明度都可以哦\n下个版本支持预览\n退出当前页面再返回桌面，点小部件右上角箭头切换才能看到效果哦\n长按恢复默认值")
-    }
-
-    override fun onCreate(savedInstanceState: Bundle?) {
-        showSearch = true
-        textWatcher = object : TextWatcher {
-            override fun afterTextChanged(s: Editable?) {}
-
-            override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) {}
-
-            override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {
-                showItems.clear()
-                if (s.isNullOrBlank() || s.isEmpty()) {
-                    showItems.addAll(allItems)
-                } else {
-                    showItems.add(CategoryItem("搜索结果", true))
-                    showItems.addAll(allItems.filter {
-                        val k = it.keyWords
-                        k?.contains(s.toString()) ?: false
-                    })
-                }
-                mRecyclerView.adapter?.notifyDataSetChanged()
-                if (showItems.size == 1) {
-                    mRecyclerView.longSnack("找不到哦，换个关键词试试看，或者请仔细找找啦，一般都能找到的。")
-                }
-            }
-        }
-        super.onCreate(savedInstanceState)
-        viewModel.table = intent.extras!!.getParcelable<TableBean>("tableData") as TableBean
-
-        //onAdapterCreated(mAdapter)
-
-        onItemsCreated(allItems)
-        showItems.addAll(allItems)
-        mAdapter.data = showItems
-        mRecyclerView.layoutManager = LinearLayoutManager(this)
-        mRecyclerView.itemAnimator?.changeDuration = 250
-        mRecyclerView.adapter = mAdapter
-        mAdapter.addChildClickViewIds(R.id.anko_check_box)
-        mAdapter.setOnItemChildClickListener { _, view, position ->
-            when (val item = showItems[position]) {
-                is SwitchItem -> onSwitchItemCheckChange(item, view.findViewById<AppCompatCheckBox>(R.id.anko_check_box).isChecked, position)
-            }
-        }
-        mAdapter.setOnItemClickListener { _, view, position ->
-            when (val item = showItems[position]) {
-                is HorizontalItem -> onHorizontalItemClick(item, position)
-                is VerticalItem -> onVerticalItemClick(item)
-                is SwitchItem -> view.findViewById<AppCompatCheckBox>(R.id.anko_check_box).performClick()
-                is SeekBarItem -> onSeekBarItemClick(item, position)
-            }
-        }
-        mAdapter.setOnItemLongClickListener { _, _, position ->
-            when (val item = showItems[position]) {
-                is VerticalItem -> onVerticalItemLongClick(item)
-            }
-            true
-        }
-        viewModel.termStartList = viewModel.table.startDate.split("-")
-        viewModel.mYear = Integer.parseInt(viewModel.termStartList[0])
-        viewModel.mMonth = Integer.parseInt(viewModel.termStartList[1])
-        viewModel.mDay = Integer.parseInt(viewModel.termStartList[2])
-        val settingItem = intent?.extras?.getString("settingItem")
-        if (settingItem != null && savedInstanceState == null) {
-            mRecyclerView.postDelayed({
-                try {
-                    val i = showItems.indexOfFirst {
-                        it.title == settingItem
-                    }
-                    (mRecyclerView.layoutManager as LinearLayoutManager).scrollToPositionWithOffset(i, dip(64))
-                    when (showItems[i]) {
-                        is HorizontalItem -> onHorizontalItemClick(showItems[i] as HorizontalItem, i)
-                        is VerticalItem -> onVerticalItemClick(showItems[i] as VerticalItem)
-                        is SeekBarItem -> onSeekBarItemClick(showItems[i] as SeekBarItem, i)
-                    }
-                } catch (e: Exception) {
-
-                }
-            }, 100)
-        }
-    }
-
-    private fun onItemsCreated(items: MutableList<BaseSettingItem>) {
-        items.add(CategoryItem("课程数据", true))
-        items.add(HorizontalItem("课表名称", viewModel.table.tableName, listOf("名称", "名字", "名", "课表")))
-        items.add(HorizontalItem("上课时间", "点击此处更改", listOf("时间")))
-        items.add(HorizontalItem("学期开始日期", viewModel.table.startDate, listOf("学期", "周", "日期", "开学", "开始", "时间")))
-        items.add(currentWeekItem)
-        items.add(HorizontalItem("管理已添加课程", "", keys = listOf("课程", "课")))
-        items.add(SeekBarItem("一天课程节数", viewModel.table.nodes, 1, 30, "节", keys = listOf("节数", "数量", "数")))
-        items.add(SeekBarItem("学期周数", viewModel.table.maxWeek, 1, 60, "周", keys = listOf("学期", "周", "时间")))
-        items.add(SwitchItem("周日为每周第一天", viewModel.table.sundayFirst, keys = listOf("周日", "第一天", "起始", "星期天", "天")))
-        items.add(SwitchItem("显示周六", viewModel.table.showSat, keys = listOf("周六", "显示", "星期六", "六")))
-        items.add(SwitchItem("显示周日", viewModel.table.showSun, keys = listOf("周日", "显示", "星期日", "日", "星期天", "周天")))
-
-        items.add(CategoryItem("课表外观", false))
-        items.add(SwitchItem("在格子内显示上课时间", viewModel.table.showTime, keys = listOf("时间", "显示", "格子", "上课时间")))
-        items.add(SwitchItem("在格子内显示授课老师",
-                getPrefer().getBoolean(Const.KEY_SCHEDULE_TEACHER, true), keys = listOf("显示", "格子", "老师", "教师")))
-        items.add(VerticalItem("课程表背景", "长按可以恢复默认哦~", keys = listOf("背景", "显示", "图片")))
-        items.add(VerticalItem("界面文字颜色", "指标题等字体的颜色\n还可以调颜色的透明度哦 (●ﾟωﾟ●)", keys = listOf("颜色", "显示", "文字", "文字颜色")))
-        items.add(VerticalItem("课程文字颜色", "指课程格子内的颜色\n还可以调颜色的透明度哦 (●ﾟωﾟ●)", keys = listOf("颜色", "显示", "文字", "文字颜色")))
-        items.add(VerticalItem("格子边框颜色", "将不透明度调到最低就可以隐藏边框了哦~", keys = listOf("边框", "显示", "边框颜色", "格子", "边")))
-        items.add(SeekBarItem("课程格子高度", viewModel.table.itemHeight, 32, 96, "dp", keys = listOf("格子", "高度", "格子高度", "显示")))
-        items.add(SeekBarItem("课程格子不透明度", viewModel.table.itemAlpha, 0, 100, "%", keys = listOf("格子", "透明", "格子高度", "显示")))
-        items.add(SeekBarItem("课程显示文字大小", viewModel.table.itemTextSize, 8, 16, "sp", keys = listOf("文字", "大小", "文字大小")))
-        items.add(SwitchItem("显示非本周课程", viewModel.table.showOtherWeekCourse, keys = listOf("非本周")))
-
-        items.add(CategoryItem("桌面小部件外观", false))
-        items.add(VerticalItem("如何添加小部件？", "长按桌面空白处，或者在桌面做双指捏合手势，选择桌面小工具，肯定是有的，仔细找找，实在找不到就重启手机再找。\n" +
-                "P.S. 添加桌面小部件，想要确保它正常工作，最好在系统设置中，手动管理本App的后台，允许本App后台自启和后台运行。"))
-        items.add(SeekBarItem("小部件格子高度", viewModel.table.widgetItemHeight, 32, 96, "dp", keys = listOf("格子", "高度", "格子高度", "显示", "小部件", "小", "插件", "桌面")))
-        items.add(SeekBarItem("小部件格子不透明度", viewModel.table.widgetItemAlpha, 0, 100, "%", keys = listOf("格子", "透明", "格子高度", "显示", "小部件", "小", "插件", "桌面")))
-        items.add(SeekBarItem("小部件显示文字大小", viewModel.table.widgetItemTextSize, 8, 16, "sp", keys = listOf("文字", "大小", "文字大小", "小部件", "小", "插件", "桌面")))
-        items.add(VerticalItem("小部件标题颜色", "指标题等字体的颜色\n还可以调颜色的透明度哦 (●ﾟωﾟ●)", keys = listOf("颜色", "显示", "文字", "文字颜色", "小部件", "小", "插件", "桌面")))
-        items.add(VerticalItem("小部件课程颜色", "指课程格子内的文字颜色\n或者日视图课程文字的颜色\n还可以调颜色的透明度哦 (●ﾟωﾟ●)", keys = listOf("颜色", "显示", "文字", "文字颜色", "小部件", "小", "插件", "桌面")))
-        items.add(VerticalItem("小部件格子边框颜色", "将不透明度调到最低就可以隐藏边框了哦~", keys = listOf("边框", "显示", "边框颜色", "格子", "边", "小部件", "小", "插件", "桌面")))
-        items.add(SwitchItem("显示日视图课程色块", getPrefer().getBoolean(Const.KEY_DAY_WIDGET_COLOR, true)))
-        items.add(SwitchItem("显示小部件背景", getPrefer().getBoolean(Const.KEY_APPWIDGET_BG, false)))
-        if (getPrefer().getBoolean(Const.KEY_APPWIDGET_BG, false)) {
-            items.add(widgetBgItem)
-        }
-
-        items.add(CategoryItem("高级", false))
-        when {
-            BuildConfig.CHANNEL == "google" -> {
-                items.add(VerticalItem("看看都有哪些高级功能", "如果想支持一下社团和开发者\n请去支付宝18862196504\n高级功能会持续更新~\n采用诚信授权模式ヾ(=･ω･=)o", keys = listOf("高级")))
-            }
-            BuildConfig.CHANNEL == "huawei" && !getPrefer().getBoolean(Const.KEY_SHOW_DONATE, false) -> {
-                items.add(VerticalItem("看看都有哪些高级功能", "高级功能会持续更新~", keys = listOf("高级")))
-            }
-            else -> {
-                items.add(VerticalItem("解锁高级功能", "解锁赞助一下社团和开发者ヾ(=･ω･=)o\n高级功能会持续更新~\n采用诚信授权模式", keys = listOf("高级")))
-            }
-        }
-
-        items.add(VerticalItem("", "\n\n\n"))
-    }
-
-    private fun onSwitchItemCheckChange(item: SwitchItem, isChecked: Boolean, position: Int) {
-        when (item.title) {
-            "周日为每周第一天" -> viewModel.table.sundayFirst = isChecked
-            "显示周六" -> viewModel.table.showSat = isChecked
-            "显示周日" -> viewModel.table.showSun = isChecked
-            "在格子内显示上课时间" -> viewModel.table.showTime = isChecked
-            "在格子内显示授课老师" -> getPrefer().edit {
-                putBoolean(Const.KEY_SCHEDULE_TEACHER, isChecked)
-            }
-            "显示非本周课程" -> viewModel.table.showOtherWeekCourse = isChecked
-            "显示日视图课程色块" -> {
-                getPrefer().edit {
-                    putBoolean(Const.KEY_DAY_WIDGET_COLOR, isChecked)
-                }
-                mRecyclerView.longSnack("请点击小部件右上角的「切换按钮」查看效果~")
-            }
-            "显示小部件背景" -> {
-                getPrefer().edit {
-                    putBoolean(Const.KEY_APPWIDGET_BG, isChecked)
-                }
-                if (isChecked) {
-                    mAdapter.addData(position + 1, widgetBgItem)
-                } else {
-                    mAdapter.remove(widgetBgItem)
-                }
-                mRecyclerView.longSnack("请点击小部件右上角的「切换按钮」查看效果~")
-            }
-        }
-        item.checked = isChecked
-    }
-
-    private fun onSeekBarItemClick(item: SeekBarItem, position: Int) {
-        val dialog = MaterialAlertDialogBuilder(this)
-                .setTitle(item.title)
-                .setView(R.layout.dialog_edit_text)
-                .setNegativeButton(R.string.cancel, null)
-                .setPositiveButton(R.string.sure, null)
-                .setCancelable(false)
-                .create()
-        dialog.show()
-        val inputLayout = dialog.findViewById<TextInputLayout>(R.id.text_input_layout)
-        val editText = dialog.findViewById<TextInputEditText>(R.id.edit_text)
-        inputLayout?.helperText = "范围 ${item.min} ~ ${item.max}"
-        if (item.prefix.isNotEmpty()) {
-            inputLayout?.prefixText = item.prefix
-        }
-        inputLayout?.suffixText = item.unit
-        editText?.inputType = InputType.TYPE_CLASS_NUMBER
-        if (item.valueInt < item.min) {
-            item.valueInt = item.min
-        }
-        if (item.valueInt > item.max) {
-            item.valueInt = item.max
-        }
-        val valueStr = item.valueInt.toString()
-        editText?.setText(valueStr)
-        editText?.setSelection(valueStr.length)
-        dialog.getButton(AlertDialog.BUTTON_POSITIVE).setOnClickListener {
-            val value = editText?.text
-            if (value.isNullOrBlank()) {
-                inputLayout?.error = "数值不能为空哦>_<"
-                return@setOnClickListener
-            }
-            val valueInt = try {
-                value.toString().toInt()
-            } catch (e: Exception) {
-                inputLayout?.error = "输入异常>_<"
-                return@setOnClickListener
-            }
-            if (valueInt < item.min || valueInt > item.max) {
-                inputLayout?.error = "注意范围 ${item.min} ~ ${item.max}"
-                return@setOnClickListener
-            }
-            when (item.title) {
-                "一天课程节数" -> viewModel.table.nodes = valueInt
-                "学期周数" -> {
-                    currentWeekItem.max = valueInt
-                    viewModel.table.maxWeek = valueInt
-                }
-                "当前周" -> {
-                    viewModel.setCurrentWeek(valueInt)
-                    item.valueInt = valueInt
-                    (mAdapter.data[position - 1] as HorizontalItem).value = viewModel.table.startDate
-                    mAdapter.notifyItemChanged(position - 1)
-                    mAdapter.notifyItemChanged(position)
-                    dialog.dismiss()
-                }
-                "课程格子高度" -> viewModel.table.itemHeight = valueInt
-                "课程格子不透明度" -> viewModel.table.itemAlpha = valueInt
-                "课程显示文字大小" -> viewModel.table.itemTextSize = valueInt
-                "小部件格子高度" -> viewModel.table.widgetItemHeight = valueInt
-                "小部件格子不透明度" -> viewModel.table.widgetItemAlpha = valueInt
-                "小部件显示文字大小" -> viewModel.table.widgetItemTextSize = valueInt
-            }
-            item.valueInt = valueInt
-            mAdapter.notifyItemChanged(position)
-            dialog.dismiss()
-        }
-    }
-
-    private fun onHorizontalItemClick(item: HorizontalItem, position: Int) {
-        when (item.title) {
-            "课表名称" -> {
-                val dialog = MaterialAlertDialogBuilder(this)
-                        .setTitle(R.string.setting_schedule_name)
-                        .setView(R.layout.dialog_edit_text)
-                        .setNegativeButton(R.string.cancel, null)
-                        .setPositiveButton(R.string.sure, null)
-                        .create()
-                dialog.show()
-                val inputLayout = dialog.findViewById<TextInputLayout>(R.id.text_input_layout)
-                val editText = dialog.findViewById<TextInputEditText>(R.id.edit_text)
-                editText?.setText(item.value)
-                editText?.setSelection(item.value.length)
-                dialog.getButton(AlertDialog.BUTTON_POSITIVE).setOnClickListener {
-                    val value = editText?.text
-                    if (value.isNullOrBlank()) {
-                        inputLayout?.error = "名称不能为空哦>_<"
-                        return@setOnClickListener
-                    }
-                    viewModel.table.tableName = value.toString()
-                    item.value = value.toString()
-                    mAdapter.notifyItemChanged(position)
-                    dialog.dismiss()
-                }
-            }
-            "学期开始日期" -> {
-                DatePickerDialog(this, DatePickerDialog.OnDateSetListener { _, year, monthOfYear, dayOfMonth ->
-                    viewModel.mYear = year
-                    viewModel.mMonth = monthOfYear + 1
-                    viewModel.mDay = dayOfMonth
-                    val mDate = "${viewModel.mYear}-${viewModel.mMonth}-${viewModel.mDay}"
-                    item.value = mDate
-                    viewModel.table.startDate = mDate
-                    currentWeekItem.valueInt = viewModel.getCurrentWeek()
-                    mAdapter.notifyItemChanged(position)
-                    mAdapter.notifyItemChanged(position + 1)
-                }, viewModel.mYear, viewModel.mMonth - 1, viewModel.mDay).show()
-                if (viewModel.table.sundayFirst) {
-                    Toasty.success(this, "为了周数计算准确，建议选择周日哦", Toast.LENGTH_LONG).show()
-                } else {
-                    Toasty.success(this, "为了周数计算准确，建议选择周一哦", Toast.LENGTH_LONG).show()
-                }
-            }
-            "上课时间" -> {
-                startActivityForResult(Intent(this, TimeSettingsActivity::class.java).apply {
-                    putExtra("selectedId", viewModel.table.timeTable)
-                }, REQUEST_CODE_CHOOSE_TABLE)
-            }
-            "管理已添加课程" -> {
-                start<ScheduleManageActivity> {
-                    putExtra("selectedTable", TableSelectBean(
-                            id = viewModel.table.id,
-                            background = viewModel.table.background,
-                            tableName = viewModel.table.tableName,
-                            maxWeek = viewModel.table.maxWeek,
-                            nodes = viewModel.table.nodes,
-                            type = viewModel.table.type
-                    ))
-                }
-            }
-        }
-    }
-
-    private fun onVerticalItemClick(item: VerticalItem) {
-        when (item.title) {
-            "课程表背景" -> {
-                MaterialAlertDialogBuilder(this)
-                        .setTitle("设置背景类型")
-                        .setItems(arrayOf("图片背景", "纯色背景")) { _, which ->
-                            if (which == 0) {
-                                val intent = Intent(Intent.ACTION_OPEN_DOCUMENT).apply {
-                                    addCategory(Intent.CATEGORY_OPENABLE)
-                                    type = "image/*"
-                                }
-                                try {
-                                    startActivityForResult(intent, REQUEST_CODE_CHOOSE_BG)
-                                } catch (e: ActivityNotFoundException) {
-                                    e.printStackTrace()
-                                }
-                            } else {
-                                val color = if (viewModel.table.background.startsWith("#")) {
-                                    viewModel.table.background.removePrefix("#").toInt()
-                                } else {
-                                    Color.GRAY
-                                }
-                                buildColorPickerDialogBuilder(color, BG_COLOR, false)
-                            }
-                        }
-                        .show()
-            }
-            "界面文字颜色" -> {
-                buildColorPickerDialogBuilder(viewModel.table.textColor, TITLE_COLOR)
-            }
-            "课程文字颜色" -> {
-                buildColorPickerDialogBuilder(viewModel.table.courseTextColor, COURSE_TEXT_COLOR)
-            }
-            "格子边框颜色" -> {
-                buildColorPickerDialogBuilder(viewModel.table.strokeColor, STROKE_COLOR)
-            }
-            "小部件标题颜色" -> {
-                buildColorPickerDialogBuilder(viewModel.table.widgetTextColor, WIDGET_TITLE_COLOR)
-            }
-            "小部件课程颜色" -> {
-                buildColorPickerDialogBuilder(viewModel.table.widgetCourseTextColor, WIDGET_COURSE_TEXT_COLOR)
-            }
-            "小部件格子边框颜色" -> {
-                buildColorPickerDialogBuilder(viewModel.table.widgetStrokeColor, WIDGET_STROKE_COLOR)
-            }
-            widgetBgItem.title -> {
-                buildColorPickerDialogBuilder(getPrefer().getInt(Const.KEY_APPWIDGET_BG_COLOR, 0x80FFFFFF.toInt()), WIDGET_BG_COLOR)
-            }
-            "解锁高级功能" -> {
-                start<AdvancedSettingsActivity>()
-            }
-            "看看都有哪些高级功能" -> {
-                start<AdvancedSettingsActivity>()
-            }
-        }
-    }
-
-    private fun onVerticalItemLongClick(item: VerticalItem): Boolean {
-        return when (item.title) {
-            "课程表背景" -> {
-                viewModel.table.background = ""
-                Toasty.success(this, "恢复默认壁纸成功~").show()
-                true
-            }
-            widgetBgItem.title -> {
-                Toasty.success(this, "恢复默认颜色成功~").show()
-                getPrefer().edit {
-                    putInt(Const.KEY_APPWIDGET_BG_COLOR, 0x80FFFFFF.toInt())
-                }
-                true
-            }
-            else -> false
-        }
-    }
-
-    private fun buildColorPickerDialogBuilder(color: Int, id: Int, showAlphaSlider: Boolean = true) {
-        ColorPickerFragment.newBuilder()
-                .setShowAlphaSlider(showAlphaSlider)
-                .setColor(color)
-                .setDialogId(id)
-                .show(this)
-    }
-
-    override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
-        super.onActivityResult(requestCode, resultCode, data)
-        if (requestCode == REQUEST_CODE_CHOOSE_BG && resultCode == RESULT_OK) {
-            //viewModel.table.background = Matisse.obtainResult(data)[0].toString()
-            val uri = data?.data
-            if (uri != null) {
-                launch {
-                    var bufferedSource: BufferedSource? = null
-                    var bufferedSink: BufferedSink? = null
-                    val path = withContext(Dispatchers.IO) {
-                        try {
-                            val inputStream = contentResolver.openInputStream(uri)
-                            bufferedSource = Okio.buffer(Okio.source(inputStream))
-                            val out = File(filesDir, "table${viewModel.table.id}_bg_${System.currentTimeMillis()}")
-                            bufferedSink = Okio.buffer(Okio.sink(out))
-                            bufferedSink?.writeAll(bufferedSource)
-                            bufferedSink?.close()
-                            bufferedSource?.close()
-                            out.path
-                        } catch (e: Exception) {
-                            bufferedSink?.close()
-                            bufferedSource?.close()
-                            null
-                        }
-                    }
-                    if (path != null) {
-                        viewModel.table.background = path
-                    } else {
-                        Toasty.error(this@ScheduleSettingsActivity, "图片读取失败>_<").show()
-                    }
-                }
-            }
-        }
-        if (requestCode == REQUEST_CODE_CHOOSE_TABLE && resultCode == RESULT_OK) {
-            viewModel.table.timeTable = data!!.getIntExtra("selectedId", 1)
-        }
-    }
+    override val layoutId: Int
+        get() = R.layout.activity_settings_host
 
     override fun onBackPressed() {
-        launch {
-            AppWidgetUtils.updateWidget(applicationContext)
-            viewModel.saveSettings()
-            val list = viewModel.getScheduleWidgetIds()
-            val appWidgetManager = AppWidgetManager.getInstance(applicationContext)
-            list.forEach {
-                when (it.detailType) {
-                    0 -> {
-                        if (it.info == viewModel.table.id.toString()) {
-                            AppWidgetUtils.refreshScheduleWidget(applicationContext, appWidgetManager, it.id, viewModel.table)
+        when (navController.currentDestination?.id) {
+            R.id.scheduleSettingsFragment -> {
+                launch {
+                    AppWidgetUtils.updateWidget(applicationContext)
+                    val list = viewModel.getScheduleWidgetIds()
+                    val appWidgetManager = AppWidgetManager.getInstance(applicationContext)
+                    list.forEach {
+                        when (it.detailType) {
+                            0 -> {
+                                if (it.info == viewModel.table.id.toString()) {
+                                    AppWidgetUtils.refreshScheduleWidget(applicationContext, appWidgetManager, it.id)
+                                }
+                            }
+                            1 -> AppWidgetUtils.refreshTodayWidget(applicationContext, appWidgetManager, it.id)
                         }
                     }
-                    1 -> AppWidgetUtils.refreshTodayWidget(applicationContext, appWidgetManager, it.id, viewModel.table, false)
+                    setResult(RESULT_OK)
+                    finish()
                 }
             }
-            setResult(RESULT_OK)
-            finish()
+            else -> {
+                super.onBackPressed()
+            }
         }
     }
 }

@@ -41,8 +41,44 @@ interface CourseDao {
         insertDetailList(courseDetailList)
     }
 
+    @Transaction
+    suspend fun deleteCourseDetailThisWeek(courseDetailBean: CourseDetailBean, week: Int) {
+        if (courseDetailBean.startWeek == courseDetailBean.endWeek) {
+            deleteCourseDetail(courseDetailBean)
+            return
+        }
+        if (courseDetailBean.startWeek == week) {
+            deleteCourseDetail(courseDetailBean)
+            courseDetailBean.startWeek = if (courseDetailBean.type == 0) week + 1 else week + 2
+            if (courseDetailBean.startWeek > courseDetailBean.endWeek) {
+                courseDetailBean.startWeek = courseDetailBean.endWeek
+            }
+            insertCourseDetail(courseDetailBean)
+            return
+        }
+        if (courseDetailBean.endWeek == week) {
+            deleteCourseDetail(courseDetailBean)
+            courseDetailBean.endWeek = if (courseDetailBean.type == 0) week - 1 else week - 2
+            if (courseDetailBean.endWeek < courseDetailBean.startWeek) {
+                courseDetailBean.endWeek = courseDetailBean.startWeek
+            }
+            insertCourseDetail(courseDetailBean)
+            return
+        }
+        val pre = courseDetailBean.copy(endWeek = if (courseDetailBean.type == 0) week - 1 else week - 2)
+        val post = courseDetailBean.copy(startWeek = if (courseDetailBean.type == 0) week + 1 else week + 2)
+        if (pre.endWeek < pre.startWeek) pre.endWeek = pre.startWeek
+        if (post.startWeek > post.endWeek) post.startWeek = post.endWeek
+        deleteCourseDetail(courseDetailBean)
+        insertCourseDetail(pre)
+        insertCourseDetail(post)
+    }
+
     @Delete
     suspend fun deleteCourseDetail(courseDetailBean: CourseDetailBean)
+
+    @Query("delete from coursedetailbean where tableId = :tableId and id = :id and day = :day and startNode = :startNode and step = :step and room = :room and teacher = :teacher")
+    suspend fun deleteCourseDetailOfDayAllWeek(tableId: Int, id: Int, day: Int, startNode: Int, step: Int, room: String, teacher: String)
 
     @Query("select * from coursebasebean where tableId = :tableId")
     suspend fun getCourseBaseBeanOfTable(tableId: Int): List<CourseBaseBean>
@@ -80,7 +116,7 @@ interface CourseDao {
     @Query("delete from coursedetailbean where id = :id and tableId = :tableId")
     suspend fun deleteDetailByIdOfTable(id: Int, tableId: Int)
 
-    @Query("select * from coursedetailbean where id = :id and tableId = :tableId")
+    @Query("select * from coursedetailbean where id = :id and tableId = :tableId order by day, startNode, startWeek")
     suspend fun getDetailByIdOfTable(id: Int, tableId: Int): List<CourseDetailBean>
 
     @Query("select * from coursedetailbean where tableId = :tableId")
@@ -103,6 +139,9 @@ interface CourseDao {
 
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     suspend fun insertCourseBase(courseBaseBean: CourseBaseBean)
+
+    @Insert(onConflict = OnConflictStrategy.REPLACE)
+    suspend fun insertCourseDetail(courseDetail: CourseDetailBean)
 
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     suspend fun insertDetailList(courseDetailList: List<CourseDetailBean>)

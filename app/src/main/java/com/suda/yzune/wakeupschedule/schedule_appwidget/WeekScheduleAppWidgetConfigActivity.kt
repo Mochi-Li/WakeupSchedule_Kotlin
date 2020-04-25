@@ -10,18 +10,16 @@ import androidx.appcompat.widget.AppCompatTextView
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import androidx.recyclerview.widget.StaggeredGridLayoutManager
-import com.bumptech.glide.Glide
-import com.bumptech.glide.load.resource.drawable.DrawableTransitionOptions
+import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import com.suda.yzune.wakeupschedule.R
 import com.suda.yzune.wakeupschedule.base_view.BaseBlurTitleActivity
 import com.suda.yzune.wakeupschedule.bean.AppWidgetBean
-import com.suda.yzune.wakeupschedule.bean.TableSelectBean
+import com.suda.yzune.wakeupschedule.bean.TableConfig
+import com.suda.yzune.wakeupschedule.bean.WidgetStyleConfig
 import com.suda.yzune.wakeupschedule.utils.AppWidgetUtils
 import com.suda.yzune.wakeupschedule.utils.ViewUtils
-import es.dmoral.toasty.Toasty
 import kotlinx.android.synthetic.main.activity_week_schedule_app_widget_config.*
 import splitties.resources.dimenPxSize
-import splitties.snackbar.longSnack
 
 class WeekScheduleAppWidgetConfigActivity : BaseBlurTitleActivity() {
 
@@ -51,30 +49,23 @@ class WeekScheduleAppWidgetConfigActivity : BaseBlurTitleActivity() {
         val what = appWidgetManager.getAppWidgetInfo(mAppWidgetId).provider.shortClassName
         isTodayType = (what == ".today_appwidget.TodayCourseAppWidget" || what == "com.suda.yzune.wakeupschedule.today_appwidget.TodayCourseAppWidget")
         if (isTodayType) {
-            Glide.with(this)
-                    .load("https://ws2.sinaimg.cn/large/0069RVTdgy1fv5ypjuqs1j30u01hcdlt.jpg")
-                    .transition(DrawableTransitionOptions.withCrossFade())
-                    .into(iv_tip)
+//            Glide.with(this)
+//                    .load("https://ws2.sinaimg.cn/large/0069RVTdgy1fv5ypjuqs1j30u01hcdlt.jpg")
+//                    .transition(DrawableTransitionOptions.withCrossFade())
+//                    .into(iv_tip)
         } else {
             tv_got_it.visibility = View.GONE
-            iv_tip.visibility = View.GONE
-            val list = ArrayList<TableSelectBean>()
+            val list = ArrayList<TableConfig>()
             val adapter = WidgetTableListAdapter(R.layout.item_table_list, list)
             adapter.setOnItemClickListener { _, _, position ->
                 launch {
-                    viewModel.insertWeekAppWidgetData(AppWidgetBean(mAppWidgetId, 0, 0, "${list[position].id}"))
-                    val table = viewModel.getTableById(list[position].id)
-
-                    if (table == null) {
-                        Toasty.error(this@WeekScheduleAppWidgetConfigActivity, "该课表读取错误>_<").show()
-                        finish()
-                    } else {
-                        AppWidgetUtils.refreshScheduleWidget(applicationContext, appWidgetManager, mAppWidgetId, table)
-                        val resultValue = Intent()
-                        resultValue.putExtra(AppWidgetManager.EXTRA_APPWIDGET_ID, mAppWidgetId)
-                        setResult(Activity.RESULT_OK, resultValue)
-                        finish()
-                    }
+                    viewModel.insertWeekAppWidgetData(AppWidgetBean(mAppWidgetId, 0, 0, ""))
+                    WidgetStyleConfig(applicationContext, mAppWidgetId).tableId = list[position].id
+                    AppWidgetUtils.refreshScheduleWidget(applicationContext, appWidgetManager, mAppWidgetId)
+                    val resultValue = Intent()
+                    resultValue.putExtra(AppWidgetManager.EXTRA_APPWIDGET_ID, mAppWidgetId)
+                    setResult(Activity.RESULT_OK, resultValue)
+                    finish()
                 }
             }
             rv_list.adapter = adapter
@@ -85,18 +76,18 @@ class WeekScheduleAppWidgetConfigActivity : BaseBlurTitleActivity() {
             }
             launch {
                 list.clear()
-                list.addAll(viewModel.getTableList())
+                list.addAll(viewModel.getTableList().map { tableBean ->
+                    TableConfig(this@WeekScheduleAppWidgetConfigActivity, tableBean.id)
+                })
                 adapter.notifyDataSetChanged()
             }
         }
-
 
         tv_got_it.setOnClickListener {
             launch {
                 // Log.d("包名", appWidgetManager.getAppWidgetInfo(mAppWidgetId).provider.shortClassName)
                 viewModel.insertWeekAppWidgetData(AppWidgetBean(mAppWidgetId, 0, 1, ""))
-                val table = viewModel.getDefaultTable()
-                AppWidgetUtils.refreshTodayWidget(applicationContext, appWidgetManager, mAppWidgetId, table)
+                AppWidgetUtils.refreshTodayWidget(applicationContext, appWidgetManager, mAppWidgetId)
                 val resultValue = Intent()
                 resultValue.putExtra(AppWidgetManager.EXTRA_APPWIDGET_ID, mAppWidgetId)
                 setResult(Activity.RESULT_OK, resultValue)
@@ -106,11 +97,24 @@ class WeekScheduleAppWidgetConfigActivity : BaseBlurTitleActivity() {
     }
 
     override fun onBackPressed() {
-        ll_root.longSnack(
-                if (isTodayType) {
-                    "请阅读文字后点击“我知道啦”"
-                } else {
-                    "请从列表中选择需要放置的课表"
-                })
+        if (isTodayType) {
+            MaterialAlertDialogBuilder(this)
+                    .setTitle("提示")
+                    .setMessage("请仔细阅读提示并点「我知道啦」按钮")
+                    .setPositiveButton("确定", null)
+                    .setNegativeButton("取消放置小部件") { _, _ ->
+                        finish()
+                    }
+                    .show()
+        } else {
+            MaterialAlertDialogBuilder(this)
+                    .setTitle("提示")
+                    .setMessage("请从列表中选择需要放置的课表")
+                    .setPositiveButton("我知道啦", null)
+                    .setNegativeButton("取消放置小部件") { _, _ ->
+                        finish()
+                    }
+                    .show()
+        }
     }
 }

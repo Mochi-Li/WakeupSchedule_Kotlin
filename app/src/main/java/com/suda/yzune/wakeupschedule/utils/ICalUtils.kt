@@ -15,7 +15,7 @@ object ICalUtils {
                        endTimeMap: ArrayList<Calendar>,
                        maxWeek: Int,
                        course: CourseBean,
-                       termStart: Date) {
+                       termStart: Calendar) {
         var i = 1
         while (i <= maxWeek) {
             if (course.inWeek(i)) {
@@ -26,7 +26,7 @@ object ICalUtils {
                 if (event != null) {
                     ical.addEvent(event)
                 }
-                i += j - i
+                i = j
             }
             i++
         }
@@ -38,14 +38,14 @@ object ICalUtils {
                               currentWeek: Int,
                               startWeek: Int,
                               endWeek: Int,
-                              termStart: Date
+                              termStart: Calendar
     ): VEvent? {
-        val dayBefore = (currentWeek - startWeek) * 7
-        val dayAfter = (endWeek - currentWeek) * 7 + course.day
+        val startDays = (startWeek - currentWeek) * 7
+        val endDays = (endWeek - currentWeek) * 7 + course.day
 
         // repeat every week until endDate
         val recur = Recurrence.Builder(Frequency.WEEKLY).interval(1)
-                .until(CourseUtils.getDateAfter(termStart, dayAfter))
+                .until(CourseUtils.getDateAfter(termStart.time, endDays))
                 .build()
 //        Recur(Recur.WEEKLY, DateTime(CourseUtils.getDateAfter(termStart, dayAfter)))
 //        val rule = RRule(recur)
@@ -54,16 +54,22 @@ object ICalUtils {
         val endTime = endTimeMap[course.startNode + course.step - 2]
 
         val dailyStart = Calendar.getInstance()
-        dailyStart.time = CourseUtils.getDateBefore(termStart, dayBefore)
+        dailyStart.time = CourseUtils.getDateAfter(termStart.time, startDays)
         dailyStart.set(Calendar.HOUR_OF_DAY, startTime.get(Calendar.HOUR_OF_DAY))
         dailyStart.set(Calendar.MINUTE, startTime.get(Calendar.MINUTE))
         dailyStart.set(Calendar.DAY_OF_WEEK, weekDayConvert(course.day))
+        if (termStart.get(Calendar.DAY_OF_WEEK) == Calendar.MONDAY && course.day == 7) {
+            dailyStart.add(Calendar.DATE, 7)
+        }
 
         val dailyEnd = Calendar.getInstance()
-        dailyEnd.time = CourseUtils.getDateBefore(termStart, dayBefore)
+        dailyEnd.time = CourseUtils.getDateAfter(termStart.time, startDays)
         dailyEnd.set(Calendar.HOUR_OF_DAY, endTime.get(Calendar.HOUR_OF_DAY))
         dailyEnd.set(Calendar.MINUTE, endTime.get(Calendar.MINUTE))
         dailyEnd.set(Calendar.DAY_OF_WEEK, weekDayConvert(course.day))
+        if (termStart.get(Calendar.DAY_OF_WEEK) == Calendar.MONDAY && course.day == 7) {
+            dailyEnd.add(Calendar.DATE, 7)
+        }
 
         // create event, repeat weekly
         val event = VEvent()

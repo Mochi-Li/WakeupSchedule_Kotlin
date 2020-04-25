@@ -5,12 +5,12 @@ import com.bumptech.glide.Glide
 import com.chad.library.adapter.base.BaseQuickAdapter
 import com.chad.library.adapter.base.viewholder.BaseViewHolder
 import com.suda.yzune.wakeupschedule.R
-import com.suda.yzune.wakeupschedule.bean.TableSelectBean
+import com.suda.yzune.wakeupschedule.bean.TableConfig
 
-class WidgetTableListAdapter(layoutResId: Int, data: MutableList<TableSelectBean>) :
-        BaseQuickAdapter<TableSelectBean, BaseViewHolder>(layoutResId, data) {
+class WidgetTableListAdapter(layoutResId: Int, data: MutableList<TableConfig>) :
+        BaseQuickAdapter<TableConfig, BaseViewHolder>(layoutResId, data) {
 
-    override fun convert(helper: BaseViewHolder, item: TableSelectBean) {
+    override fun convert(helper: BaseViewHolder, item: TableConfig) {
         helper.setVisible(R.id.ib_share, false)
         helper.setVisible(R.id.ib_edit, false)
         helper.setVisible(R.id.ib_delete, false)

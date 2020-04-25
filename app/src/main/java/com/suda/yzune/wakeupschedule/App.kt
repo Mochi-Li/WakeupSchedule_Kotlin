@@ -9,12 +9,10 @@ import android.content.Context
 import android.graphics.Typeface
 import android.os.Build
 import android.os.Bundle
-import android.widget.Toast
 import androidx.appcompat.app.AppCompatDelegate
 import com.microsoft.appcenter.AppCenter
 import com.microsoft.appcenter.analytics.Analytics
 import com.microsoft.appcenter.crashes.Crashes
-import com.suda.yzune.wakeupschedule.schedule_settings.ScheduleSettingsActivity
 import com.suda.yzune.wakeupschedule.utils.Const
 import com.suda.yzune.wakeupschedule.utils.getPrefer
 import es.dmoral.toasty.Toasty
@@ -67,9 +65,9 @@ class App : Application() {
 
             override fun onActivityStopped(activity: Activity?) {
                 activityCount--
-                if (activity is ScheduleSettingsActivity && activityCount == 0) {
-                    Toasty.info(applicationContext, "对小部件的编辑需要按「返回键」退出设置页面才能生效哦", Toast.LENGTH_LONG).show()
-                }
+//                if (activity is ScheduleSettingsActivity && activityCount == 0) {
+//                    Toasty.info(applicationContext, "对小部件的编辑需要按「返回键」退出设置页面才能生效哦", Toast.LENGTH_LONG).show()
+//                }
             }
 
             override fun onActivityCreated(activity: Activity?, savedInstanceState: Bundle?) {

@@ -9,9 +9,7 @@ class TimeTableAdapter(layoutResId: Int, data: MutableList<TimeTableBean>) :
         BaseQuickAdapter<TimeTableBean, BaseViewHolder>(layoutResId, data) {
 
     override fun convert(helper: BaseViewHolder, item: TimeTableBean) {
-        if (item.id == 1) {
-            helper.setVisible(R.id.ib_delete, false)
-        }
+        helper.setVisible(R.id.ib_delete, item.id != 1)
         helper.setText(R.id.tv_time_name, item.name)
     }
 }

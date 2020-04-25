@@ -4,7 +4,7 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import androidx.lifecycle.ViewModelProviders
+import androidx.lifecycle.ViewModelProvider
 import com.suda.yzune.wakeupschedule.R
 import com.suda.yzune.wakeupschedule.base_view.BaseFragment
 import es.dmoral.toasty.Toasty
@@ -16,7 +16,7 @@ class BathFragment : BaseFragment() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        viewModel = ViewModelProviders.of(activity!!).get(SudaLifeViewModel::class.java)
+        viewModel = ViewModelProvider(requireActivity()).get(SudaLifeViewModel::class.java)
     }
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?,
@@ -48,10 +48,10 @@ class BathFragment : BaseFragment() {
                 tv_male_stay.text = count.toString()
                 tv_male_rate.text = "拥挤度：${(count / 80f) * 100}%"
                 if (refresh) {
-                    Toasty.success(activity!!, "刷新成功").show()
+                    Toasty.success(requireActivity(), "刷新成功").show()
                 }
             } catch (e: Exception) {
-                Toasty.error(activity!!, "发生异常>_<${e.message}").show()
+                Toasty.error(requireActivity(), "发生异常>_<${e.message}").show()
             }
         }
 
@@ -66,7 +66,7 @@ class BathFragment : BaseFragment() {
                 tv_female_stay.text = count.toString()
                 tv_female_rate.text = "拥挤度：${(count / 90f) * 100}%"
             } catch (e: Exception) {
-                Toasty.error(activity!!, "发生异常>_<${e.message}").show()
+                Toasty.error(requireActivity(), "发生异常>_<${e.message}").show()
             }
         }
     }

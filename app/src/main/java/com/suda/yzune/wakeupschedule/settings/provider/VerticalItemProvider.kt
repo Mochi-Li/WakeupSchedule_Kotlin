@@ -5,6 +5,7 @@ import android.view.View
 import android.view.ViewGroup
 import androidx.appcompat.widget.AppCompatTextView
 import androidx.appcompat.widget.LinearLayoutCompat
+import androidx.core.graphics.ColorUtils
 import com.chad.library.adapter.base.provider.BaseItemProvider
 import com.chad.library.adapter.base.viewholder.BaseViewHolder
 import com.suda.yzune.wakeupschedule.R
@@ -13,6 +14,7 @@ import com.suda.yzune.wakeupschedule.settings.items.SettingType
 import com.suda.yzune.wakeupschedule.settings.items.VerticalItem
 import com.suda.yzune.wakeupschedule.utils.ViewUtils
 import splitties.dimensions.dip
+import splitties.resources.styledColor
 
 class VerticalItemProvider : BaseItemProvider<BaseSettingItem>() {
 
@@ -34,6 +36,8 @@ class VerticalItemProvider : BaseItemProvider<BaseSettingItem>() {
             addView(AppCompatTextView(context).apply {
                 id = R.id.anko_text_view
                 textSize = 16f
+                setLines(1)
+                setTextColor(ColorUtils.setAlphaComponent(styledColor(R.attr.colorOnSurface), 255))
             }, LinearLayoutCompat.LayoutParams(LinearLayoutCompat.LayoutParams.WRAP_CONTENT, LinearLayoutCompat.LayoutParams.WRAP_CONTENT).apply {
                 marginStart = dip(16)
                 marginEnd = dip(16)
