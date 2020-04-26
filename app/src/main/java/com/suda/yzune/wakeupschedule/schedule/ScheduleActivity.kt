@@ -26,7 +26,6 @@ import androidx.core.content.edit
 import androidx.core.view.ViewCompat
 import androidx.core.view.updateLayoutParams
 import androidx.lifecycle.Observer
-import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.viewpager.widget.ViewPager
 import com.bumptech.glide.Glide
 import com.bumptech.glide.load.resource.drawable.DrawableTransitionOptions
@@ -317,11 +316,11 @@ class ScheduleActivity : BaseActivity() {
                             viewModel.selectedWeek.toFloat()
                         }
                     }
-                    val i = (ui.rvTableName.adapter as TableNameAdapter).data.indexOfFirst {
-                        it.id == viewModel.table.id
-                    }
-                    // ui.rvTableName.smoothScrollToPosition(i)
-                    (ui.rvTableName.layoutManager as LinearLayoutManager).scrollToPositionWithOffset(i, dip(64))
+//                    val i = (ui.rvTableName.adapter as TableNameAdapter).data.indexOfFirst {
+//                        it.id == viewModel.table.id
+//                    }
+//                    // ui.rvTableName.smoothScrollToPosition(i)
+//                    (ui.rvTableName.layoutManager as LinearLayoutManager).scrollToPositionWithOffset(i, dip(64))
                 }
             }
         })

@@ -249,14 +249,39 @@ class _8to9Migration(val context: Context) : Migration(8, 9) {
             if (!cursor.moveToNext()) break
         }
         cursor.close()
-        database.execSQL("DROP INDEX index_TableBean_timeTable;")
-        // database.execSQL("ALTER TABLE TableBean RENAME TO TableBean_old;")
-        database.execSQL("CREATE TABLE TableBean_new (id INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT, timeTable INTEGER NOT NULL DEFAULT 1, type INTEGER NOT NULL, FOREIGN KEY (timeTable) REFERENCES TimeTableBean (id) ON DELETE SET DEFAULT ON UPDATE CASCADE);")
-        // database.execSQL("INSERT INTO sqlite_sequence (name, seq) VALUES (\"TableBean\", '5');")
-        database.execSQL("INSERT INTO TableBean_new (id, timeTable, type) SELECT id, timeTable, type FROM TableBean;")
-        database.execSQL("CREATE INDEX index_TableBean_timeTable ON TableBean_new(timeTable ASC);")
-        database.execSQL("DROP TABLE TableBean;")
-        database.execSQL("ALTER TABLE TableBean_new RENAME TO TableBean;")
+        database.execSQL("DROP INDEX IF EXISTS index_TableBean_timeTable;")
+        database.execSQL("ALTER TABLE TableBean RENAME TO TableBean_old;")
+        database.execSQL("CREATE TABLE TableBean (id INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT, timeTable INTEGER NOT NULL DEFAULT 1, type INTEGER NOT NULL, FOREIGN KEY (timeTable) REFERENCES TimeTableBean (id) ON DELETE SET DEFAULT ON UPDATE CASCADE);")
+        database.execSQL("INSERT INTO TableBean (id, timeTable, type) SELECT id, timeTable, type FROM TableBean_old;")
+        database.execSQL("CREATE INDEX index_TableBean_timeTable ON TableBean(timeTable ASC);")
+        database.execSQL("DROP TABLE TableBean_old;")
+
+        database.execSQL("DROP INDEX IF EXISTS index_CourseBaseBean_tableId;")
+        database.execSQL("ALTER TABLE CourseBaseBean RENAME TO CourseBaseBean_old;")
+        database.execSQL("CREATE TABLE CourseBaseBean(id INTEGER NOT NULL, courseName TEXT NOT NULL, color TEXT NOT NULL, tableId INTEGER NOT NULL, PRIMARY KEY (id, tableId), FOREIGN KEY (tableId) REFERENCES TableBean (id) ON DELETE CASCADE ON UPDATE CASCADE);")
+        database.execSQL("INSERT INTO CourseBaseBean (id, courseName, color, tableId) SELECT id, courseName, color, tableId FROM CourseBaseBean_old;")
+        database.execSQL("CREATE INDEX index_CourseBaseBean_tableId ON CourseBaseBean(tableId ASC);")
+        database.execSQL("DROP TABLE CourseBaseBean_old;")
+
+        database.execSQL("DROP INDEX IF EXISTS index_CourseDetailBean_id_tableId;")
+        database.execSQL("ALTER TABLE CourseDetailBean RENAME TO CourseDetailBean_old;")
+        database.execSQL("CREATE TABLE CourseDetailBean (\n" +
+                "  id INTEGER NOT NULL,\n" +
+                "  day INTEGER NOT NULL,\n" +
+                "  room TEXT,\n" +
+                "  teacher TEXT,\n" +
+                "  startNode INTEGER NOT NULL,\n" +
+                "  step INTEGER NOT NULL,\n" +
+                "  startWeek INTEGER NOT NULL,\n" +
+                "  endWeek INTEGER NOT NULL,\n" +
+                "  type INTEGER NOT NULL,\n" +
+                "  tableId INTEGER NOT NULL,\n" +
+                "  PRIMARY KEY (day, startNode, startWeek, type, tableId, id),\n" +
+                "  FOREIGN KEY (\"id\", \"tableId\") REFERENCES \"CourseBaseBean\" (\"id\", \"tableId\") ON DELETE CASCADE ON UPDATE CASCADE\n" +
+                ");")
+        database.execSQL("INSERT INTO CourseDetailBean (id, day, room, teacher, startNode, step, startWeek, endWeek, type, tableId) SELECT id, day, room, teacher, startNode, step, startWeek, endWeek, type, tableId FROM CourseDetailBean_old;")
+        database.execSQL("CREATE INDEX index_CourseDetailBean_id_tableId ON CourseDetailBean (id ASC, tableId ASC);")
+        database.execSQL("DROP TABLE CourseDetailBean_old;")
     }
 
 }
