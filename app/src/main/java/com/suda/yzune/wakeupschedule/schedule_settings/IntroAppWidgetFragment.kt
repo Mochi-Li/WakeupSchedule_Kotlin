@@ -31,6 +31,7 @@ class IntroAppWidgetFragment : BaseListFragment() {
     }
 
     private fun onItemsCreated(items: MutableList<BaseSettingItem>) {
+        items.add(VerticalItem("致魅族用户", "首先非常感谢 Flyme 能在负一屏中适配本 App。不过调整小部件样式后，负一屏的显示不能马上生效，请点击小部件右上角的小箭头刷新小部件。另外关于「夜间模式」，颜色选择器可能会在 Flyme 提供的夜间模式中崩溃，请去系统设置中将本 App 排除夜间模式，App 已经适配了原生的夜间模式，应该是可以跟随开启的。"))
         items.add(VerticalItem("如何添加小部件？", "长按桌面空白处，或者在桌面做双指捏合手势，选择桌面小工具，肯定是有的，仔细找找，实在找不到就重启手机再找。\n" +
                 "P.S. 添加桌面小部件，想要确保它正常工作，最好在系统设置中，手动管理本App的后台，允许本App后台自启和后台运行。"))
         items.add(VerticalItem("如何调整小部件大小？", "如果想调整小部件整体的高度，要在桌面长按小部件来调整。华为和荣耀手机如果长按后调整不了，是第三方主题导致的，请切换回系统默认主题再调整。"))

@@ -14,7 +14,7 @@ class WeekScheduleAppWidgetConfigViewModel(application: Application) : AndroidVi
     var widgetId = 0
     lateinit var tableConfig: TableConfig
     lateinit var widgetConfig: WidgetStyleConfig
-    var timeList: List<TimeDetailBean>? = null
+    var timeList: MutableList<TimeDetailBean>? = null
 
     val daysArray by lazy(LazyThreadSafetyMode.NONE) { arrayOf("日", "一", "二", "三", "四", "五", "六", "日") }
     val courseArray by lazy(LazyThreadSafetyMode.NONE) {
@@ -34,7 +34,15 @@ class WeekScheduleAppWidgetConfigViewModel(application: Application) : AndroidVi
     }
 
     suspend fun initTimeList() {
-        timeList = timeDao.getTimeList(1)
+        timeList = timeDao.getTimeList(1).toMutableList()
+        if (timeList == null) {
+            timeList = arrayListOf()
+        }
+        if (timeList!!.isEmpty()) {
+            for (i in 0 until 30) {
+                timeList!!.add(TimeDetailBean(i, "00:00", "00:00"))
+            }
+        }
     }
 
     suspend fun insertWeekAppWidgetData(appWidget: AppWidgetBean) {

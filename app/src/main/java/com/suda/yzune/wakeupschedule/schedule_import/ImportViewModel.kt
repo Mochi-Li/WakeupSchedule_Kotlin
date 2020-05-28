@@ -12,6 +12,7 @@ import com.suda.yzune.wakeupschedule.bean.*
 import com.suda.yzune.wakeupschedule.schedule_import.exception.NetworkErrorException
 import com.suda.yzune.wakeupschedule.schedule_import.exception.PasswordErrorException
 import com.suda.yzune.wakeupschedule.schedule_import.exception.UserNameErrorException
+import com.suda.yzune.wakeupschedule.schedule_import.login_school.jlu.UIMS
 import com.suda.yzune.wakeupschedule.schedule_import.login_school.suda.SudaXK
 import com.suda.yzune.wakeupschedule.schedule_import.parser.*
 import com.suda.yzune.wakeupschedule.schedule_import.parser.qz.*
@@ -40,6 +41,8 @@ class ImportViewModel(application: Application) : AndroidViewModel(application) 
     var htmlUri: Uri? = null
 
     var sudaXK: SudaXK? = null
+    var jlu: UIMS? = null
+    var isReady = false
 
     private val dataBase = AppDatabase.getDatabase(application)
     private val tableDao = dataBase.tableDao()
@@ -80,7 +83,9 @@ class ImportViewModel(application: Application) : AndroidViewModel(application) 
             Common.TYPE_HNUST -> HNUSTParser(source)
             Common.TYPE_JNU -> JNUParser(source)
             Common.TYPE_JZ -> JinZhiParser(source)
+            Common.TYPE_JZ_1 -> JinZhiCourseFormTableParser(source)
             Common.TYPE_HUNNU -> HUNNUParser(source)
+            Common.TYPE_AHNU -> AHNUParser(source)
             Common.TYPE_WHU -> WHUParser(source)
             Common.TYPE_ECJTU -> ECJTUParser(source)
             Common.TYPE_UMOOC -> UMoocParser(source)

@@ -34,6 +34,7 @@ class SchoolImportListAdapter(data: MutableList<SchoolInfo>) :
             Common.TYPE_QZ_2017 to "强智教务 5",
             Common.TYPE_CF to "乘方教务",
             Common.TYPE_JZ to "金智教务",
+            Common.TYPE_JZ_1 to "金智教务",
             Common.TYPE_UMOOC to "优慕课在线",
             Common.TYPE_PKU to "", // 北京大学
             Common.TYPE_BNUZ to "", // 北京师范大学珠海分校
@@ -43,6 +44,7 @@ class SchoolImportListAdapter(data: MutableList<SchoolInfo>) :
             Common.TYPE_ECJTU to "by @Preciously", // 华东交通大学
             Common.TYPE_JNU to "by @Jiuh-star", // 暨南大学
             Common.TYPE_HUNNU to "by @fearc", // 湖南师范大学
+            Common.TYPE_AHNU to "by @Rocinante", // 安徽师范大学
             Common.TYPE_SHU to "by @Deep Sea", // 上海大学
             Common.TYPE_SIT to "by @Zhangzqs", // 上海应用技术大学
             Common.TYPE_LOGIN to "", // 模拟登录方式

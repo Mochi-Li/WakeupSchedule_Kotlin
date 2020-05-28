@@ -9,6 +9,8 @@ import com.suda.yzune.wakeupschedule.base_view.BaseTitleActivity
 import com.suda.yzune.wakeupschedule.bean.TableConfig
 import com.suda.yzune.wakeupschedule.bean.WidgetStyleConfig
 import com.suda.yzune.wakeupschedule.utils.AppWidgetUtils
+import com.suda.yzune.wakeupschedule.utils.Const
+import com.suda.yzune.wakeupschedule.utils.getPrefer
 import com.suda.yzune.wakeupschedule.widget.colorpicker.ColorPickerFragment
 
 class WidgetStyleConfigActivity : BaseTitleActivity(), ColorPickerFragment.ColorPickerDialogListener {
@@ -22,10 +24,15 @@ class WidgetStyleConfigActivity : BaseTitleActivity(), ColorPickerFragment.Color
         super.onCreate(savedInstanceState)
         viewModel.widgetId = intent.getIntExtra("widgetId", 0)
         viewModel.widgetConfig = WidgetStyleConfig(this, viewModel.widgetId)
-        viewModel.tableConfig = TableConfig(this, viewModel.widgetConfig.tableId)
         val fragment = when (intent.getStringExtra("type")) {
-            "today" -> TodayWidgetConfigFrag()
-            else -> WeekWidgetConfigFrag()
+            "today" -> {
+                viewModel.tableConfig = TableConfig(this, getPrefer().getInt(Const.KEY_SHOW_TABLE_ID, 1))
+                TodayWidgetConfigFrag()
+            }
+            else -> {
+                viewModel.tableConfig = TableConfig(this, viewModel.widgetConfig.tableId)
+                WeekWidgetConfigFrag()
+            }
         }
         val transaction = supportFragmentManager.beginTransaction()
         transaction.add(R.id.fl_fragment, fragment as BaseFragment, "current")

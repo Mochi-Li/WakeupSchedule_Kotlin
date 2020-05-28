@@ -159,7 +159,8 @@ class MainStyleFragment : BaseFragment(), ColorPickerFragment.ColorPickerDialogL
         items.add(VerticalItem("界面文字颜色", "指标题等字体的颜色\n还可以调颜色的透明度哦 (●ﾟωﾟ●)"))
         items.add(VerticalItem("课程文字颜色", "指课程格子内的颜色\n还可以调颜色的透明度哦 (●ﾟωﾟ●)"))
         items.add(VerticalItem("格子边框颜色", "将不透明度调到最低就可以隐藏边框了哦"))
-        items.add(SeekBarItem("格子高度", viewModel.tableConfig.itemHeight, 32, 96, "dp"))
+        items.add(SeekBarItem("格子高度", viewModel.tableConfig.itemHeight, 32, 128, "dp"))
+        items.add(SeekBarItem("格子圆角半径", viewModel.tableConfig.radius, 0, 32, "dp"))
         items.add(SeekBarItem("格子不透明度", viewModel.tableConfig.itemAlpha, 0, 100, "%"))
         items.add(SeekBarItem("格子文字大小", viewModel.tableConfig.itemTextSize, 8, 16, "sp"))
         items.add(SwitchItem("格子文字水平居中", viewModel.tableConfig.itemCenterHorizontal))
@@ -291,6 +292,7 @@ class MainStyleFragment : BaseFragment(), ColorPickerFragment.ColorPickerDialogL
         Utils.showSeekBarItemDialog(requireContext(), item) { dialog, value ->
             when (item.title) {
                 "格子高度" -> viewModel.tableConfig.itemHeight = value
+                "格子圆角半径" -> viewModel.tableConfig.radius = value
                 "格子不透明度" -> viewModel.tableConfig.itemAlpha = value
                 "格子文字大小" -> viewModel.tableConfig.itemTextSize = value
             }

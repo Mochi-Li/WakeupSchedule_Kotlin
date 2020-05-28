@@ -10,6 +10,7 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.Toast
 import androidx.fragment.app.activityViewModels
+import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import com.google.android.material.textfield.TextInputLayout
 import com.suda.yzune.wakeupschedule.R
 import com.suda.yzune.wakeupschedule.base_view.BaseFragment
@@ -64,7 +65,21 @@ class LoginWebFragment : BaseFragment() {
             et_id.inputType = InputType.TYPE_CLASS_TEXT
         }
         if (viewModel.school == "吉林大学") {
-            tv_thanks.text = "感谢 @颩欥殘膤\n能导入贵校课程离不开他无私贡献代码"
+            viewModel.jlu = UIMS()
+            MaterialAlertDialogBuilder(requireContext())
+                    .setTitle("提示")
+                    .setMessage("是否在使用校园网？如果在校内建议连接校园网后再导入课表。如果没有连接校园网，需要先在这里登录 VPNS，再登录教务导入课表。")
+                    .setPositiveButton("我已连接校园网") { _, _ ->
+                        viewModel.isReady = true
+                    }
+                    .setNegativeButton("没有连接校园网，登录 VPNS") { _, _ ->
+                        et_id.inputType = InputType.TYPE_CLASS_TEXT
+                        input_id.hint = "吉大邮箱用户名"
+                        tv_tip.visibility = View.VISIBLE
+                        tv_tip.text = "账号为吉大学生邮箱的用户名\n不包含@mails.jlu.edu.cn\n密码为邮箱密码"
+                    }
+                    .show()
+            tv_thanks.text = "感谢 @颩欥殘膤、@IceSpite\n能导入贵校课程离不开他们无私贡献代码"
         }
         if (viewModel.school == "华中科技大学") {
             et_id.inputType = InputType.TYPE_CLASS_TEXT
@@ -120,7 +135,9 @@ class LoginWebFragment : BaseFragment() {
             when {
                 et_id.text!!.isEmpty() -> input_id.showError("学号不能为空")
                 et_pwd.text!!.isEmpty() -> input_pwd.showError("密码不能为空")
-                et_code.text!!.isEmpty() && viewModel.school == "苏州大学" -> input_code.showError("验证码不能为空")
+                et_code.text!!.isEmpty() && (viewModel.school == "苏州大学" ||
+                        (viewModel.isReady && viewModel.school == "吉林大学"))
+                -> input_code.showError("验证码不能为空")
                 else -> launch { login() }
             }
         }
@@ -177,15 +194,31 @@ class LoginWebFragment : BaseFragment() {
                 }
             }
             "吉林大学" -> {
-                val uims = UIMS(et_id.text.toString(), et_pwd.text.toString())
-                try {
-                    uims.connectToUIMS()
-                    uims.login()
-                    uims.getCurrentUserInfo()
-                    uims.getCourseSchedule()
-                    result = viewModel.convertJLU(uims.courseJSON)
-                } catch (e: Exception) {
-                    exception = e
+                if (!viewModel.isReady) {
+                    try {
+                        viewModel.jlu?.getVPNSCookie()
+                        viewModel.jlu?.connectToVPNS(et_id.text.toString(), et_pwd.text.toString())
+                        et_id.setText("")
+                        et_pwd.setText("")
+                        et_id.inputType = InputType.TYPE_CLASS_NUMBER or InputType.TYPE_NUMBER_VARIATION_NORMAL
+                        input_id.hint = "学号"
+                        input_code.visibility = View.VISIBLE
+                        rl_code.visibility = View.VISIBLE
+                        refreshCode()
+                        tv_tip.text = "登录 VPNS 成功\n现在请输入学号和教务系统的密码"
+                    } catch (e: Exception) {
+                        exception = e
+                    }
+                } else {
+                    try {
+                        viewModel.jlu?.login(et_id.text.toString(), et_pwd.text.toString(),
+                                et_code.text.toString())
+                        viewModel.jlu?.getCurrentUserInfo()
+                        viewModel.jlu?.getCourseSchedule()
+                        result = viewModel.convertJLU(viewModel.jlu!!.courseJSON)
+                    } catch (e: Exception) {
+                        exception = e
+                    }
                 }
             }
             "华中科技大学" -> {
@@ -211,6 +244,10 @@ class LoginWebFragment : BaseFragment() {
             }
         }
         if (viewModel.school == "苏州大学" || viewModel.school == "西北工业大学") return
+        if (viewModel.school == "吉林大学" && !viewModel.isReady && exception == null) {
+            viewModel.isReady = true
+            return
+        }
         when (exception) {
             null -> {
                 showSuccess(result)
@@ -280,7 +317,11 @@ class LoginWebFragment : BaseFragment() {
             iv_code.visibility = View.INVISIBLE
             iv_error.visibility = View.INVISIBLE
             try {
-                val bitmap = viewModel.sudaXK?.getCheckCode()
+                val bitmap = when (viewModel.school) {
+                    "苏州大学" -> viewModel.sudaXK?.getCheckCode()
+                    "吉林大学" -> viewModel.jlu?.getCheckCode()
+                    else -> null
+                }
                 progress_bar.visibility = View.GONE
                 iv_code.visibility = View.VISIBLE
                 iv_error.visibility = View.INVISIBLE

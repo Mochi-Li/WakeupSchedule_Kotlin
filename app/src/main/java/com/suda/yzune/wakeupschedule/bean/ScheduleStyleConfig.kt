@@ -142,6 +142,15 @@ open class ScheduleStyleConfig(context: Context, name: String) {
                 putBoolean("itemCenterVertical", value)
             }
         }
+
+    var radius: Int = DefaultValue.radius
+        get() = sp.getInt("radius", DefaultValue.radius)
+        set(value) {
+            field = value
+            sp.edit {
+                putInt("radius", value)
+            }
+        }
 }
 
 object DefaultValue {
@@ -167,4 +176,5 @@ object DefaultValue {
     const val widgetBgColor: Int = 0x80ffffff.toInt()
     const val itemCenterHorizontal: Boolean = false
     const val itemCenterVertical: Boolean = false
+    const val radius: Int = 4
 }

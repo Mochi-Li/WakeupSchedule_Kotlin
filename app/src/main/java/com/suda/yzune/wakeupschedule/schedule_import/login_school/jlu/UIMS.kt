@@ -1,5 +1,9 @@
 package com.suda.yzune.wakeupschedule.schedule_import.login_school.jlu
 
+import android.graphics.Bitmap
+import android.graphics.BitmapFactory
+import android.util.Log
+import com.suda.yzune.wakeupschedule.schedule_import.exception.NetworkErrorException
 import com.suda.yzune.wakeupschedule.utils.Utils
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
@@ -7,23 +11,53 @@ import okhttp3.*
 import org.json.JSONObject
 import java.io.BufferedReader
 import java.io.InputStreamReader
+import java.security.SecureRandom
+import java.security.cert.X509Certificate
 import java.util.*
 import java.util.concurrent.TimeUnit
+import javax.net.ssl.SSLContext
+import javax.net.ssl.SSLSocketFactory
+import javax.net.ssl.X509TrustManager
 
 
-class UIMS(private var user: String, private var pass: String) {
+class UIMS {
 
-    lateinit var cookie1: String
-    lateinit var cookie3: String
-    lateinit var cookie4: String
     lateinit var studentId: String
-    lateinit var jssionID: String
-    lateinit var jssionID2: String
     lateinit var adcId: String
-
+    lateinit var vpnscookie: String
     lateinit var termId: String
-
     lateinit var courseJSON: JSONObject
+
+    private fun initSSLSocketFactory(): SSLSocketFactory {
+        var sslContext: SSLContext? = null
+        try {
+            sslContext = SSLContext.getInstance("SSL")
+            val xTrustArray = arrayOf(initTrustManager())
+            sslContext.init(
+                    null,
+                    xTrustArray, SecureRandom()
+            )
+        } catch (e: Exception) {
+            e.printStackTrace()
+        }
+
+
+        return sslContext!!.socketFactory
+    }
+
+    private fun initTrustManager(): X509TrustManager {
+        return object : X509TrustManager {
+            override fun getAcceptedIssuers(): Array<X509Certificate> {
+                return arrayOf()
+            }
+
+            override fun checkServerTrusted(chain: Array<out X509Certificate>?, authType: String?) {
+            }
+
+            override fun checkClientTrusted(chain: Array<out X509Certificate>?, authType: String?) {
+            }
+        }
+    }
 
     private var httpClient: OkHttpClient = OkHttpClient.Builder()
             .cookieJar(object : CookieJar {
@@ -33,6 +67,8 @@ class UIMS(private var user: String, private var pass: String) {
                     return ArrayList()
                 }
             })
+            .hostnameVerifier { hostname, session -> true }
+            .sslSocketFactory(initSSLSocketFactory(), initTrustManager())
             .followRedirects(false)
             .followSslRedirects(false)
             .connectTimeout(10, TimeUnit.SECONDS)
@@ -40,11 +76,11 @@ class UIMS(private var user: String, private var pass: String) {
 
     lateinit var builder: MultipartBody.Builder
     private val mediaType = MediaType.parse("application/json; charset=utf-8")
-
-    suspend fun connectToUIMS() {
+    suspend fun getVPNSCookie() {
         builder = MultipartBody.Builder().setType(MultipartBody.FORM)
         val request = Request.Builder()
-                .url(Address.hostAddress + "/ntms/")
+                .url("https://vpns.jlu.edu.cn/login")
+                .header("Connection", "close")
                 .header("User-Agent", "Mozilla/5.0 (Windows NT 9.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/70.0.3538.102 Safari/537.36")
                 .build()
 
@@ -52,53 +88,88 @@ class UIMS(private var user: String, private var pass: String) {
             httpClient.newCall(request).execute()
         }
 
-        var str = response.headers().get("Set-Cookie")
-        str = str!!.split(";".toRegex()).dropLastWhile { it.isEmpty() }.toTypedArray()[0]
-        jssionID = str.split("=".toRegex()).dropLastWhile { it.isEmpty() }.toTypedArray()[1]
-        cookie1 = "loginPage=userLogin.jsp; alu=$user; pwdStrength=1; JSESSIONID=$jssionID"
+        val str = response.headers().get("Set-Cookie")
+        vpnscookie = str.toString()
     }
 
-
-    suspend fun login() {
+    suspend fun connectToVPNS(user: String, pass: String) {
         val formBody = FormBody.Builder()
-                .add("j_username", user)
-                .add("j_password", Utils.getMD5Str("UIMS$user$pass"))
-                .add("mousePath", "SGwABSAgCeSBgCwSCQDASCgDRSDQDhSDwDzSEQEDSFgEUSGgEkSHgE1SIgFGSJwFWSLwFnSMwF4SOAGJSPAGZSQQGqSRQG6SSQHMSTgHcSUgHtSVgH9SWgIOSYQIeSZgIvSbAJAScQJRSdwJiSewJySgAKDShAKUShgKkSigK0SjQLFSkALWSlgLmSmgL4SnwMISowMZSpgMpSqQM6SrQNLSsQNbStANsStwN9SvAOOSvgOfSxAOvSxwPASywPRSzwPhS1APyS2AQCS3QQTS4QQkS5QQ1S6QRFARwXr")
+                .add("auth_type", "local")
+//                vpns账号
+                .add("username", "liuwei5518")
+//                vpns密码
+                .add("password", "2000icespite")
+                .add("sms_code", "")
+                .build()
+
+        val request = Request.Builder()
+                .url("https://vpns.jlu.edu.cn/do-login?local_login=true")
+                .header("Cookie", vpnscookie)
+                .header("Connection", "close")
+                .header("User-Agent", "Mozilla/5.0 (Windows NT 9.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/70.0.3538.102 Safari/537.36")
+                .post(formBody)
+                .build()
+        withContext(Dispatchers.IO) {
+            httpClient.newCall(request).execute()
+        }
+    }
+
+    suspend fun getCheckCode(): Bitmap {
+        val request = Request.Builder()
+                .url(Address.validCodeAddress)
+                .header("Cookie", vpnscookie)
+                .header("Connection", "keep-alive")
+                .header("User-Agent", "Mozilla/5.0 (Windows NT 9.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/70.0.3538.102 Safari/537.36")
+                .get()
+                .build()
+        return withContext(Dispatchers.IO) {
+            val response = httpClient.newCall(request).execute()
+            if (response.isSuccessful) {
+                if (response.body() == null) throw NetworkErrorException("请检查网络连接")
+                val verificationCode = response.body()!!.bytes()
+                BitmapFactory.decodeByteArray(verificationCode, 0, verificationCode.size)
+            } else {
+                throw NetworkErrorException("请检查网络连接")
+            }
+        }
+    }
+
+    suspend fun login(user: String, pass: String, code: String) {
+        val formBody = FormBody.Builder()
+                .add("username", user)
+                .add("password", Utils.getMD5Str("UIMS$user$pass"))
+                .add("mousePath", "")
+                .add("vcode", code)
                 .build()
 
         val request = Request.Builder()
                 .url(Address.hostAddress + "/ntms/j_spring_security_check")
                 .header("User-Agent", "Mozilla/5.0 (Windows NT 9.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/70.0.3538.102 Safari/537.36")
-                .header("Cookie", cookie1)
+                .header("Cookie", vpnscookie)
+                .header("Connection", "close")
                 .header("Referer", Address.hostAddress + "/ntms/userLogin.jsp?reason=nologin")
                 .post(formBody)
                 .build()
         val response = withContext(Dispatchers.IO) {
             httpClient.newCall(request).execute()
         }
-        var str = response.headers().get("Set-Cookie")
-        str = str!!.split(";".toRegex()).dropLastWhile { it.isEmpty() }.toTypedArray()[0]
-        jssionID2 = str.split("=".toRegex()).dropLastWhile { it.isEmpty() }.toTypedArray()[1]
-        cookie3 = "loginPage=userLogin.jsp; alu=$user; pwdStrength=1; JSESSIONID=$jssionID2"
-        cookie4 = "loginPage=userLogin.jsp; alu=$user; JSESSIONID=$jssionID2"
     }
 
 
     suspend fun getCurrentUserInfo() {
         val formBody = FormBody.Builder().build()
         val request = Request.Builder()
-                .url(Address.hostAddress + "/ntms/action/getCurrentUserInfo.do")
+                .url(Address.hostAddress + "/ntms/action/getCurrentUserInfo.do?vpn-12-o2-uims.jlu.edu.cn")
                 .header("Referer", Address.hostAddress + "/ntms/index.do")
-                .header("Connection", "keep-alive")
+                .header("Connection", "close")
                 .header("Origin", Address.hostAddress)
                 .header("Content-Type", "application/x-www-form-urlencoded")
                 .header("User-Agent", "Mozilla/5.0 (Windows NT 9.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/70.0.3538.102 Safari/537.36")
-                .header("Cookie", cookie3)
+                .header("Cookie", vpnscookie)
                 .post(formBody)
                 .build()
 
         val response = withContext(Dispatchers.IO) { httpClient.newCall(request).execute() }
-
         val bufferedReader = BufferedReader(
                 InputStreamReader(response.body()?.byteStream(), "UTF-8"), 8 * 1024)
         val entityStringBuilder = StringBuilder()
@@ -112,7 +183,6 @@ class UIMS(private var user: String, private var pass: String) {
         }
 
         val obj = JSONObject(entityStringBuilder.toString())
-
         val defRes = obj.get("defRes") as JSONObject
         studentId = defRes.getString("personId")
         termId = defRes.getString("term_l")
@@ -132,9 +202,9 @@ class UIMS(private var user: String, private var pass: String) {
         val requestBody = RequestBody.create(mediaType, jsonObject.toString())
 
         val request = Request.Builder()
-                .url(Address.hostAddress + "/ntms/service/res.do")
+                .url(Address.hostAddress + "/ntms/service/res.do?vpn-12-o2-uims.jlu.edu.cn")
                 .header("User-Agent", "Mozilla/5.0 (Windows NT 9.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/70.0.3538.102 Safari/537.36")
-                .header("Cookie", cookie3)
+                .header("Cookie", vpnscookie)
                 .header("Host", Address.host)
                 .header("Origin", Address.hostAddress)
                 .header("Content-Type", "application/json")
@@ -152,7 +222,11 @@ class UIMS(private var user: String, private var pass: String) {
                 line = bufferedReader.readLine()
             }
         }
+        Log.e("json", entityStringBuilder.toString())
         courseJSON = JSONObject(entityStringBuilder.toString())
     }
+
+
 }
+
 

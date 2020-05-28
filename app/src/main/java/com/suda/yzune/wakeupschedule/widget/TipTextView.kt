@@ -38,10 +38,12 @@ class TipTextView(context: Context) : View(context) {
     private var centerHorizontal = false
     private var centerVertical = false
     private var textAlignment = Layout.Alignment.ALIGN_NORMAL
+    private var radius = 4 * dpUnit
 
     fun init(text: String, detail: String, bgColor: Int, bgAlpha: Int, styleConfig: ScheduleStyleConfig) {
         this.text = text
         this.detail = detail
+        this.radius = styleConfig.radius * dpUnit
         mTextPaint = TextPaint(Paint.ANTI_ALIAS_FLAG).apply {
             // textSize = mSize * resources.displayMetrics.scaledDensity
             textSize = styleConfig.itemTextSize * dpUnit
@@ -150,8 +152,8 @@ class TipTextView(context: Context) : View(context) {
                 )
             }
         }
-        canvas.drawRoundRect(rect, 4 * dpUnit, 4 * dpUnit, bgPaint)
-        canvas.drawRoundRect(rect, 4 * dpUnit, 4 * dpUnit, strokePaint)
+        canvas.drawRoundRect(rect, radius, radius, bgPaint)
+        canvas.drawRoundRect(rect, radius, radius, strokePaint)
         canvas.clipRect(rect)
         canvas.save()
         canvas.translate(paddingLeft.toFloat(), paddingTop.toFloat())

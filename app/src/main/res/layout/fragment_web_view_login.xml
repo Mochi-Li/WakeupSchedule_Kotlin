@@ -196,6 +196,38 @@
                 </com.google.android.material.chip.ChipGroup>
 
                 <com.google.android.material.chip.ChipGroup
+                    android:id="@+id/cg_jz"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="16dp"
+                    android:layout_marginEnd="16dp"
+                    android:visibility="visible"
+                    app:chipSpacingHorizontal="16dp"
+                    app:chipSpacingVertical="16dp"
+                    app:lineSpacing="20dp"
+                    app:singleSelection="true">
+
+                    <com.google.android.material.chip.Chip
+                        android:id="@+id/chip_jz1"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:checkable="true"
+                        android:text="金智 1"
+                        android:textColor="@android:color/white"
+                        app:chipBackgroundColor="@color/red" />
+
+                    <com.google.android.material.chip.Chip
+                        android:id="@+id/chip_jz2"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:checkable="true"
+                        android:text="金智 2"
+                        android:textColor="@android:color/white"
+                        app:chipBackgroundColor="@color/pink" />
+
+                </com.google.android.material.chip.ChipGroup>
+
+                <com.google.android.material.chip.ChipGroup
                     android:id="@+id/cg_new_urp"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
@@ -213,7 +245,7 @@
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:checkable="true"
-                        android:text="方式1"
+                        android:text="方式 1"
                         android:textColor="@android:color/white"
                         app:chipBackgroundColor="@color/red" />
 
@@ -222,7 +254,7 @@
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:checkable="true"
-                        android:text="方式2"
+                        android:text="方式 2"
                         android:textColor="@android:color/white"
                         app:chipBackgroundColor="@color/pink" />
 

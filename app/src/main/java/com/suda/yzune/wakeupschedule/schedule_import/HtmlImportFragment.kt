@@ -14,6 +14,7 @@ import androidx.fragment.app.activityViewModels
 import com.google.android.material.chip.Chip
 import com.suda.yzune.wakeupschedule.R
 import com.suda.yzune.wakeupschedule.base_view.BaseFragment
+import com.suda.yzune.wakeupschedule.schedule_import.Common.TYPE_JZ
 import com.suda.yzune.wakeupschedule.schedule_import.Common.TYPE_QZ
 import com.suda.yzune.wakeupschedule.schedule_import.Common.TYPE_ZF
 import com.suda.yzune.wakeupschedule.utils.Const
@@ -40,8 +41,8 @@ class HtmlImportFragment : BaseFragment() {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-        ViewUtils.resizeStatusBar(context!!.applicationContext, v_status)
-        if (activity!!.getPrefer().getBoolean(Const.KEY_HIDE_NAV_BAR, false)) {
+        ViewUtils.resizeStatusBar(requireContext().applicationContext, v_status)
+        if (requireActivity().getPrefer().getBoolean(Const.KEY_HIDE_NAV_BAR, false)) {
             ViewCompat.setOnApplyWindowInsetsListener(fab_import) { v, insets ->
                 v.updateLayoutParams<ConstraintLayout.LayoutParams> {
                     bottomMargin = insets.systemWindowInsets.bottom + v.dip(16)
@@ -50,7 +51,7 @@ class HtmlImportFragment : BaseFragment() {
             }
         }
         tv_way.setOnClickListener {
-            Utils.openUrl(activity!!, "https://www.jianshu.com/p/4cd071697fed")
+            Utils.openUrl(requireActivity(), "https://www.jianshu.com/p/4cd071697fed")
         }
 
         tv_type.setOnClickListener {
@@ -117,6 +118,23 @@ class HtmlImportFragment : BaseFragment() {
             }
         }
 
+        var jzChipId = R.id.chip_jz1
+        cg_jz.setOnCheckedChangeListener { group, checkedId ->
+            when (checkedId) {
+                R.id.chip_jz1 -> {
+                    jzChipId = checkedId
+                    viewModel.importType = Common.TYPE_JZ
+                }
+                R.id.chip_jz2 -> {
+                    jzChipId = checkedId
+                    viewModel.importType = Common.TYPE_JZ_1
+                }
+                else -> {
+                    group.findViewById<Chip>(jzChipId).isChecked = true
+                }
+            }
+        }
+
         tv_self.setOnClickListener {
             if (viewModel.importType.equals("html")) {
                 getView()?.longSnack("请先点击第二个按钮选择类型哦")
@@ -134,7 +152,7 @@ class HtmlImportFragment : BaseFragment() {
         }
 
         ib_back.setOnClickListener {
-            activity!!.finish()
+            requireActivity().finish()
         }
 
         fab_import.setOnClickListener {
@@ -145,17 +163,17 @@ class HtmlImportFragment : BaseFragment() {
             launch {
                 try {
                     val html = withContext(Dispatchers.IO) {
-                        activity!!.contentResolver.openInputStream(viewModel.htmlUri!!)!!.bufferedReader(
+                        requireActivity().contentResolver.openInputStream(viewModel.htmlUri!!)!!.bufferedReader(
                                 if (cp_utf.isChecked) Charsets.UTF_8 else Charset.forName("gbk")
                         ).readText()
                     }
                     val result = viewModel.importSchedule(html)
-                    Toasty.success(activity!!,
+                    Toasty.success(requireActivity(),
                             "成功导入 $result 门课程(ﾟ▽ﾟ)/\n请在右侧栏切换后查看").show()
-                    activity!!.setResult(RESULT_OK)
-                    activity!!.finish()
+                    requireActivity().setResult(RESULT_OK)
+                    requireActivity().finish()
                 } catch (e: Exception) {
-                    Toasty.error(activity!!,
+                    Toasty.error(requireActivity(),
                             "导入失败>_<\n${e.message}", Toast.LENGTH_LONG).show()
                 }
             }
@@ -172,14 +190,23 @@ class HtmlImportFragment : BaseFragment() {
                 TYPE_ZF -> {
                     chip_zf1.isChecked = true
                     cg_qz.visibility = View.GONE
+                    cg_jz.visibility = View.GONE
                     cg_zf.visibility = View.VISIBLE
                 }
                 TYPE_QZ -> {
                     chip_qz1.isChecked = true
                     cg_qz.visibility = View.VISIBLE
                     cg_zf.visibility = View.GONE
+                    cg_jz.visibility = View.GONE
+                }
+                TYPE_JZ -> {
+                    chip_jz1.isChecked = true
+                    cg_jz.visibility = View.VISIBLE
+                    cg_qz.visibility = View.GONE
+                    cg_zf.visibility = View.GONE
                 }
                 else -> {
+                    cg_jz.visibility = View.GONE
                     cg_qz.visibility = View.GONE
                     cg_zf.visibility = View.GONE
                 }

@@ -192,7 +192,7 @@ object AppWidgetUtils {
     fun refreshTodayWidget(context: Context, appWidgetManager: AppWidgetManager, appWidgetId: Int, nextDay: Boolean = false) {
         val mRemoteViews = RemoteViews(context.packageName, R.layout.today_course_app_widget)
         val config = WidgetStyleConfig(context, appWidgetId)
-        val tableBean = TableConfig(context, config.tableId)
+        val tableBean = TableConfig(context, context.getPrefer().getInt(Const.KEY_SHOW_TABLE_ID, 1))
         val week = CourseUtils.countWeek(tableBean.startDate, tableBean.sundayFirst, nextDay)
         val date = CourseUtils.getTodayDate()
         val weekDay = CourseUtils.getWeekday(nextDay)

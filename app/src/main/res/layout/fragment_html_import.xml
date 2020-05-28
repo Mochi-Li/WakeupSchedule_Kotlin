@@ -267,6 +267,43 @@
 
     </com.google.android.material.chip.ChipGroup>
 
+    <com.google.android.material.chip.ChipGroup
+        android:id="@+id/cg_jz"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="16dp"
+        android:layout_marginEnd="16dp"
+        android:layout_marginBottom="16dp"
+        android:visibility="gone"
+        app:chipSpacingHorizontal="16dp"
+        app:layout_constraintBottom_toBottomOf="@id/fab_import"
+        app:layout_constraintEnd_toStartOf="@id/fab_import"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="@id/fab_import"
+        app:lineSpacing="20dp"
+        app:singleSelection="true"
+        tools:visibility="visible">
+
+        <com.google.android.material.chip.Chip
+            android:id="@+id/chip_jz1"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:checkable="true"
+            android:text="金智 1"
+            android:textColor="?attr/colorSurface"
+            app:chipBackgroundColor="@color/red" />
+
+        <com.google.android.material.chip.Chip
+            android:id="@+id/chip_jz2"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:checkable="true"
+            android:text="金智 2"
+            android:textColor="?attr/colorSurface"
+            app:chipBackgroundColor="@color/pink" />
+
+    </com.google.android.material.chip.ChipGroup>
+
     <com.google.android.material.floatingactionbutton.FloatingActionButton
         android:id="@+id/fab_import"
         android:layout_width="wrap_content"

@@ -28,6 +28,7 @@ import com.suda.yzune.wakeupschedule.BuildConfig
 import com.suda.yzune.wakeupschedule.R
 import com.suda.yzune.wakeupschedule.base_view.BaseFragment
 import com.suda.yzune.wakeupschedule.schedule_import.Common.TYPE_JZ
+import com.suda.yzune.wakeupschedule.schedule_import.Common.TYPE_JZ_1
 import com.suda.yzune.wakeupschedule.schedule_import.Common.TYPE_QZ
 import com.suda.yzune.wakeupschedule.schedule_import.Common.TYPE_QZ_2017
 import com.suda.yzune.wakeupschedule.schedule_import.Common.TYPE_QZ_BR
@@ -52,16 +53,19 @@ class WebViewLoginFragment : BaseFragment() {
     private fun foregroundColorSpan() = ForegroundColorSpan(Color.RED)
     private var tips = SpannableStringBuilder()
             .append("1. 在上方输入教务网址，部分学校需要连接校园网。\n")
-            .append("2. 登录后点击到个人课表的页面，注意选择自己需要导入的学期，一般首页的课表都是不可导入的！\n")
+            .append("2. 登录后点击到个人课表的页面，注意选择自己需要导入的学期，一般首页的课表都是不可导入的！另外不会导入调课、停课的信息，请导入后自行修改！\n")
             .append("3. 点击右下角的按钮完成导入。\n")
-            .append("4. 如果遇到总是提示密码错误或者网页错位等问题，可以尝试取消底栏的「电脑模式」或者调节字体缩放。")
+            .append("4. 如果遇到网页错位等问题，可以尝试取消底栏的「电脑模式」或者调节字体缩放。")
             .apply {
                 val text1 = "个人课表"
                 val index1 = this.indexOf(text1)
                 val text2 = "一般首页的课表都是不可导入的！"
                 val index2 = this.indexOf(text2)
+                val text3 = "不会导入调课、停课的信息"
+                val index3 = this.indexOf(text3)
                 setSpan(foregroundColorSpan(), index1, index1 + text1.length, Spannable.SPAN_EXCLUSIVE_INCLUSIVE)
                 setSpan(foregroundColorSpan(), index2, index2 + text2.length, Spannable.SPAN_EXCLUSIVE_INCLUSIVE)
+                setSpan(foregroundColorSpan(), index3, index3 + text3.length, Spannable.SPAN_EXCLUSIVE_INCLUSIVE)
             }
     private var zoom = 100
     private var countClick = 0
@@ -108,7 +112,7 @@ class WebViewLoginFragment : BaseFragment() {
                     .append("1. 在上方输入教务网址，部分学校需要连接校园网。\n")
                     .append("2. 登录后点击到个人课表或者相关的页面。\n")
                     .append("3. 点击右下角的按钮抓取源码，并上传到服务器。\n")
-                    .append("4. 如果遇到总是提示密码错误或者网页错位等问题，可以尝试取消底栏的「电脑模式」或者调节字体缩放。")
+                    .append("4. 如果遇到网页错位等问题，可以尝试取消底栏的「电脑模式」或者调节字体缩放。")
         }
 
         if (viewModel.school == "强智教务" || viewModel.importType in arrayOf(TYPE_QZ, TYPE_QZ_BR, TYPE_QZ_CRAZY, TYPE_QZ_WITH_NODE, TYPE_QZ_2017)) {
@@ -122,7 +126,7 @@ class WebViewLoginFragment : BaseFragment() {
                     .append("1. 在上方输入教务网址，部分学校需要连接校园网。\n")
                     .append("2. 登录后点击到「学期理论课表」的页面，注意不是「首页的课表」！注意选择自己需要导入的学期。\n")
                     .append("3. 点击右下角的按钮完成导入。\n")
-                    .append("4. 如果遇到总是提示密码错误或者网页错位等问题，可以尝试取消底栏的「电脑模式」或者调节字体缩放。")
+                    .append("4. 如果遇到网页错位等问题，可以尝试取消底栏的「电脑模式」或者调节字体缩放。")
                     .apply {
                         val text1 = "「学期理论课表」"
                         val index1 = this.indexOf(text1)
@@ -146,19 +150,29 @@ class WebViewLoginFragment : BaseFragment() {
             cg_zf.visibility = View.GONE
         }
 
+        if (viewModel.school == "金智教务") {
+            cg_jz.visibility = View.VISIBLE
+            chip_jz1.isChecked = true
+        } else {
+            cg_jz.visibility = View.GONE
+        }
+
         if (viewModel.importType in arrayOf(TYPE_ZF, TYPE_ZF_1, TYPE_JZ)) {
             tips = SpannableStringBuilder()
                     .append("1. 在上方输入教务网址，部分学校需要连接校园网。\n")
-                    .append("2. 登录后点击到「个人课表」的页面，注意不是「班级课表」！注意选择自己需要导入的学期。正方教务目前仅支持个人课表的导入。\n")
+                    .append("2. 登录后点击到「个人课表」的页面，注意不是「班级课表」！注意选择自己需要导入的学期。正方教务目前仅支持个人课表的导入。另外不会导入调课、停课的信息，请导入后自行修改！\n")
                     .append("3. 点击右下角的按钮完成导入。\n")
-                    .append("4. 如果遇到总是提示密码错误或者网页错位等问题，可以尝试取消底栏的「电脑模式」或者调节字体缩放。")
+                    .append("4. 如果遇到网页错位等问题，可以尝试取消底栏的「电脑模式」或者调节字体缩放。")
                     .apply {
                         val text1 = "「个人课表」"
                         val index1 = this.indexOf(text1)
                         val text2 = "不是「班级课表」"
                         val index2 = this.indexOf(text2)
+                        val text3 = "不会导入调课、停课的信息"
+                        val index3 = this.indexOf(text3)
                         setSpan(foregroundColorSpan(), index1, index1 + text1.length, Spannable.SPAN_EXCLUSIVE_INCLUSIVE)
                         setSpan(foregroundColorSpan(), index2, index2 + text2.length, Spannable.SPAN_EXCLUSIVE_INCLUSIVE)
+                        setSpan(foregroundColorSpan(), index3, index3 + text3.length, Spannable.SPAN_EXCLUSIVE_INCLUSIVE)
                     }
         }
 
@@ -167,7 +181,7 @@ class WebViewLoginFragment : BaseFragment() {
                     .append("1. 在上方输入教务网址，部分学校需要连接校园网。\n")
                     .append("2. 登录教务后操作：左边导航栏->选课管理系统->课程表及考试表。\n")
                     .append("3. 点击右下角的按钮完成导入，要进行多次操作，请耐心等待网页加载。\n")
-                    .append("4. 如果遇到总是提示密码错误或者网页错位等问题，可以尝试取消底栏的「电脑模式」或者调节字体缩放。")
+                    .append("4. 如果遇到网页错位等问题，可以尝试取消底栏的「电脑模式」或者调节字体缩放。")
                     .apply {
                         val text1 = "左边导航栏->选课管理系统->课程表及考试表"
                         val index1 = this.indexOf(text1)
@@ -183,7 +197,7 @@ class WebViewLoginFragment : BaseFragment() {
                     .append("1. 在上方输入教务网址，部分学校需要连接校园网。\n")
                     .append("2. 登录教务后，要选择小节课表，也就是「第1节」「第2节」分开显示那种。不支持导入大节课表。\n")
                     .append("3. 点击右下角的按钮完成导入。部分学校有中午的课时，导入后会当成一节来处理。\n")
-                    .append("4. 如果遇到总是提示密码错误或者网页错位等问题，可以尝试取消底栏的「电脑模式」或者调节字体缩放。")
+                    .append("4. 如果遇到网页错位等问题，可以尝试取消底栏的「电脑模式」或者调节字体缩放。")
                     .apply {
                         val text1 = "小节课表"
                         val index1 = this.indexOf(text1)
@@ -202,7 +216,7 @@ class WebViewLoginFragment : BaseFragment() {
                     .append("1. 在上方输入教务网址。\n")
                     .append("2. 登录教务后，最终能够导入到第几周的课程似乎跟页面周数选择有关，请多次尝试，请导入后仔细检查。\n")
                     .append("3. 点击右下角的按钮完成导入。\n")
-                    .append("4. 如果遇到总是提示密码错误或者网页错位等问题，可以尝试取消底栏的「电脑模式」或者调节字体缩放。")
+                    .append("4. 如果遇到网页错位等问题，可以尝试取消底栏的「电脑模式」或者调节字体缩放。")
                     .apply {
                         val text1 = "似乎跟页面周数选择有关"
                         val index1 = this.indexOf(text1)
@@ -383,6 +397,23 @@ class WebViewLoginFragment : BaseFragment() {
             }
         }
 
+        var jzChipId = R.id.chip_jz1
+        cg_jz.setOnCheckedChangeListener { group, checkedId ->
+            when (checkedId) {
+                R.id.chip_jz1 -> {
+                    jzChipId = checkedId
+                    viewModel.importType = TYPE_JZ
+                }
+                R.id.chip_jz2 -> {
+                    jzChipId = checkedId
+                    viewModel.importType = TYPE_JZ_1
+                }
+                else -> {
+                    group.findViewById<Chip>(jzChipId).isChecked = true
+                }
+            }
+        }
+
         var newUrpChipId = R.id.chip_new_urp
         cg_new_urp.setOnCheckedChangeListener { chipGroup, id ->
             if (cg_new_urp.visibility != View.VISIBLE) return@setOnCheckedChangeListener
@@ -460,7 +491,10 @@ class WebViewLoginFragment : BaseFragment() {
                 }
             } else if (viewModel.importType == Common.TYPE_URP_NEW) {
                 if (!isRefer) {
-                    val referUrl = getHostUrl() + "student/courseSelect/thisSemesterCurriculum/callback"
+                    var referUrl = getHostUrl() + "student/courseSelect/thisSemesterCurriculum/callback"
+                    if (viewModel.school == "烟台大学") {
+                        referUrl = getHostUrl() + "student/courseSelect/thisSemesterCurriculum/ajaxStudentSchedule/curr/callback"
+                    }
                     wv_course.loadUrl(referUrl)
                     it.longSnack("请在看到网页加载完成后，再点一次右下角按钮")
                     isRefer = true

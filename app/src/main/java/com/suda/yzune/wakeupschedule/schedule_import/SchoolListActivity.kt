@@ -24,6 +24,7 @@ import com.google.gson.Gson
 import com.suda.yzune.wakeupschedule.AppDatabase
 import com.suda.yzune.wakeupschedule.R
 import com.suda.yzune.wakeupschedule.base_view.BaseTitleActivity
+import com.suda.yzune.wakeupschedule.schedule_import.Common.TYPE_AHNU
 import com.suda.yzune.wakeupschedule.schedule_import.Common.TYPE_BNUZ
 import com.suda.yzune.wakeupschedule.schedule_import.Common.TYPE_CF
 import com.suda.yzune.wakeupschedule.schedule_import.Common.TYPE_ECJTU
@@ -33,6 +34,7 @@ import com.suda.yzune.wakeupschedule.schedule_import.Common.TYPE_HNUST
 import com.suda.yzune.wakeupschedule.schedule_import.Common.TYPE_HUNNU
 import com.suda.yzune.wakeupschedule.schedule_import.Common.TYPE_JNU
 import com.suda.yzune.wakeupschedule.schedule_import.Common.TYPE_JZ
+import com.suda.yzune.wakeupschedule.schedule_import.Common.TYPE_JZ_1
 import com.suda.yzune.wakeupschedule.schedule_import.Common.TYPE_LOGIN
 import com.suda.yzune.wakeupschedule.schedule_import.Common.TYPE_MAINTAIN
 import com.suda.yzune.wakeupschedule.schedule_import.Common.TYPE_PKU
@@ -401,7 +403,7 @@ class SchoolListActivity : BaseTitleActivity(), OnQuickSideBarTouchListener {
             add(SchoolInfo("X", "西昌学院", "https://jwxt.xcc.edu.cn/xtgl/login_slogin.html", TYPE_ZF_NEW))
             add(SchoolInfo("Y", "云南财经大学", "http://202.203.194.2/", TYPE_ZF))
             add(SchoolInfo("Y", "延安大学", "http://jwglxt.yau.edu.cn/jwglxt/xtgl/login_slogin.html", TYPE_ZF_NEW))
-            add(SchoolInfo("Y", "烟台大学", "http://xk.jwc.ytu.edu.cn/", TYPE_URP_NEW))
+            add(SchoolInfo("Y", "烟台大学", "http://202.194.116.132/login", TYPE_URP_NEW))
             add(SchoolInfo("Z", "中南大学", "https://csujwc.its.csu.edu.cn/", TYPE_QZ))
             add(SchoolInfo("Z", "中南林业科技大学", "http://jwgl.csuft.edu.cn/", TYPE_QZ))
             add(SchoolInfo("Z", "中南财经政法大学", "", TYPE_QZ))
@@ -829,6 +831,19 @@ class SchoolListActivity : BaseTitleActivity(), OnQuickSideBarTouchListener {
             add(SchoolInfo("A", "安康学院", "", TYPE_ZF_NEW))
 
             add(SchoolInfo("F", "福建中医药大学", "", TYPE_QZ))
+
+            add(SchoolInfo("A", "安徽师范大学", "http://jwgl.ahnu.edu.cn/", TYPE_AHNU))
+            add(SchoolInfo("T", "天津理工大学", "", TYPE_JZ_1))
+            add(SchoolInfo("C", "成都航空职业技术学院", "", TYPE_JZ_1))
+            add(SchoolInfo("N", "南京晓庄学院", "", TYPE_JZ_1))
+            add(SchoolInfo("S", "山东建筑大学", "http://jwfw1.sdjzu.edu.cn/ssfw/login.jsp", TYPE_JZ_1))
+            add(SchoolInfo("H", "黑龙江大学", "", TYPE_JZ_1))
+            add(SchoolInfo("Q", "青海师范大学", "", TYPE_JZ_1))
+            add(SchoolInfo("X", "新疆师范大学", "", TYPE_JZ_1))
+            add(SchoolInfo("S", "上海对外经贸大学", "", TYPE_JZ_1))
+            add(SchoolInfo("N", "南京工业大学浦江学院", "", TYPE_JZ_1))
+            add(SchoolInfo("J", "吉林财经大学", "", TYPE_JZ_1))
+            add(SchoolInfo("Z", "中南民族大学", "", TYPE_JZ_1))
         }
 
         schools.sortWith(compareBy({ it.sortKey }, { it.name }))

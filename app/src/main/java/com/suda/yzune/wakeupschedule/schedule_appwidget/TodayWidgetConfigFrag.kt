@@ -26,6 +26,7 @@ import com.suda.yzune.wakeupschedule.settings.items.SeekBarItem
 import com.suda.yzune.wakeupschedule.settings.items.SwitchItem
 import com.suda.yzune.wakeupschedule.settings.items.VerticalItem
 import com.suda.yzune.wakeupschedule.utils.Const
+import com.suda.yzune.wakeupschedule.utils.CourseUtils
 import com.suda.yzune.wakeupschedule.utils.Utils
 import com.suda.yzune.wakeupschedule.utils.ViewUtils
 import com.suda.yzune.wakeupschedule.widget.colorpicker.ColorPickerFragment
@@ -165,7 +166,7 @@ class TodayWidgetConfigFrag : BaseFragment(), ColorPickerFragment.ColorPickerDia
         find<TextView>(R.id.tv_week).textSize = viewModel.widgetConfig.itemTextSize.toFloat()
         val dateSplit = viewModel.tableConfig.startDate.split("-")
         find<TextView>(R.id.tv_date).text = "${dateSplit[1].removePrefix("0")}月${dateSplit[2].removePrefix("0")}日"
-        find<TextView>(R.id.tv_week).text = "${if (viewModel.tableConfig.tableName.isEmpty()) "我的课表" else viewModel.tableConfig.tableName} | 第1周"
+        find<TextView>(R.id.tv_week).text = "第1周    ${CourseUtils.getWeekday()}"
 
         find<TextView>(R.id.tv_date).setTextColor(viewModel.widgetConfig.textColor)
         find<TextView>(R.id.tv_week).setTextColor(viewModel.widgetConfig.textColor)

@@ -627,6 +627,15 @@ class ScheduleActivity : BaseActivity() {
                             .show()
                 }
             }
+            ui.weekSlider.value = 1f
+            ui.weekDayView.text = CourseUtils.getWeekday()
+            if (viewModel.tableConfig.maxWeek > 1) {
+                ui.weekSlider.valueTo = viewModel.tableConfig.maxWeek.toFloat()
+                ui.weekSlider.valueFrom = 1f
+            } else {
+                ui.weekSlider.valueFrom = 0f
+                ui.weekSlider.valueTo = 1f
+            }
             ui.weekSlider.value = when {
                 viewModel.currentWeek < 1 -> {
                     1f
@@ -648,16 +657,6 @@ class ScheduleActivity : BaseActivity() {
                     viewModel.allCourseList[i - 1].value = list
                 })
             }
-        }
-
-        ui.weekSlider.value = 1f
-        ui.weekDayView.text = CourseUtils.getWeekday()
-        if (viewModel.tableConfig.maxWeek > 1) {
-            ui.weekSlider.valueTo = viewModel.tableConfig.maxWeek.toFloat()
-            ui.weekSlider.valueFrom = 1f
-        } else {
-            ui.weekSlider.valueFrom = 0f
-            ui.weekSlider.valueTo = 1f
         }
 
         initTheme()

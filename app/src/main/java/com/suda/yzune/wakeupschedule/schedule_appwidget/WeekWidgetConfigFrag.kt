@@ -123,10 +123,12 @@ class WeekWidgetConfigFrag : BaseFragment(), ColorPickerFragment.ColorPickerDial
 
     private fun onItemsCreated(items: MutableList<BaseSettingItem>) {
         items.add(VerticalItem("提示", "如果想调整小部件整体的高度，在这个页面是不行的！要回到桌面长按小部件来调整。华为和荣耀手机如果长按后调整不了，是第三方主题导致的，请切换回系统默认主题再调整。"))
+        items.add(VerticalItem("致魅族用户", "首先非常感谢 Flyme 能在负一屏中适配本 App。不过调整小部件样式后，负一屏的显示不能马上生效，请点击小部件右上角的小箭头刷新小部件。另外关于「夜间模式」，颜色选择器可能会在 Flyme 提供的夜间模式中崩溃，请去系统设置中将本 App 排除夜间模式，App 已经适配了原生的夜间模式，应该是可以跟随开启的。"))
         items.add(VerticalItem("标题文字颜色", "指日期、节数等文字的颜色\n还可以调颜色的透明度哦 (●ﾟωﾟ●)"))
         items.add(VerticalItem("课程文字颜色", "指课程格子内的颜色\n还可以调颜色的透明度哦 (●ﾟωﾟ●)"))
         items.add(VerticalItem("格子边框颜色", "将不透明度调到最低就可以隐藏边框了哦"))
-        items.add(SeekBarItem("格子高度", viewModel.widgetConfig.itemHeight, 32, 96, "dp"))
+        items.add(SeekBarItem("格子高度", viewModel.widgetConfig.itemHeight, 32, 128, "dp"))
+        items.add(SeekBarItem("格子圆角半径", viewModel.widgetConfig.radius, 0, 32, "dp"))
         items.add(SeekBarItem("格子不透明度", viewModel.widgetConfig.itemAlpha, 0, 100, "%"))
         items.add(SeekBarItem("格子文字大小", viewModel.widgetConfig.itemTextSize, 8, 16, "sp"))
         items.add(SwitchItem("显示小部件背景", viewModel.widgetConfig.showBg))
@@ -171,7 +173,7 @@ class WeekWidgetConfigFrag : BaseFragment(), ColorPickerFragment.ColorPickerDial
         find<TextView>(R.id.tv_week).textSize = viewModel.widgetConfig.itemTextSize.toFloat()
         val dateSplit = viewModel.tableConfig.startDate.split("-")
         find<TextView>(R.id.tv_date).text = "${dateSplit[1].removePrefix("0")}月${dateSplit[2].removePrefix("0")}日"
-        find<TextView>(R.id.tv_week).text = "${if (viewModel.tableConfig.tableName.isEmpty()) "我的课表" else viewModel.tableConfig.tableName} | 第1周"
+        find<TextView>(R.id.tv_week).text = "${if (viewModel.tableConfig.tableName.isEmpty()) "我的课表" else viewModel.tableConfig.tableName} | 第1周    ${CourseUtils.getWeekday()}"
 
         if (viewModel.widgetConfig.showSun) {
             if (viewModel.tableConfig.sundayFirst) {
@@ -321,6 +323,7 @@ class WeekWidgetConfigFrag : BaseFragment(), ColorPickerFragment.ColorPickerDial
                 "格子高度" -> viewModel.widgetConfig.itemHeight = value
                 "格子不透明度" -> viewModel.widgetConfig.itemAlpha = value
                 "格子文字大小" -> viewModel.widgetConfig.itemTextSize = value
+                "格子圆角半径" -> viewModel.widgetConfig.radius = value
             }
             item.valueInt = value
             mAdapter.notifyItemChanged(position)
@@ -338,6 +341,7 @@ class WeekWidgetConfigFrag : BaseFragment(), ColorPickerFragment.ColorPickerDial
             "显示非本周课程" -> viewModel.widgetConfig.showOtherWeekCourse = isChecked
             "格子文字水平居中" -> viewModel.widgetConfig.itemCenterHorizontal = isChecked
             "格子文字竖直居中" -> viewModel.widgetConfig.itemCenterVertical = isChecked
+            "节数栏显示时间" -> viewModel.widgetConfig.showTimeBar = isChecked
             "显示小部件背景" -> {
                 viewModel.widgetConfig.showBg = isChecked
                 if (isChecked) {
