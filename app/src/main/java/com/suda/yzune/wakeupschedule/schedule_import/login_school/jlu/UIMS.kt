@@ -25,8 +25,14 @@ class UIMS {
     lateinit var studentId: String
     lateinit var adcId: String
     lateinit var vpnscookie: String
+    lateinit var uimscookie: String
     lateinit var termId: String
     lateinit var courseJSON: JSONObject
+    private var needVPNS: Boolean = false
+
+    fun setNeedVpns() {
+        this.needVPNS = true
+    }
 
     private fun initSSLSocketFactory(): SSLSocketFactory {
         var sslContext: SSLContext? = null
@@ -74,10 +80,8 @@ class UIMS {
             .connectTimeout(10, TimeUnit.SECONDS)
             .build()
 
-    lateinit var builder: MultipartBody.Builder
     private val mediaType = MediaType.parse("application/json; charset=utf-8")
     suspend fun getVPNSCookie() {
-        builder = MultipartBody.Builder().setType(MultipartBody.FORM)
         val request = Request.Builder()
                 .url("https://vpns.jlu.edu.cn/login")
                 .header("Connection", "close")
@@ -95,10 +99,8 @@ class UIMS {
     suspend fun connectToVPNS(user: String, pass: String) {
         val formBody = FormBody.Builder()
                 .add("auth_type", "local")
-//                vpns账号
-                .add("username", "liuwei5518")
-//                vpns密码
-                .add("password", "2000icespite")
+                .add("username", user)
+                .add("password", pass)
                 .add("sms_code", "")
                 .build()
 
@@ -114,14 +116,27 @@ class UIMS {
         }
     }
 
-    suspend fun getCheckCode(): Bitmap {
-        val request = Request.Builder()
-                .url(Address.validCodeAddress)
-                .header("Cookie", vpnscookie)
-                .header("Connection", "keep-alive")
-                .header("User-Agent", "Mozilla/5.0 (Windows NT 9.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/70.0.3538.102 Safari/537.36")
-                .get()
-                .build()
+    suspend fun getCheckCode(user: String = ""): Bitmap {
+        var url = ""
+        var request: Request
+        if (this.needVPNS == true) {
+            request = Request.Builder()
+                    .url(Address.validCodeNeedVpnsAddress)
+                    .header("Cookie", vpnscookie)
+                    .header("Connection", "keep-alive")
+                    .header("User-Agent", "Mozilla/5.0 (Windows NT 9.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/70.0.3538.102 Safari/537.36")
+                    .get()
+                    .build()
+        } else {
+            request = Request.Builder()
+                    .url(Address.validCodeAddress)
+                    .header("Cookie", "loginPage=userLogin.jsp; alu=$user; pwdStrength=1;")
+                    .header("Connection", "keep-alive")
+                    .header("User-Agent", "Mozilla/5.0 (Windows NT 9.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/70.0.3538.102 Safari/537.36")
+                    .get()
+                    .build()
+        }
+
         return withContext(Dispatchers.IO) {
             val response = httpClient.newCall(request).execute()
             if (response.isSuccessful) {
@@ -135,6 +150,7 @@ class UIMS {
     }
 
     suspend fun login(user: String, pass: String, code: String) {
+
         val formBody = FormBody.Builder()
                 .add("username", user)
                 .add("password", Utils.getMD5Str("UIMS$user$pass"))
@@ -142,33 +158,63 @@ class UIMS {
                 .add("vcode", code)
                 .build()
 
-        val request = Request.Builder()
-                .url(Address.hostAddress + "/ntms/j_spring_security_check")
-                .header("User-Agent", "Mozilla/5.0 (Windows NT 9.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/70.0.3538.102 Safari/537.36")
-                .header("Cookie", vpnscookie)
-                .header("Connection", "close")
-                .header("Referer", Address.hostAddress + "/ntms/userLogin.jsp?reason=nologin")
-                .post(formBody)
-                .build()
-        val response = withContext(Dispatchers.IO) {
-            httpClient.newCall(request).execute()
+        if (this.needVPNS == true) {
+            val request = Request.Builder()
+                    .url(Address.hostNeedVpnsAddress + "/ntms/j_spring_security_check")
+                    .header("User-Agent", "Mozilla/5.0 (Windows NT 9.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/70.0.3538.102 Safari/537.36")
+                    .header("Cookie", vpnscookie)
+                    .header("Connection", "close")
+                    .header("Referer", Address.hostNeedVpnsAddress + "/ntms/userLogin.jsp?reason=nologin")
+                    .post(formBody)
+                    .build()
+            val response = withContext(Dispatchers.IO) {
+                httpClient.newCall(request).execute()
+            }
+        } else {
+            uimscookie = "loginPage=userLogin.jsp; alu=$user; pwdStrength=1;"
+            val request = Request.Builder()
+                    .url(Address.hostAddress + "/ntms/j_spring_security_check")
+                    .header("User-Agent", "Mozilla/5.0 (Windows NT 9.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/70.0.3538.102 Safari/537.36")
+                    .header("Cookie", uimscookie)
+                    .header("Connection", "close")
+                    .header("Referer", Address.hostAddress + "/ntms/userLogin.jsp?reason=nologin")
+                    .post(formBody)
+                    .build()
+            val response = withContext(Dispatchers.IO) {
+                httpClient.newCall(request).execute()
+            }
         }
+
+
     }
 
 
     suspend fun getCurrentUserInfo() {
         val formBody = FormBody.Builder().build()
-        val request = Request.Builder()
-                .url(Address.hostAddress + "/ntms/action/getCurrentUserInfo.do?vpn-12-o2-uims.jlu.edu.cn")
-                .header("Referer", Address.hostAddress + "/ntms/index.do")
-                .header("Connection", "close")
-                .header("Origin", Address.hostAddress)
-                .header("Content-Type", "application/x-www-form-urlencoded")
-                .header("User-Agent", "Mozilla/5.0 (Windows NT 9.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/70.0.3538.102 Safari/537.36")
-                .header("Cookie", vpnscookie)
-                .post(formBody)
-                .build()
-
+        lateinit var request: Request
+        if (this.needVPNS == true) {
+            request = Request.Builder()
+                    .url(Address.hostNeedVpnsAddress + "/ntms/action/getCurrentUserInfo.do?vpn-12-o2-uims.jlu.edu.cn")
+                    .header("Referer", Address.hostNeedVpnsAddress + "/ntms/index.do")
+                    .header("Connection", "close")
+                    .header("Origin", Address.hostNeedVpnsAddress)
+                    .header("Content-Type", "application/x-www-form-urlencoded")
+                    .header("User-Agent", "Mozilla/5.0 (Windows NT 9.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/70.0.3538.102 Safari/537.36")
+                    .header("Cookie", vpnscookie)
+                    .post(formBody)
+                    .build()
+        } else {
+            request = Request.Builder()
+                    .url(Address.hostAddress + "/ntms/action/getCurrentUserInfo.do?vpn-12-o2-uims.jlu.edu.cn")
+                    .header("Referer", Address.hostAddress + "/ntms/index.do")
+                    .header("Connection", "close")
+                    .header("Origin", Address.hostAddress)
+                    .header("Content-Type", "application/x-www-form-urlencoded")
+                    .header("User-Agent", "Mozilla/5.0 (Windows NT 9.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/70.0.3538.102 Safari/537.36")
+                    .header("Cookie", uimscookie)
+                    .post(formBody)
+                    .build()
+        }
         val response = withContext(Dispatchers.IO) { httpClient.newCall(request).execute() }
         val bufferedReader = BufferedReader(
                 InputStreamReader(response.body()?.byteStream(), "UTF-8"), 8 * 1024)
@@ -200,17 +246,31 @@ class UIMS {
         jsonObject.put("params", params)
 
         val requestBody = RequestBody.create(mediaType, jsonObject.toString())
+        lateinit var request: Request
+        if (this.needVPNS == true) {
+            request = Request.Builder()
+                    .url(Address.hostNeedVpnsAddress + "/ntms/service/res.do?vpn-12-o2-uims.jlu.edu.cn")
+                    .header("User-Agent", "Mozilla/5.0 (Windows NT 9.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/70.0.3538.102 Safari/537.36")
+                    .header("Cookie", vpnscookie)
+                    .header("Host", Address.host)
+                    .header("Origin", Address.hostNeedVpnsAddress)
+                    .header("Content-Type", "application/json")
+                    .header("Referer", Address.hostNeedVpnsAddress + "/ntms/index.do")
+                    .post(requestBody)
+                    .build()
+        } else {
+            request = Request.Builder()
+                    .url(Address.hostAddress + "/ntms/service/res.do?vpn-12-o2-uims.jlu.edu.cn")
+                    .header("User-Agent", "Mozilla/5.0 (Windows NT 9.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/70.0.3538.102 Safari/537.36")
+                    .header("Cookie", uimscookie)
+                    .header("Host", Address.host)
+                    .header("Origin", Address.hostAddress)
+                    .header("Content-Type", "application/json")
+                    .header("Referer", Address.hostAddress + "/ntms/index.do")
+                    .post(requestBody)
+                    .build()
+        }
 
-        val request = Request.Builder()
-                .url(Address.hostAddress + "/ntms/service/res.do?vpn-12-o2-uims.jlu.edu.cn")
-                .header("User-Agent", "Mozilla/5.0 (Windows NT 9.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/70.0.3538.102 Safari/537.36")
-                .header("Cookie", vpnscookie)
-                .header("Host", Address.host)
-                .header("Origin", Address.hostAddress)
-                .header("Content-Type", "application/json")
-                .header("Referer", Address.hostAddress + "/ntms/index.do")
-                .post(requestBody)
-                .build()
         val response = withContext(Dispatchers.IO) { httpClient.newCall(request).execute() }
         val bufferedReader = BufferedReader(
                 InputStreamReader(response.body()!!.byteStream(), "UTF-8"), 8 * 1024)

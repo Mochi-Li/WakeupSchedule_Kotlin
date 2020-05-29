@@ -70,6 +70,9 @@ class LoginWebFragment : BaseFragment() {
                     .setTitle("提示")
                     .setMessage("是否在使用校园网？如果在校内建议连接校园网后再导入课表。如果没有连接校园网，需要先在这里登录 VPNS，再登录教务导入课表。")
                     .setPositiveButton("我已连接校园网") { _, _ ->
+                        input_code.visibility = View.VISIBLE
+                        rl_code.visibility = View.VISIBLE
+                        refreshCode()
                         viewModel.isReady = true
                     }
                     .setNegativeButton("没有连接校园网，登录 VPNS") { _, _ ->
@@ -196,6 +199,7 @@ class LoginWebFragment : BaseFragment() {
             "吉林大学" -> {
                 if (!viewModel.isReady) {
                     try {
+                        viewModel.jlu?.setNeedVpns()
                         viewModel.jlu?.getVPNSCookie()
                         viewModel.jlu?.connectToVPNS(et_id.text.toString(), et_pwd.text.toString())
                         et_id.setText("")
@@ -319,7 +323,7 @@ class LoginWebFragment : BaseFragment() {
             try {
                 val bitmap = when (viewModel.school) {
                     "苏州大学" -> viewModel.sudaXK?.getCheckCode()
-                    "吉林大学" -> viewModel.jlu?.getCheckCode()
+                    "吉林大学" -> viewModel.jlu?.getCheckCode(et_code.text.toString())
                     else -> null
                 }
                 progress_bar.visibility = View.GONE
