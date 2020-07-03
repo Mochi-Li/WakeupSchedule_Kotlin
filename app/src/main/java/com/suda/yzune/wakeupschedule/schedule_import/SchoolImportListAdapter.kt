@@ -56,6 +56,7 @@ class SchoolImportListAdapter(data: MutableList<SchoolInfo>) :
             "上海大学" to "Deep Sea",
             "吉林大学" to "颩欥殘膤",
             "西北工业大学" to "ludoux",
+            "南京审计大学" to "XFY9326",
             "苏州大学" to "Y."
     )
 
