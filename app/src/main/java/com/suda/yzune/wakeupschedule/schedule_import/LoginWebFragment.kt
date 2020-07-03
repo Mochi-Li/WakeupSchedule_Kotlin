@@ -81,6 +81,7 @@ class LoginWebFragment : BaseFragment() {
                         tv_tip.visibility = View.VISIBLE
                         tv_tip.text = "账号为吉大学生邮箱的用户名\n不包含@mails.jlu.edu.cn\n密码为邮箱密码"
                     }
+                    .setCancelable(false)
                     .show()
             tv_thanks.text = "感谢 @颩欥殘膤、@IceSpite\n能导入贵校课程离不开他们无私贡献代码"
         }

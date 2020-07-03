@@ -94,4 +94,14 @@
     <item name="bottom_sheet_rv_table" type="id" />
     <item name="bottom_sheet_nav_view" type="id" />
     <item name="bottom_sheet_nav_view2" type="id" />
+
+    <item name="main_nav_time" type="id" />
+    <item name="main_nav_bg" type="id" />
+    <item name="main_nav_course" type="id" />
+    <item name="main_nav_help" type="id" />
+    <item name="main_nav_about" type="id" />
+    <item name="main_nav_feedback" type="id" />
+    <item name="main_nav_settings" type="id" />
+    <item name="main_nav_suda" type="id" />
+
 </resources>

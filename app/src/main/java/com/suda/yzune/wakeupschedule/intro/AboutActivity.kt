@@ -90,12 +90,12 @@ class AboutActivity : BaseBlurTitleActivity() {
 
         ll_group.setOnClickListener {
             val intent = Intent()
-            intent.data = Uri.parse("mqqopensdkapi://bizAgent/qm/qr?url=http%3A%2F%2Fqm.qq.com%2Fcgi-bin%2Fqm%2Fqr%3Ffrom%3Dapp%26p%3Dandroid%26k%3DNr-39Q7go1ZzZzuIzkX2To69PyBTV5BU")
+            intent.data = Uri.parse("mqqopensdkapi://bizAgent/qm/qr?url=http%3A%2F%2Fqm.qq.com%2Fcgi-bin%2Fqm%2Fqr%3Ffrom%3Dapp%26p%3Dandroid%26k%3DxC88hljh6en0zP4rtqt5s86JzBXDtt13")
             intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
             try {
                 startActivity(intent)
             } catch (e: Exception) {
-                val clipData = ClipData.newPlainText("", "161714534")
+                val clipData = ClipData.newPlainText("", "921826443")
                 (getSystemService(Context.CLIPBOARD_SERVICE) as ClipboardManager).setPrimaryClip(clipData)
                 Toasty.error(this, "调起QQ失败>_<群号已复制到剪贴板中", Toasty.LENGTH_LONG).show()
             }

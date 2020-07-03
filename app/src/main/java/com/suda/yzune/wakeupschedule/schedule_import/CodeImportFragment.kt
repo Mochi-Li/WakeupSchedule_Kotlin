@@ -36,7 +36,7 @@ class CodeImportFragment : BaseFragment() {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-        ViewUtils.resizeStatusBar(context!!.applicationContext, v_status)
+        ViewUtils.resizeStatusBar(requireContext().applicationContext, v_status)
 
         tv_import.setOnClickListener {
             val shareText = edit_text.text.toString()
@@ -51,7 +51,7 @@ class CodeImportFragment : BaseFragment() {
             val code = shareText.substringAfterLast("分享口令为「").substringBefore("」")
             launch {
                 tv_import.text = "导入中…请稍后"
-                val versionCode = UpdateUtils.getVersionCode(activity!!)
+                val versionCode = UpdateUtils.getVersionCode(requireActivity())
                 try {
                     val response = withContext(Dispatchers.IO) {
                         MyRetrofitUtils.instance.getService()
@@ -63,12 +63,12 @@ class CodeImportFragment : BaseFragment() {
                             gson.fromJson<MyResponse<String>>(response.body()!!.string(), object : TypeToken<MyResponse<String>>() {}.type)
                         }
                         if (body.data.isBlank()) {
-                            Toasty.error(activity!!, "数据读取失败>_<可能是分享口令已经过期了哦", Toasty.LENGTH_LONG).show()
+                            Toasty.error(requireActivity(), "数据读取失败>_<可能是分享口令已经过期了哦", Toasty.LENGTH_LONG).show()
                             tv_import.text = "点击导入"
                             return@launch
                         }
                         if (body.status != "1" || body.message != "success") {
-                            Toasty.info(activity!!, body.message, Toasty.LENGTH_LONG).show()
+                            Toasty.info(requireActivity(), body.message, Toasty.LENGTH_LONG).show()
                             tv_import.text = "点击导入"
                             return@launch
                         }
@@ -81,12 +81,12 @@ class CodeImportFragment : BaseFragment() {
                                 }
                             }
                         } else {
-                            activity!!.setResult(Activity.RESULT_OK)
-                            activity!!.finish()
+                            requireActivity().setResult(Activity.RESULT_OK)
+                            requireActivity().finish()
                         }
                     } else {
                         tv_import.text = "点击导入"
-                        Toasty.error(activity!!, "服务器似乎在开小差呢>_<请稍后再试", Toasty.LENGTH_LONG).show()
+                        Toasty.error(requireActivity(), "服务器似乎在开小差呢>_<请稍后再试", Toasty.LENGTH_LONG).show()
                     }
                 } catch (e: Exception) {
                     tv_import.text = "点击导入"
@@ -95,13 +95,13 @@ class CodeImportFragment : BaseFragment() {
                     } else {
                         "发生异常>_<${e.message}"
                     }
-                    Toasty.error(activity!!, msg, Toasty.LENGTH_LONG).show()
+                    Toasty.error(requireActivity(), msg, Toasty.LENGTH_LONG).show()
                 }
             }
         }
 
         ib_back.setOnClickListener {
-            activity!!.finish()
+            requireActivity().finish()
         }
     }
 

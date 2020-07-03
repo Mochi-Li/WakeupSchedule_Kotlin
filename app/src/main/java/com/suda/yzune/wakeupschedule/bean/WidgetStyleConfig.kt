@@ -52,4 +52,26 @@ class WidgetStyleConfig(context: Context, id: Int)
             }
         }
 
+    fun copy(config: WidgetStyleConfig) {
+        this.textColor = config.textColor
+        this.courseTextColor = config.courseTextColor
+        this.strokeColor = config.strokeColor
+        this.itemHeight = config.itemHeight
+        this.radius = config.radius
+        this.itemAlpha = config.itemAlpha
+        this.itemTextSize = config.itemTextSize
+        this.showBg = config.showBg
+        this.bgColor = config.bgColor
+        this.itemCenterHorizontal = config.itemCenterHorizontal
+        this.itemCenterVertical = config.itemCenterVertical
+        this.showTime = config.showTime
+        this.showTeacher = config.showTeacher
+        this.showTimeBar = config.showTimeBar
+        this.showSat = config.showSat
+        this.showSun = config.showSun
+        this.showOtherWeekCourse = config.showOtherWeekCourse
+        this.showDate = config.showDate
+        this.showColor = config.showColor
+    }
+
 }

@@ -2,7 +2,6 @@ package com.suda.yzune.wakeupschedule.schedule_import.login_school.jlu
 
 import android.graphics.Bitmap
 import android.graphics.BitmapFactory
-import android.util.Log
 import com.suda.yzune.wakeupschedule.schedule_import.exception.NetworkErrorException
 import com.suda.yzune.wakeupschedule.utils.Utils
 import kotlinx.coroutines.Dispatchers
@@ -119,7 +118,7 @@ class UIMS {
     suspend fun getCheckCode(user: String = ""): Bitmap {
         var url = ""
         var request: Request
-        if (this.needVPNS == true) {
+        if (this.needVPNS) {
             request = Request.Builder()
                     .url(Address.validCodeNeedVpnsAddress)
                     .header("Cookie", vpnscookie)
@@ -158,7 +157,7 @@ class UIMS {
                 .add("vcode", code)
                 .build()
 
-        if (this.needVPNS == true) {
+        if (this.needVPNS) {
             val request = Request.Builder()
                     .url(Address.hostNeedVpnsAddress + "/ntms/j_spring_security_check")
                     .header("User-Agent", "Mozilla/5.0 (Windows NT 9.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/70.0.3538.102 Safari/537.36")
@@ -167,7 +166,7 @@ class UIMS {
                     .header("Referer", Address.hostNeedVpnsAddress + "/ntms/userLogin.jsp?reason=nologin")
                     .post(formBody)
                     .build()
-            val response = withContext(Dispatchers.IO) {
+            withContext(Dispatchers.IO) {
                 httpClient.newCall(request).execute()
             }
         } else {
@@ -180,19 +179,17 @@ class UIMS {
                     .header("Referer", Address.hostAddress + "/ntms/userLogin.jsp?reason=nologin")
                     .post(formBody)
                     .build()
-            val response = withContext(Dispatchers.IO) {
+            withContext(Dispatchers.IO) {
                 httpClient.newCall(request).execute()
             }
         }
-
-
     }
 
 
     suspend fun getCurrentUserInfo() {
         val formBody = FormBody.Builder().build()
         lateinit var request: Request
-        if (this.needVPNS == true) {
+        if (this.needVPNS) {
             request = Request.Builder()
                     .url(Address.hostNeedVpnsAddress + "/ntms/action/getCurrentUserInfo.do?vpn-12-o2-uims.jlu.edu.cn")
                     .header("Referer", Address.hostNeedVpnsAddress + "/ntms/index.do")
@@ -216,8 +213,10 @@ class UIMS {
                     .build()
         }
         val response = withContext(Dispatchers.IO) { httpClient.newCall(request).execute() }
-        val bufferedReader = BufferedReader(
-                InputStreamReader(response.body()?.byteStream(), "UTF-8"), 8 * 1024)
+        val bufferedReader = withContext(Dispatchers.IO) {
+            BufferedReader(
+                    InputStreamReader(response.body()?.byteStream(), "UTF-8"), 8 * 1024)
+        }
         val entityStringBuilder = StringBuilder()
 
         withContext(Dispatchers.IO) {
@@ -247,7 +246,7 @@ class UIMS {
 
         val requestBody = RequestBody.create(mediaType, jsonObject.toString())
         lateinit var request: Request
-        if (this.needVPNS == true) {
+        if (this.needVPNS) {
             request = Request.Builder()
                     .url(Address.hostNeedVpnsAddress + "/ntms/service/res.do?vpn-12-o2-uims.jlu.edu.cn")
                     .header("User-Agent", "Mozilla/5.0 (Windows NT 9.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/70.0.3538.102 Safari/537.36")
@@ -272,8 +271,10 @@ class UIMS {
         }
 
         val response = withContext(Dispatchers.IO) { httpClient.newCall(request).execute() }
-        val bufferedReader = BufferedReader(
-                InputStreamReader(response.body()!!.byteStream(), "UTF-8"), 8 * 1024)
+        val bufferedReader = withContext(Dispatchers.IO) {
+            BufferedReader(
+                    InputStreamReader(response.body()!!.byteStream(), "UTF-8"), 8 * 1024)
+        }
         val entityStringBuilder = StringBuilder()
         withContext(Dispatchers.IO) {
             var line = bufferedReader.readLine()
@@ -282,7 +283,6 @@ class UIMS {
                 line = bufferedReader.readLine()
             }
         }
-        Log.e("json", entityStringBuilder.toString())
         courseJSON = JSONObject(entityStringBuilder.toString())
     }
 

@@ -26,12 +26,13 @@ object Common {
     const val TYPE_HNIU = "hniu" // 湖南信息职业技术学院
     const val TYPE_HNUST = "hnust" // 湖南科技大学
     const val TYPE_JNU = "jnu" // 暨南大学
-    const val TYPE_WHU = "whu" // 武汉大学
     const val TYPE_HUNNU = "hunnu" // 湖南师范大学
     const val TYPE_ECJTU = "ecjtu" // 华东交通大学
     const val TYPE_SHU = "shu"// 上海大学
     const val TYPE_SIT = "sit"// 上海应用技术大学
     const val TYPE_AHNU = "ahnu" // 安徽师范大学
+    const val TYPE_SCAU = "scau" // 四川农业大学
+    const val TYPE_SDU = "sdu" // 山东大学
     const val TYPE_JZ = "jz" // 金智教务
     const val TYPE_JZ_1 = "jz_1"
     const val TYPE_LOGIN = "login" // 模拟登录方式
@@ -95,7 +96,7 @@ object Common {
             "方向",
             "专业必修课",
             "全选",
-            "专业"
+            "专业", "学必", "学选", "通必"
     )
 
     private val headerNodePattern = Regex("""第.*节""")

@@ -211,22 +211,6 @@ class WebViewLoginFragment : BaseFragment() {
                     }
         }
 
-        if (viewModel.importType == Common.TYPE_WHU) {
-            tips = SpannableStringBuilder()
-                    .append("1. 在上方输入教务网址。\n")
-                    .append("2. 登录教务后，最终能够导入到第几周的课程似乎跟页面周数选择有关，请多次尝试，请导入后仔细检查。\n")
-                    .append("3. 点击右下角的按钮完成导入。\n")
-                    .append("4. 如果遇到网页错位等问题，可以尝试取消底栏的「电脑模式」或者调节字体缩放。")
-                    .apply {
-                        val text1 = "似乎跟页面周数选择有关"
-                        val index1 = this.indexOf(text1)
-                        val text2 = "导入后仔细检查"
-                        val index2 = this.indexOf(text2)
-                        setSpan(foregroundColorSpan(), index1, index1 + text1.length, Spannable.SPAN_EXCLUSIVE_INCLUSIVE)
-                        setSpan(foregroundColorSpan(), index2, index2 + text2.length, Spannable.SPAN_EXCLUSIVE_INCLUSIVE)
-                    }
-        }
-
         if (viewModel.importType == Common.TYPE_URP_NEW) {
             cg_new_urp.visibility = View.VISIBLE
             chip_new_urp.isChecked = true

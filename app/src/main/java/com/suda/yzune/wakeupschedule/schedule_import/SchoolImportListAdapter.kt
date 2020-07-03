@@ -40,7 +40,6 @@ class SchoolImportListAdapter(data: MutableList<SchoolInfo>) :
             Common.TYPE_BNUZ to "", // 北京师范大学珠海分校
             Common.TYPE_HNIU to "", // 湖南信息职业技术学院
             Common.TYPE_HNUST to "", // 湖南科技大学
-            Common.TYPE_WHU to "", // 武汉大学
             Common.TYPE_ECJTU to "by @Preciously", // 华东交通大学
             Common.TYPE_JNU to "by @Jiuh-star", // 暨南大学
             Common.TYPE_HUNNU to "by @fearc", // 湖南师范大学
@@ -114,7 +113,7 @@ class SchoolImportListAdapter(data: MutableList<SchoolInfo>) :
         if (item.type == Common.TYPE_LOGIN) {
             helper.setText(R.id.anko_tv_value, "by @${thanksMap[item.name]}")
         } else if (item.sortKey != "通" && item.type != Common.TYPE_HELP) {
-            helper.setText(R.id.anko_tv_value, map[item.type])
+            helper.setText(R.id.anko_tv_value, map[item.type] ?: "")
         } else {
             helper.setText(R.id.anko_tv_value, "")
         }

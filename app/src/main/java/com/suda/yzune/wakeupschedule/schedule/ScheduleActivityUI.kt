@@ -22,8 +22,6 @@ import androidx.core.view.setMargins
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import androidx.viewpager.widget.ViewPager
-import com.google.android.material.bottomnavigation.BottomNavigationView
-import com.google.android.material.bottomnavigation.LabelVisibilityMode
 import com.google.android.material.bottomsheet.BottomSheetBehavior
 import com.google.android.material.button.MaterialButton
 import com.google.android.material.card.MaterialCardView
@@ -214,42 +212,10 @@ class ScheduleActivityUI(override val ctx: Context) : Ui {
         haloRadius = 0
         thumbRadius = dip(4)
         thumbElevation = 0f
-        thumbColor = ViewUtils.createColorStateList(Color.WHITE)
+        thumbTintList = ViewUtils.createColorStateList(Color.WHITE)
         trackHeight = dip(16)
-        tickColor = ViewUtils.createColorStateList(Color.TRANSPARENT)
+        tickTintList = ViewUtils.createColorStateList(Color.TRANSPARENT)
         isSaveEnabled = false
-    }
-
-    private val shortCutTitle = AppCompatTextView(ctx).apply {
-        id = R.id.bottom_sheet_title_shortcut
-        text = "捷径"
-        textSize = 12f
-    }
-
-    val bottomNavigationView = BottomNavigationView(ctx).apply {
-        id = R.id.bottom_sheet_nav_view
-        elevation = 0f
-        setBackgroundColor(Color.TRANSPARENT)
-        inflateMenu(R.menu.bottom_nav_menu)
-        val color = shortCutTitle.textColors
-        itemTextColor = color
-        itemIconTintList = color
-        labelVisibilityMode = LabelVisibilityMode.LABEL_VISIBILITY_LABELED
-        itemTextAppearanceActive = R.style.BottomNavigationViewText
-        itemTextAppearanceInactive = R.style.BottomNavigationViewText
-    }
-
-    val bottomNavigationView2 = BottomNavigationView(ctx).apply {
-        id = R.id.bottom_sheet_nav_view2
-        elevation = 0f
-        setBackgroundColor(Color.TRANSPARENT)
-        inflateMenu(R.menu.bottom_nav_menu2)
-        val color = shortCutTitle.textColors
-        itemTextColor = color
-        itemIconTintList = color
-        labelVisibilityMode = LabelVisibilityMode.LABEL_VISIBILITY_LABELED
-        itemTextAppearanceActive = R.style.BottomNavigationViewText
-        itemTextAppearanceInactive = R.style.BottomNavigationViewText
     }
 
     private val cardContent0 = ConstraintLayout(ctx).apply {
@@ -310,10 +276,60 @@ class ScheduleActivityUI(override val ctx: Context) : Ui {
         })
     }
 
-    private val cardContent1 = LinearLayout(ctx).apply {
-        orientation = LinearLayout.VERTICAL
-        addView(bottomNavigationView, LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, dip(64)))
-        addView(bottomNavigationView2, LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, dip(64)))
+    val cardContent1 = ConstraintLayout(ctx).apply {
+        addView(createNavButton(R.id.main_nav_time, "上课时间", R.drawable.ic_outline_access_time_24),
+                ConstraintLayout.LayoutParams(ConstraintLayout.LayoutParams.MATCH_CONSTRAINT, dip(64)).apply {
+                    topToTop = PARENT_ID
+                    startToStart = PARENT_ID
+                    endToStart = R.id.main_nav_bg
+                    bottomToTop = R.id.main_nav_about
+                })
+        addView(createNavButton(R.id.main_nav_bg, "更换背景", R.drawable.ic_outline_photo_24),
+                ConstraintLayout.LayoutParams(ConstraintLayout.LayoutParams.MATCH_CONSTRAINT, dip(64)).apply {
+                    topToTop = PARENT_ID
+                    startToEnd = R.id.main_nav_time
+                    endToStart = R.id.main_nav_course
+                })
+        addView(createNavButton(R.id.main_nav_course, "已添课程", R.drawable.ic_outline_event_note_24),
+                ConstraintLayout.LayoutParams(ConstraintLayout.LayoutParams.MATCH_CONSTRAINT, dip(64)).apply {
+                    topToTop = PARENT_ID
+                    startToEnd = R.id.main_nav_bg
+                    endToStart = R.id.main_nav_help
+                })
+        addView(createNavButton(R.id.main_nav_help, "常见问题", R.drawable.ic_outline_help_outline_24),
+                ConstraintLayout.LayoutParams(ConstraintLayout.LayoutParams.MATCH_CONSTRAINT, dip(64)).apply {
+                    topToTop = PARENT_ID
+                    startToEnd = R.id.main_nav_course
+                    endToEnd = PARENT_ID
+                })
+        addView(createNavButton(R.id.main_nav_about, "关于", R.drawable.ic_outline_info_24),
+                ConstraintLayout.LayoutParams(ConstraintLayout.LayoutParams.MATCH_CONSTRAINT, dip(64)).apply {
+                    topToBottom = R.id.main_nav_time
+                    startToStart = PARENT_ID
+                    endToStart = R.id.main_nav_feedback
+                    bottomToBottom = PARENT_ID
+                })
+        addView(createNavButton(R.id.main_nav_feedback, "吐个槽", R.drawable.ic_outline_sms_24),
+                ConstraintLayout.LayoutParams(ConstraintLayout.LayoutParams.MATCH_CONSTRAINT, dip(64)).apply {
+                    topToTop = R.id.main_nav_about
+                    startToEnd = R.id.main_nav_about
+                    endToStart = R.id.main_nav_settings
+                    bottomToBottom = PARENT_ID
+                })
+        addView(createNavButton(R.id.main_nav_settings, "全局设置", R.drawable.ic_outline_settings_24),
+                ConstraintLayout.LayoutParams(ConstraintLayout.LayoutParams.MATCH_CONSTRAINT, dip(64)).apply {
+                    topToTop = R.id.main_nav_about
+                    startToEnd = R.id.main_nav_feedback
+                    endToStart = R.id.main_nav_suda
+                    bottomToBottom = PARENT_ID
+                })
+        addView(createNavButton(R.id.main_nav_suda, "苏大生活", R.drawable.ic_outline_school_24),
+                ConstraintLayout.LayoutParams(ConstraintLayout.LayoutParams.MATCH_CONSTRAINT, dip(64)).apply {
+                    topToTop = R.id.main_nav_about
+                    startToEnd = R.id.main_nav_settings
+                    endToEnd = PARENT_ID
+                    bottomToBottom = PARENT_ID
+                })
         if (context.getPrefer().getBoolean(Const.KEY_HIDE_NAV_BAR, false)) {
             ViewCompat.setOnApplyWindowInsetsListener(this) { _, insets ->
                 insets.consumeSystemWindowInsets()
@@ -389,7 +405,7 @@ class ScheduleActivityUI(override val ctx: Context) : Ui {
 
     }
 
-    fun createTextButton() = MaterialButton(ctx).apply {
+    private fun createTextButton() = MaterialButton(ctx).apply {
         setTextColor(colorSL(R.color.mtrl_text_btn_text_color_selector))
         val space = dip(8)
         setPadding(space, 0, space, 0)
@@ -397,6 +413,22 @@ class ScheduleActivityUI(override val ctx: Context) : Ui {
         rippleColor = colorSL(R.color.mtrl_btn_text_btn_ripple_color)
         elevation = 0f
         stateListAnimator = StateListAnimator()
+    }
+
+    private fun createNavButton(_id: Int, title: String, icon: Int) = LinearLayout(ctx).apply {
+        id = _id
+        orientation = LinearLayout.VERTICAL
+        gravity = Gravity.CENTER
+        setBackgroundResource(outValue.resourceId)
+        addView(AppCompatImageView(context).apply {
+            setImageResource(icon)
+        })
+        addView(AppCompatTextView(context).apply {
+            textSize = 10f
+            text = title
+        }, LinearLayout.LayoutParams(LinearLayout.LayoutParams.WRAP_CONTENT, LinearLayout.LayoutParams.WRAP_CONTENT).apply {
+            topMargin = dip(4)
+        })
     }
 
 }

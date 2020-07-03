@@ -312,6 +312,7 @@ class MainStyleFragment : BaseFragment(), ColorPickerFragment.ColorPickerDialogL
             "显示非本周课程" -> viewModel.tableConfig.showOtherWeekCourse = isChecked
             "格子文字水平居中" -> viewModel.tableConfig.itemCenterHorizontal = isChecked
             "格子文字竖直居中" -> viewModel.tableConfig.itemCenterVertical = isChecked
+            "节数栏显示时间" -> viewModel.tableConfig.showTimeBar = isChecked
         }
         item.checked = isChecked
         launch { loadSchedule() }

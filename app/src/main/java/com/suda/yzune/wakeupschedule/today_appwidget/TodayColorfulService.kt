@@ -53,10 +53,10 @@ class TodayColorfulService : RemoteViewsService() {
         override fun onDataSetChanged() {
             // todo: 换成记录的id值而不是当前显示的
             if (appWidgetId == -1) return
+            styleConfig = WidgetStyleConfig(applicationContext, appWidgetId)
             table = tableDao.getTableByIdSync(getPrefer().getInt(Const.KEY_SHOW_TABLE_ID, 1))
                     ?: return
             tableConfig = TableConfig(applicationContext, table.id)
-            styleConfig = WidgetStyleConfig(applicationContext, appWidgetId)
             try {
                 week = CourseUtils.countWeek(tableConfig.startDate, tableConfig.sundayFirst, nextDay)
             } catch (e: ParseException) {

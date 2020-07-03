@@ -61,6 +61,7 @@ class WeekScheduleAppWidgetConfigActivity : BaseBlurTitleActivity() {
                 launch {
                     viewModel.insertWeekAppWidgetData(AppWidgetBean(mAppWidgetId, 0, 0, ""))
                     WidgetStyleConfig(applicationContext, mAppWidgetId).tableId = list[position].id
+                    WidgetStyleConfig(applicationContext, mAppWidgetId).copy(WidgetStyleConfig(applicationContext, -2))
                     AppWidgetUtils.refreshScheduleWidget(applicationContext, appWidgetManager, mAppWidgetId)
                     val resultValue = Intent()
                     resultValue.putExtra(AppWidgetManager.EXTRA_APPWIDGET_ID, mAppWidgetId)
@@ -87,6 +88,7 @@ class WeekScheduleAppWidgetConfigActivity : BaseBlurTitleActivity() {
             launch {
                 // Log.d("包名", appWidgetManager.getAppWidgetInfo(mAppWidgetId).provider.shortClassName)
                 viewModel.insertWeekAppWidgetData(AppWidgetBean(mAppWidgetId, 0, 1, ""))
+                WidgetStyleConfig(applicationContext, mAppWidgetId).copy(WidgetStyleConfig(applicationContext, -1))
                 AppWidgetUtils.refreshTodayWidget(applicationContext, appWidgetManager, mAppWidgetId)
                 val resultValue = Intent()
                 resultValue.putExtra(AppWidgetManager.EXTRA_APPWIDGET_ID, mAppWidgetId)

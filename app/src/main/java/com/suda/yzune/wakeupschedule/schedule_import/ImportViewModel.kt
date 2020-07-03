@@ -86,7 +86,8 @@ class ImportViewModel(application: Application) : AndroidViewModel(application) 
             Common.TYPE_JZ_1 -> JinZhiCourseFormTableParser(source)
             Common.TYPE_HUNNU -> HUNNUParser(source)
             Common.TYPE_AHNU -> AHNUParser(source)
-            Common.TYPE_WHU -> WHUParser(source)
+            Common.TYPE_SCAU -> SCAUParser(source)
+            Common.TYPE_SDU -> SDUParser(source)
             Common.TYPE_ECJTU -> ECJTUParser(source)
             Common.TYPE_UMOOC -> UMoocParser(source)
             Common.TYPE_SHU -> SHUParser(source)
@@ -624,7 +625,7 @@ class ImportViewModel(application: Application) : AndroidViewModel(application) 
         }
         val tableId = getNewId()
         TableConfig(getApplication(), tableId, tableCompat)
-        val table = TableBean(tableId, tableCompat.timeTable, 0)
+        val table = TableBean(tableId, timeTableId, 0)
         courseBaseList.forEach {
             it.tableId = tableId
         }

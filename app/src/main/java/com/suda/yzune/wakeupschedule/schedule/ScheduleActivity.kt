@@ -24,6 +24,7 @@ import androidx.coordinatorlayout.widget.CoordinatorLayout
 import androidx.core.app.ShareCompat
 import androidx.core.content.edit
 import androidx.core.view.ViewCompat
+import androidx.core.view.children
 import androidx.core.view.updateLayoutParams
 import androidx.lifecycle.Observer
 import androidx.viewpager.widget.ViewPager
@@ -378,74 +379,79 @@ class ScheduleActivity : BaseActivity() {
             }, Const.REQUEST_CODE_SCHEDULE_SETTING)
         }
 
-        ui.bottomNavigationView.setOnNavigationItemSelectedListener {
-            when (it.itemId) {
-                R.id.nav_time -> {
-                    startActivityForResult(Intent(this,
-                            TimeSettingsActivity::class.java).apply {
-                        putExtra("tableData", viewModel.table)
-                    }, Const.REQUEST_CODE_SCHEDULE_SETTING)
-                }
-                R.id.nav_bg -> {
-                    startActivityForResult(Intent(this,
-                            ScheduleSettingsActivity::class.java).apply {
-                        putExtra("tableData", viewModel.table)
-                        putExtra("action", R.id.action_scheduleSettingsFragment_to_mainStyleFragment)
-                        putExtra("settingItem", "课程表背景")
-                    }, Const.REQUEST_CODE_SCHEDULE_SETTING)
-                }
-                R.id.nav_course -> {
-                    start<ScheduleManageActivity> {
-                        putExtra("selectedTableId", viewModel.table.id)
+        ui.cardContent1.children.forEach {
+            val action: () -> Any = when (it.id) {
+                R.id.main_nav_time -> {
+                    {
+                        startActivityForResult(Intent(this,
+                                TimeSettingsActivity::class.java).apply {
+                            putExtra("tableData", viewModel.table)
+                        }, Const.REQUEST_CODE_SCHEDULE_SETTING)
                     }
                 }
-                R.id.nav_help -> {
-                    Utils.openUrl(this, "https://support.qq.com/embed/97617/faqs-more")
+                R.id.main_nav_bg -> {
+                    {
+                        startActivityForResult(Intent(this,
+                                ScheduleSettingsActivity::class.java).apply {
+                            putExtra("tableData", viewModel.table)
+                            putExtra("action", R.id.action_scheduleSettingsFragment_to_mainStyleFragment)
+                            putExtra("settingItem", "课程表背景")
+                        }, Const.REQUEST_CODE_SCHEDULE_SETTING)
+                    }
                 }
-            }
-            return@setOnNavigationItemSelectedListener true
-        }
-
-        val sudaMenu = ui.bottomNavigationView2.findViewById<View>(R.id.nav_suda)
-        if (!getPrefer().getBoolean(Const.KEY_SHOW_SUDA_LIFE, true)) {
-            ui.bottomNavigationView2.menu.findItem(R.id.nav_suda).apply {
-                icon = null
-                title = ""
-            }
-            sudaMenu.visibility = View.INVISIBLE
-        }
-        ui.bottomNavigationView2.setOnNavigationItemSelectedListener {
-            when (it.itemId) {
-                R.id.nav_setting -> {
-                    startActivityForResult(Intent(this, SettingsActivity::class.java), Const.REQUEST_CODE_SCHEDULE_SETTING)
-                }
-                R.id.nav_feedback -> {
-                    Utils.openUrl(this, "https://support.qq.com/product/97617")
-                    Toasty.info(this, "吐槽后隔天记得回来看看回复哦~", Toasty.LENGTH_LONG).show()
-                }
-                R.id.nav_about -> {
-                    start<AboutActivity>()
-                }
-                R.id.nav_suda -> {
-                    if (getPrefer().getBoolean(Const.KEY_SHOW_SUDA_LIFE, true)) {
-                        val popup = PopupMenu(this, sudaMenu)
-                        popup.menuInflater.inflate(R.menu.suda_life_menu, popup.menu)
-                        popup.setOnMenuItemClickListener { item ->
-                            when (item.itemId) {
-                                R.id.menu_empty_room -> start<SudaLifeActivity> {
-                                    putExtra("type", "空教室")
-                                }
-                                R.id.menu_bathroom -> start<SudaLifeActivity> {
-                                    putExtra("type", "澡堂")
-                                }
-                            }
-                            return@setOnMenuItemClickListener true
+                R.id.main_nav_course -> {
+                    {
+                        start<ScheduleManageActivity> {
+                            putExtra("selectedTableId", viewModel.table.id)
                         }
-                        popup.show()
                     }
                 }
+                R.id.main_nav_help -> {
+                    { Utils.openUrl(this, "https://support.qq.com/embed/97617/faqs-more") }
+                }
+                R.id.main_nav_settings -> {
+                    { startActivityForResult(Intent(this, SettingsActivity::class.java), Const.REQUEST_CODE_SCHEDULE_SETTING) }
+                }
+                R.id.main_nav_feedback -> {
+                    {
+                        Utils.openUrl(this, "https://support.qq.com/product/97617")
+                        Toasty.info(this, "吐槽后隔天记得回来看看回复哦~", Toasty.LENGTH_LONG).show()
+                    }
+
+                }
+                R.id.main_nav_about -> {
+                    { start<AboutActivity>() }
+                }
+                R.id.main_nav_suda -> {
+                    if (!getPrefer().getBoolean(Const.KEY_SHOW_SUDA_LIFE, true)) {
+                        it.visibility = View.INVISIBLE
+                    }
+                    {
+                        if (getPrefer().getBoolean(Const.KEY_SHOW_SUDA_LIFE, true)) {
+                            val popup = PopupMenu(this, it)
+                            popup.menuInflater.inflate(R.menu.suda_life_menu, popup.menu)
+                            popup.setOnMenuItemClickListener { item ->
+                                when (item.itemId) {
+                                    R.id.menu_empty_room -> start<SudaLifeActivity> {
+                                        putExtra("type", "空教室")
+                                    }
+                                    R.id.menu_bathroom -> start<SudaLifeActivity> {
+                                        putExtra("type", "澡堂")
+                                    }
+                                }
+                                return@setOnMenuItemClickListener true
+                            }
+                            popup.show()
+                        }
+                    }
+                }
+                else -> {
+                    {}
+                }
             }
-            return@setOnNavigationItemSelectedListener true
+            it.setOnClickListener {
+                action.invoke()
+            }
         }
     }
 
@@ -621,6 +627,8 @@ class ScheduleActivity : BaseActivity() {
                                 startActivityForResult(Intent(this@ScheduleActivity,
                                         ScheduleSettingsActivity::class.java).apply {
                                     putExtra("tableData", viewModel.table)
+                                    putExtra("action", R.id.action_scheduleSettingsFragment_to_tableConfigFragment)
+                                    putExtra("settingItem", "当前周")
                                 }, Const.REQUEST_CODE_SCHEDULE_SETTING)
                             }
                             .setNegativeButton(R.string.cancel, null)
