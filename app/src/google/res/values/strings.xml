@@ -1,3 +1,4 @@
 <resources>
-    <string name="app_name">WakeUp课程表Pro</string>
+    <string name="app_name">WakeUp Schedule Pro</string>
+    <string name="setting_advanced_func">高级功能</string>
 </resources>

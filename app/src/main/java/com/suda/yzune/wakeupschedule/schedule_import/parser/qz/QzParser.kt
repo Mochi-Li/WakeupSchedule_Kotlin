@@ -10,12 +10,21 @@ open class QzParser(source: String) : Parser(source) {
     private var sundayFirst = false
     open val tableName = "kbcontent"
 
+    open fun getNode(nodeCount: Int): IntArray {
+        return intArrayOf(nodeCount * 2 - 1, nodeCount * 2)
+    }
+
     open fun parseCourseName(infoStr: String): String {
+        if (infoStr.startsWith("节次:") && infoStr.contains("<br>")) {
+            return infoStr
+                    .substringBefore("<font").trim().split("<br>").find { it.contains("学时]") }?.substringBefore("[")
+                    ?: ""
+        }
         return Jsoup.parse(infoStr.substringBefore("<font").trim()).text()
     }
 
     open fun convert(day: Int, nodeCount: Int, infoStr: String, courseList: MutableList<Course>) {
-        val node = nodeCount * 2 - 1
+        val node = getNode(nodeCount)
         val courseHtml = Jsoup.parse(infoStr)
         val courseName = parseCourseName(infoStr)
         val teacher = courseHtml.getElementsByAttributeValue("title", "老师").text().trim()
@@ -50,7 +59,7 @@ open class QzParser(source: String) : Parser(source) {
                     Course(
                             name = courseName, room = room,
                             teacher = teacher, day = day,
-                            startNode = node, endNode = node + 1,
+                            startNode = node[0], endNode = node[1],
                             startWeek = startWeek, endWeek = endWeek,
                             type = type
                     )

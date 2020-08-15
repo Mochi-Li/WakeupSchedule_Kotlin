@@ -13,7 +13,7 @@
         android:layout_marginTop="24dp"
         android:layout_marginBottom="8dp"
         android:gravity="center"
-        android:text="请选择时间"
+        android:text="@string/add_course_title_select_time"
         android:textStyle="bold" />
 
     <androidx.appcompat.widget.LinearLayoutCompat
@@ -74,14 +74,14 @@
             style="@style/DialogButtonStyle"
             android:layout_width="0dp"
             android:layout_weight="1"
-            android:text="取消" />
+            android:text="@string/cancel" />
 
         <com.google.android.material.button.MaterialButton
             android:id="@+id/btn_save"
             style="@style/DialogButtonStyle"
             android:layout_width="0dp"
             android:layout_weight="1"
-            android:text="保存"
+            android:text="@string/save"
             android:textColor="@color/colorAccent"
             android:textStyle="bold" />
     </androidx.appcompat.widget.LinearLayoutCompat>

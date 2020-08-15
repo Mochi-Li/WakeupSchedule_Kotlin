@@ -92,7 +92,7 @@ class ScheduleActivity : BaseActivity() {
                     viewModel.updateFromOldVer(json)
                     Toasty.success(this@ScheduleActivity, "升级成功~").show()
                 } catch (e: Exception) {
-                    Toasty.error(this@ScheduleActivity, "出现异常>_<\n${e.message}").show()
+                    Toasty.error(this@ScheduleActivity, getString(R.string.error_with_exception, e.message)).show()
                 }
             }
         }
@@ -233,9 +233,12 @@ class ScheduleActivity : BaseActivity() {
         for (i in 0 until ui.content.childCount) {
             val view = ui.content.getChildAt(i)
             when (view) {
-                is AppCompatTextView -> view.setTextColor(viewModel.tableConfig.textColor)
+                is AppCompatTextView -> {
+                    view.setTextColor(viewModel.tableConfig.textColor)
+                }
                 is AppCompatImageButton -> {
                     view.imageTintList = ViewUtils.createColorStateList(viewModel.tableConfig.textColor)
+
                 }
             }
         }
@@ -342,7 +345,7 @@ class ScheduleActivity : BaseActivity() {
                     .setTitle(R.string.setting_schedule_name)
                     .setView(R.layout.dialog_edit_text)
                     .setNegativeButton(R.string.cancel, null)
-                    .setPositiveButton(R.string.sure, null)
+                    .setPositiveButton(R.string.ok, null)
                     .create()
             dialog.show()
             val inputLayout = dialog.findViewById<TextInputLayout>(R.id.text_input_layout)
@@ -350,15 +353,15 @@ class ScheduleActivity : BaseActivity() {
             dialog.getButton(AlertDialog.BUTTON_POSITIVE).setOnClickListener {
                 val value = editText?.text
                 if (value.isNullOrBlank()) {
-                    inputLayout?.error = "名称不能为空哦>_<"
+                    inputLayout?.error = getString(R.string.schedule_name_cant_empty)
                 } else {
                     launch {
                         try {
                             val tmp = viewModel.addBlankTable(editText.text.toString())
                             (ui.rvTableName.adapter as TableNameAdapter).addData(tmp)
-                            Toasty.success(this@ScheduleActivity, "新建成功~").show()
+                            Toasty.success(this@ScheduleActivity, R.string.create_success).show()
                         } catch (e: Exception) {
-                            Toasty.error(this@ScheduleActivity, "操作失败>_<").show()
+                            Toasty.error(this@ScheduleActivity, getString(R.string.error_with_exception, e.message)).show()
                         }
                         dialog.dismiss()
                     }
@@ -375,7 +378,7 @@ class ScheduleActivity : BaseActivity() {
                     ScheduleSettingsActivity::class.java).apply {
                 putExtra("tableData", viewModel.table)
                 putExtra("action", R.id.action_scheduleSettingsFragment_to_tableConfigFragment)
-                putExtra("settingItem", "当前周")
+                putExtra("settingItem", R.string.setting_current_week)
             }, Const.REQUEST_CODE_SCHEDULE_SETTING)
         }
 
@@ -395,7 +398,7 @@ class ScheduleActivity : BaseActivity() {
                                 ScheduleSettingsActivity::class.java).apply {
                             putExtra("tableData", viewModel.table)
                             putExtra("action", R.id.action_scheduleSettingsFragment_to_mainStyleFragment)
-                            putExtra("settingItem", "课程表背景")
+                            putExtra("settingItem", R.string.setting_background)
                         }, Const.REQUEST_CODE_SCHEDULE_SETTING)
                     }
                 }
@@ -415,7 +418,7 @@ class ScheduleActivity : BaseActivity() {
                 R.id.main_nav_feedback -> {
                     {
                         Utils.openUrl(this, "https://support.qq.com/product/97617")
-                        Toasty.info(this, "吐槽后隔天记得回来看看回复哦~", Toasty.LENGTH_LONG).show()
+                        Toasty.info(this, R.string.main_feedback_tips, Toasty.LENGTH_LONG).show()
                     }
 
                 }
@@ -461,23 +464,23 @@ class ScheduleActivity : BaseActivity() {
                 .maxWidth(dip(240))
                 .customView(R.layout.my_tooltip, R.id.tv_tip)
         val jumpTooltip = builder
-                .text("点这里快速回到当前周")
+                .text(getString(R.string.tooltip_current_week))
                 .anchor(ui.weekDayView)
                 .create()
         val addBtnTooltip = builder
-                .text("点这里手动添加课程")
+                .text(getString(R.string.tooltip_add_course))
                 .anchor(ui.addBtn)
                 .create()
         val importTooltip = builder
-                .text("点这里导入课表")
+                .text(getString(R.string.tooltip_import_schedule))
                 .anchor(ui.importBtn)
                 .create()
         val shareTooltip = builder
-                .text("点这里导出、分享课表")
+                .text(getString(R.string.tooltip_share))
                 .anchor(ui.shareBtn)
                 .create()
         val moreTooltip = builder
-                .text("点这里查看更多功能")
+                .text(getString(R.string.tooltip_more))
                 .anchor(ui.moreBtn)
                 .create()
         jumpTooltip.doOnHidden {
@@ -491,7 +494,7 @@ class ScheduleActivity : BaseActivity() {
                             showBottomSheetDialog()
                         }.show(ui.content, Tooltip.Gravity.LEFT)
                         moreTooltip.contentView?.findViewById<TextView>(R.id.btn_next)?.apply {
-                            text = "完成教程"
+                            text = this@ScheduleActivity.getString(R.string.tooltip_finish)
                             setOnClickListener {
                                 moreTooltip.hide()
                             }
@@ -561,7 +564,7 @@ class ScheduleActivity : BaseActivity() {
         }
 
         ui.weekDayView.setOnClickListener {
-            ui.weekDayView.text = CourseUtils.getWeekday()
+            ui.weekDayView.text = CourseUtils.getWeekday(this)
             if (viewModel.currentWeek > 0) {
                 ui.viewPager.currentItem = viewModel.currentWeek - 1
             } else {
@@ -576,15 +579,15 @@ class ScheduleActivity : BaseActivity() {
                 try {
                     if (viewModel.currentWeek > 0) {
                         if (viewModel.selectedWeek == viewModel.currentWeek) {
-                            ui.weekView.text = "第${viewModel.selectedWeek}周"
-                            ui.weekDayView.text = CourseUtils.getWeekday()
+                            ui.weekView.text = getString(R.string.week_num, viewModel.selectedWeek)
+                            ui.weekDayView.text = CourseUtils.getWeekday(this@ScheduleActivity)
                         } else {
-                            ui.weekView.text = "第${viewModel.selectedWeek}周"
-                            ui.weekDayView.text = "非本周"
+                            ui.weekView.text = getString(R.string.week_num, viewModel.selectedWeek)
+                            ui.weekDayView.text = getString(R.string.not_the_current_week)
                         }
                     } else {
-                        ui.weekView.text = "第${viewModel.selectedWeek}周"
-                        ui.weekDayView.text = "还没有开学哦"
+                        ui.weekView.text = getString(R.string.week_num, viewModel.selectedWeek)
+                        ui.weekDayView.text = getString(R.string.semester_not_start_yet)
                     }
                 } catch (e: ParseException) {
                     e.printStackTrace()
@@ -615,28 +618,32 @@ class ScheduleActivity : BaseActivity() {
             initEvent()
             viewModel.currentWeek = CourseUtils.countWeek(viewModel.tableConfig.startDate, viewModel.tableConfig.sundayFirst)
             viewModel.selectedWeek = viewModel.currentWeek
+            ui.weekDayView.text = CourseUtils.getWeekday(this@ScheduleActivity)
             if (viewModel.currentWeek > 0) {
                 if (viewModel.currentWeek <= viewModel.tableConfig.maxWeek) {
-                    ui.weekView.text = "第${viewModel.currentWeek}周"
+                    ui.weekView.text = getString(R.string.week_num, viewModel.currentWeek)
                 } else {
-                    ui.weekView.text = "当前周已超出设定范围"
+                    ui.weekView.text = getString(R.string.main_current_week_exceeded)
                     MaterialAlertDialogBuilder(this@ScheduleActivity)
-                            .setTitle("提示")
-                            .setMessage("发现当前周已超出设定的周数范围，是否去设置修改「当前周」或「开学日期」？")
-                            .setPositiveButton("打开设置") { _, _ ->
+                            .setTitle(R.string.title_tips)
+                            .setMessage(R.string.main_msg_current_week_exceeded)
+                            .setPositiveButton(R.string.main_dialog_go_to_schedule_settings) { _, _ ->
                                 startActivityForResult(Intent(this@ScheduleActivity,
                                         ScheduleSettingsActivity::class.java).apply {
                                     putExtra("tableData", viewModel.table)
                                     putExtra("action", R.id.action_scheduleSettingsFragment_to_tableConfigFragment)
-                                    putExtra("settingItem", "当前周")
+                                    putExtra("settingItem", R.string.setting_current_week)
                                 }, Const.REQUEST_CODE_SCHEDULE_SETTING)
                             }
                             .setNegativeButton(R.string.cancel, null)
                             .show()
                 }
+            } else {
+                ui.weekView.text = getString(R.string.week_num, 1)
+                ui.weekDayView.text = getString(R.string.semester_not_start_yet)
             }
             ui.weekSlider.value = 1f
-            ui.weekDayView.text = CourseUtils.getWeekday()
+
             if (viewModel.tableConfig.maxWeek > 1) {
                 ui.weekSlider.valueTo = viewModel.tableConfig.maxWeek.toFloat()
                 ui.weekSlider.valueFrom = 1f
@@ -679,7 +686,7 @@ class ScheduleActivity : BaseActivity() {
                             .setPositiveButton("查看教程") { _, _ ->
                                 Utils.openUrl(this@ScheduleActivity, "https://support.qq.com/embed/phone/97617/faqs/59883")
                             }
-                            .setNegativeButton("取消", null)
+                            .setNegativeButton(R.string.cancel, null)
                             .show()
                 }
             }
@@ -714,7 +721,7 @@ class ScheduleActivity : BaseActivity() {
                         MaterialAlertDialogBuilder(this@ScheduleActivity)
                                 .setTitle("导出失败>_<")
                                 .setMessage(e.message)
-                                .setPositiveButton(R.string.sure, null)
+                                .setPositiveButton(R.string.ok, null)
                                 .setCancelable(false)
                                 .show()
                     }
@@ -730,7 +737,7 @@ class ScheduleActivity : BaseActivity() {
                         MaterialAlertDialogBuilder(this@ScheduleActivity)
                                 .setTitle("导出失败>_<")
                                 .setMessage(e.message)
-                                .setPositiveButton(R.string.sure, null)
+                                .setPositiveButton(R.string.ok, null)
                                 .setCancelable(false)
                                 .show()
                     }

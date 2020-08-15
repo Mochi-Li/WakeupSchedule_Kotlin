@@ -1,28 +1,24 @@
 package com.suda.yzune.wakeupschedule.utils
 
+import android.content.Context
 import androidx.lifecycle.MutableLiveData
+import com.suda.yzune.wakeupschedule.R
 import com.suda.yzune.wakeupschedule.bean.CourseBean
 import com.suda.yzune.wakeupschedule.bean.CourseDetailBean
 import com.suda.yzune.wakeupschedule.bean.CourseEditBean
 import com.suda.yzune.wakeupschedule.bean.TimeBean
 import com.suda.yzune.wakeupschedule.schedule_import.Common
+import java.text.DateFormat
 import java.text.ParseException
 import java.text.SimpleDateFormat
 import java.util.*
 import kotlin.collections.ArrayList
 
 object CourseUtils {
-    fun getDayStr(weekDay: Int): String {
-        return when (weekDay) {
-            1 -> "周一"
-            2 -> "周二"
-            3 -> "周三"
-            4 -> "周四"
-            5 -> "周五"
-            6 -> "周六"
-            7 -> "周日"
-            else -> ""
-        }
+
+    fun getDayStr(context: Context, weekDay: Int): String {
+        if (weekDay < 1 || weekDay > 7) return ""
+        return context.resources.getStringArray(R.array.weekdays)[weekDay - 1]
     }
 
     fun courseBean2DetailBean(c: CourseBean): CourseDetailBean {
@@ -133,9 +129,9 @@ object CourseUtils {
         return during / 7 + 1
     }
 
-    fun getWeekday(nextDay: Boolean = false): String {
+    fun getWeekday(context: Context, nextDay: Boolean = false): String {
         val weekDay = getWeekdayInt(nextDay)
-        return getDayStr(weekDay)
+        return getDayStr(context, weekDay)
     }
 
     fun getWeekdayInt(nextDay: Boolean = false): Int {
@@ -153,7 +149,7 @@ object CourseUtils {
     }
 
     fun getTodayDate(): String {
-        val dateFormat = SimpleDateFormat("M月d日", Locale.CHINA)
+        val dateFormat = DateFormat.getDateInstance(DateFormat.DATE_FIELD)
         return dateFormat.format(Date())
     }
 

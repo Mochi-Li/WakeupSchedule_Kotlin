@@ -80,7 +80,7 @@ class CourseManageFragment : BaseFragment() {
                     .setTitle("提示")
                     .setMessage("真的要清空课表吗？这将无法恢复。")
                     .setNegativeButton(R.string.cancel, null)
-                    .setPositiveButton(R.string.sure) { _, _ ->
+                    .setPositiveButton(R.string.ok) { _, _ ->
                         launch {
                             try {
                                 viewModel.clearTable(table!!.id)
@@ -121,7 +121,7 @@ class CourseManageFragment : BaseFragment() {
             MaterialAlertDialogBuilder(requireContext())
                     .setTitle("提示")
                     .setMessage("确定要删除该课程吗？它的所有时间段都将会被删除。")
-                    .setPositiveButton(R.string.sure) { _, _ ->
+                    .setPositiveButton(R.string.ok) { _, _ ->
                         launch {
                             viewModel.deleteCourse(data[position])
                             adapter.removeAt(position)

@@ -35,29 +35,29 @@
         android:layout_marginEnd="16dp"
         android:gravity="center_horizontal"
         android:lineSpacingExtra="4dp"
-        android:text="相处一段日子\n很高兴遇见你\n请多多指教哦"
+        android:text="@string/donate_message"
         android:textSize="12sp" />
 
     <com.google.android.material.button.MaterialButton
         android:id="@+id/tv_star"
         style="@style/DialogButtonStyle"
         android:layout_marginTop="8dp"
-        android:text="应用商店五星好评" />
+        android:text="@string/donate_feedback" />
 
     <com.google.android.material.button.MaterialButton
         android:id="@+id/tv_weibo"
         style="@style/DialogButtonStyle"
-        android:text="微博求关注" />
+        android:text="@string/donate_follow_weibo" />
 
     <com.google.android.material.button.MaterialButton
         android:id="@+id/tv_donate"
         style="@style/DialogButtonStyle"
-        android:text="支付宝随意捐赠" />
+        android:text="@string/donate_alipay" />
 
     <com.google.android.material.button.MaterialButton
         android:id="@+id/tv_donate_list"
         style="@style/DialogButtonStyle"
         android:layout_marginBottom="8dp"
-        android:text="查看捐赠名单" />
+        android:text="@string/donate_view_list" />
 
 </androidx.appcompat.widget.LinearLayoutCompat>

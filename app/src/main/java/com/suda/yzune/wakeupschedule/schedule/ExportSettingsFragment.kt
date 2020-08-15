@@ -28,7 +28,7 @@ class ExportSettingsFragment : BaseDialogFragment() {
 
     val tableName by lazy(LazyThreadSafetyMode.NONE) {
         if (viewModel.tableConfig.tableName == "") {
-            "我的课表"
+            getString(R.string.table_name_default)
         } else {
             viewModel.tableConfig.tableName
         }
@@ -44,7 +44,7 @@ class ExportSettingsFragment : BaseDialogFragment() {
                 type = "application/octet-stream"
                 putExtra(Intent.EXTRA_TITLE, "$tableName.wakeup_schedule")
             }
-            Toasty.info(requireActivity(), "请自行选择导出的地方\n不要修改文件的扩展名哦", Toasty.LENGTH_LONG).show()
+            Toasty.info(requireActivity(), getString(R.string.export_tips), Toasty.LENGTH_LONG).show()
             activity?.startActivityForResult(intent, Const.REQUEST_CODE_EXPORT)
             dismiss()
         }
@@ -58,15 +58,15 @@ class ExportSettingsFragment : BaseDialogFragment() {
             val intent = Intent(Intent.ACTION_CREATE_DOCUMENT).apply {
                 addCategory(Intent.CATEGORY_OPENABLE)
                 type = "text/calendar"
-                putExtra(Intent.EXTRA_TITLE, "日历-$tableName")
+                putExtra(Intent.EXTRA_TITLE, getString(R.string.export_cal_title, tableName))
             }
-            Toasty.info(requireActivity(), "请自行选择导出的地方\n不要修改文件的扩展名哦", Toasty.LENGTH_LONG).show()
+            Toasty.info(requireActivity(), getString(R.string.export_tips), Toasty.LENGTH_LONG).show()
             activity?.startActivityForResult(intent, Const.REQUEST_CODE_EXPORT_ICS)
             dismiss()
         }
 
         tv_share.setOnClickListener {
-            tv_share.text = "上传中……请稍后"
+            tv_share.text = getString(R.string.export_uploading)
             val gson = Gson()
             launch {
                 try {
@@ -81,7 +81,7 @@ class ExportSettingsFragment : BaseDialogFragment() {
                         val body = withContext(Dispatchers.IO) {
                             gson.fromJson<MyResponse<String>>(response.body()!!.string(), object : TypeToken<MyResponse<String>>() {}.type)
                         }
-                        if (body.data.isBlank()) throw Exception("分享码为空")
+                        if (body.data.isBlank()) throw Exception(getString(R.string.export_exception_share_empty))
                         if (body.status != "1" || body.message != "success") {
                             Toasty.info(requireActivity(), body.message, Toasty.LENGTH_LONG).show()
                             dismiss()
@@ -92,14 +92,14 @@ class ExportSettingsFragment : BaseDialogFragment() {
                         }
                         dismiss()
                     } else {
-                        Toasty.error(requireActivity(), "服务器似乎在开小差呢>_<请稍后再试", Toasty.LENGTH_LONG).show()
+                        Toasty.error(requireActivity(), getString(R.string.error_server_not_respond), Toasty.LENGTH_LONG).show()
                         dismiss()
                     }
                 } catch (e: Exception) {
                     val msg = if (e is UnknownHostException) {
-                        "发生异常>_<请检查网络连接\n${e.message}"
+                        getString(R.string.error_with_network_exception, e.message)
                     } else {
-                        "发生异常>_<${e.message}"
+                        getString(R.string.error_with_exception, e.message)
                     }
                     Toasty.error(requireActivity(), msg, Toasty.LENGTH_LONG).show()
                     dismiss()

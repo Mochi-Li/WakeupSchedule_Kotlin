@@ -181,7 +181,7 @@ class ScheduleActivityUI(override val ctx: Context) : Ui {
 
     val changeWeekBtn = createTextButton().apply {
         id = R.id.bottom_sheet_change_week_btn
-        text = "修改当前周"
+        text = context.getString(R.string.main_modify_current_week)
         minWidth = 0
         minimumWidth = 0
         textSize = 12f
@@ -189,7 +189,7 @@ class ScheduleActivityUI(override val ctx: Context) : Ui {
 
     val createScheduleBtn = createTextButton().apply {
         id = R.id.bottom_sheet_create_schedule_btn
-        text = "新建课表"
+        text = context.getString(R.string.main_create_new_schedule)
         minWidth = 0
         minimumWidth = 0
         textSize = 12f
@@ -197,7 +197,7 @@ class ScheduleActivityUI(override val ctx: Context) : Ui {
 
     val manageScheduleBtn = createTextButton().apply {
         id = R.id.bottom_sheet_manage_schedule_btn
-        text = "管理"
+        text = context.getString(R.string.main_manage_schedules)
         minWidth = 0
         minimumWidth = 0
         textSize = 12f
@@ -207,7 +207,8 @@ class ScheduleActivityUI(override val ctx: Context) : Ui {
         id = R.id.bottom_sheet_slider_week
         stepSize = 1f
         setLabelFormatter {
-            "第 ${it.toInt()} 周"
+            context.getString(R.string.week_num, it.toInt())
+//            "第 ${it.toInt()} 周"
         }
         haloRadius = 0
         thumbRadius = dip(4)
@@ -223,7 +224,7 @@ class ScheduleActivityUI(override val ctx: Context) : Ui {
         isMotionEventSplittingEnabled = false
         addView(AppCompatTextView(context).apply {
             id = R.id.bottom_sheet_title_week
-            text = "周数"
+            text = context.getString(R.string.main_sheet_title_week)
             textSize = 12f
         }, ConstraintLayout.LayoutParams(ConstraintLayout.LayoutParams.WRAP_CONTENT, ConstraintLayout.LayoutParams.WRAP_CONTENT).apply {
             startToStart = PARENT_ID
@@ -246,7 +247,7 @@ class ScheduleActivityUI(override val ctx: Context) : Ui {
         })
         addView(AppCompatTextView(context).apply {
             id = R.id.bottom_sheet_title_schedule
-            text = "多课表"
+            text = context.getString(R.string.main_sheet_title_multi_schedules)
             textSize = 12f
         }, ConstraintLayout.LayoutParams(ConstraintLayout.LayoutParams.WRAP_CONTENT, ConstraintLayout.LayoutParams.WRAP_CONTENT).apply {
             startToStart = PARENT_ID

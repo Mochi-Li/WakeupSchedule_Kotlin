@@ -32,6 +32,7 @@ import com.suda.yzune.wakeupschedule.utils.ViewUtils
 import com.suda.yzune.wakeupschedule.widget.colorpicker.ColorPickerFragment
 import splitties.dimensions.dip
 import splitties.resources.dimenPxSize
+import splitties.resources.styledColor
 import kotlin.math.min
 
 class TodayWidgetConfigFrag : BaseFragment(), ColorPickerFragment.ColorPickerDialogListener {
@@ -42,7 +43,7 @@ class TodayWidgetConfigFrag : BaseFragment(), ColorPickerFragment.ColorPickerDia
     private val mAdapter = SettingItemAdapter()
 
     private val widgetBgItem by lazy(LazyThreadSafetyMode.NONE) {
-        VerticalItem("小部件背景颜色", "颜色跟透明度都可以哦\n长按恢复默认值")
+        VerticalItem(R.string.setting_widget_bg_color, "颜色跟透明度都可以哦\n长按恢复默认值")
     }
 
     private fun layout(constraintLayout: ConstraintLayout) {
@@ -50,9 +51,9 @@ class TodayWidgetConfigFrag : BaseFragment(), ColorPickerFragment.ColorPickerDia
             mRecyclerView = RecyclerView(context, null, R.attr.verticalRecyclerViewStyle).apply {
                 id = R.id.rv_list
                 overScrollMode = View.OVER_SCROLL_NEVER
+                setBackgroundColor(styledColor(R.attr.colorSurface))
             }
             frameLayout = FrameLayout(context).apply {
-                setBackgroundColor(Color.parseColor("#BEB1FF"))
                 id = R.id.anko_layout
             }
             frameLayout.addView(View.inflate(context, R.layout.today_course_app_widget, null), FrameLayout.LayoutParams(
@@ -116,15 +117,15 @@ class TodayWidgetConfigFrag : BaseFragment(), ColorPickerFragment.ColorPickerDia
     }
 
     private fun onItemsCreated(items: MutableList<BaseSettingItem>) {
-        items.add(VerticalItem("提示", "如果想调整小部件整体的高度，在这个页面是不行的！要回到桌面长按小部件来调整。华为和荣耀手机如果长按后调整不了，是第三方主题导致的，请切换回系统默认主题再调整。"))
-        items.add(VerticalItem("标题文字颜色", "指日期、节数等文字的颜色\n还可以调颜色的透明度哦 (●ﾟωﾟ●)"))
-        items.add(VerticalItem("课程文字颜色", "指课程格子内的颜色\n还可以调颜色的透明度哦 (●ﾟωﾟ●)"))
-        items.add(VerticalItem("格子边框颜色", "将不透明度调到最低就可以隐藏边框了哦"))
+        items.add(VerticalItem(R.string.title_tips, "如果想调整小部件整体的高度，在这个页面是不行的！要回到桌面长按小部件来调整。华为和荣耀手机如果长按后调整不了，是第三方主题导致的，请切换回系统默认主题再调整。"))
+        items.add(VerticalItem(R.string.setting_widget_header_text_color, "指日期、节数等文字的颜色\n还可以调颜色的透明度哦 (●ﾟωﾟ●)"))
+        items.add(VerticalItem(R.string.setting_course_text_color, "指课程格子内的颜色\n还可以调颜色的透明度哦 (●ﾟωﾟ●)"))
+        items.add(VerticalItem(R.string.setting_stroke_color, "将不透明度调到最低就可以隐藏边框了哦"))
         // items.add(SeekBarItem("格子高度", viewModel.widgetConfig.itemHeight, 32, 96, "dp"))
-        items.add(SeekBarItem("格子不透明度", viewModel.widgetConfig.itemAlpha, 0, 100, "%"))
-        items.add(SeekBarItem("格子文字大小", viewModel.widgetConfig.itemTextSize, 8, 16, "sp"))
-        items.add(SwitchItem("显示小部件色块", viewModel.widgetConfig.showColor))
-        items.add(SwitchItem("显示小部件背景", viewModel.widgetConfig.showBg))
+        items.add(SeekBarItem(R.string.setting_item_alpha, viewModel.widgetConfig.itemAlpha, 0, 100, "%"))
+        items.add(SeekBarItem(R.string.setting_course_text_size, viewModel.widgetConfig.itemTextSize, 8, 16, "sp"))
+        items.add(SwitchItem(R.string.setting_widget_show_color, viewModel.widgetConfig.showColor))
+        items.add(SwitchItem(R.string.setting_widget_show_bg, viewModel.widgetConfig.showBg))
         if (viewModel.widgetConfig.showBg) {
             items.add(widgetBgItem)
         }
@@ -136,8 +137,8 @@ class TodayWidgetConfigFrag : BaseFragment(), ColorPickerFragment.ColorPickerDia
 //        items.add(SwitchItem("显示周六", viewModel.widgetConfig.showSat))
 //        items.add(SwitchItem("显示周日", viewModel.widgetConfig.showSun))
 //        items.add(SwitchItem("显示非本周课程", viewModel.widgetConfig.showOtherWeekCourse))
-        items.add(SwitchItem("显示日期标题", viewModel.widgetConfig.showDate))
-        items.add(VerticalItem("", "\n\n\n"))
+        items.add(SwitchItem(R.string.setting_widget_show_date, viewModel.widgetConfig.showDate))
+        items.add(VerticalItem(R.string.setting_blank, "\n\n\n"))
     }
 
     private fun <T : View> find(@IdRes id: Int): T {
@@ -164,9 +165,8 @@ class TodayWidgetConfigFrag : BaseFragment(), ColorPickerFragment.ColorPickerDia
         }
         find<TextView>(R.id.tv_date).textSize = viewModel.widgetConfig.itemTextSize.toFloat() + 2
         find<TextView>(R.id.tv_week).textSize = viewModel.widgetConfig.itemTextSize.toFloat()
-        val dateSplit = viewModel.tableConfig.startDate.split("-")
-        find<TextView>(R.id.tv_date).text = "${dateSplit[1].removePrefix("0")}月${dateSplit[2].removePrefix("0")}日"
-        find<TextView>(R.id.tv_week).text = "第1周    ${CourseUtils.getWeekday()}"
+        find<TextView>(R.id.tv_date).text = CourseUtils.getTodayDate()
+        find<TextView>(R.id.tv_week).text = getString(R.string.week_num, 1) + "    ${CourseUtils.getWeekday(requireContext())}"
 
         find<TextView>(R.id.tv_date).setTextColor(viewModel.widgetConfig.textColor)
         find<TextView>(R.id.tv_week).setTextColor(viewModel.widgetConfig.textColor)
@@ -252,9 +252,9 @@ class TodayWidgetConfigFrag : BaseFragment(), ColorPickerFragment.ColorPickerDia
     private fun onSeekBarItemClick(item: SeekBarItem, position: Int) {
         Utils.showSeekBarItemDialog(requireContext(), item) { dialog, value ->
             when (item.title) {
-                "格子高度" -> viewModel.widgetConfig.itemHeight = value
-                "格子不透明度" -> viewModel.widgetConfig.itemAlpha = value
-                "格子文字大小" -> viewModel.widgetConfig.itemTextSize = value
+                R.string.setting_item_height -> viewModel.widgetConfig.itemHeight = value
+                R.string.setting_item_alpha -> viewModel.widgetConfig.itemAlpha = value
+                R.string.setting_course_text_size -> viewModel.widgetConfig.itemTextSize = value
             }
             item.valueInt = value
             mAdapter.notifyItemChanged(position)
@@ -265,15 +265,15 @@ class TodayWidgetConfigFrag : BaseFragment(), ColorPickerFragment.ColorPickerDia
 
     private fun onSwitchItemCheckChange(item: SwitchItem, isChecked: Boolean, position: Int) {
         when (item.title) {
-            "显示周六" -> viewModel.widgetConfig.showSat = isChecked
-            "显示周日" -> viewModel.widgetConfig.showSun = isChecked
-            "在格子内显示上课时间" -> viewModel.widgetConfig.showTime = isChecked
-            "在格子内显示授课老师" -> viewModel.widgetConfig.showTeacher = isChecked
-            "显示非本周课程" -> viewModel.widgetConfig.showOtherWeekCourse = isChecked
-            "格子文字水平居中" -> viewModel.widgetConfig.itemCenterHorizontal = isChecked
-            "格子文字竖直居中" -> viewModel.widgetConfig.itemCenterVertical = isChecked
-            "显示小部件色块" -> viewModel.widgetConfig.showColor = isChecked
-            "显示小部件背景" -> {
+            R.string.setting_show_sat -> viewModel.widgetConfig.showSat = isChecked
+            R.string.setting_show_sun -> viewModel.widgetConfig.showSun = isChecked
+            R.string.setting_item_show_time -> viewModel.widgetConfig.showTime = isChecked
+            R.string.setting_item_show_teacher -> viewModel.widgetConfig.showTeacher = isChecked
+            R.string.setting_show_other_week -> viewModel.widgetConfig.showOtherWeekCourse = isChecked
+            R.string.setting_item_center_horizontal -> viewModel.widgetConfig.itemCenterHorizontal = isChecked
+//            "格子文字竖直居中" -> viewModel.widgetConfig.itemCenterVertical = isChecked
+            R.string.setting_widget_show_color -> viewModel.widgetConfig.showColor = isChecked
+            R.string.setting_widget_show_bg -> {
                 viewModel.widgetConfig.showBg = isChecked
                 if (isChecked) {
                     mAdapter.addData(position + 1, widgetBgItem)
@@ -281,7 +281,7 @@ class TodayWidgetConfigFrag : BaseFragment(), ColorPickerFragment.ColorPickerDia
                     mAdapter.remove(widgetBgItem)
                 }
             }
-            "显示日期标题" -> viewModel.widgetConfig.showDate = isChecked
+            R.string.setting_widget_show_date -> viewModel.widgetConfig.showDate = isChecked
         }
         item.checked = isChecked
         launch { loadSchedule() }
@@ -289,16 +289,16 @@ class TodayWidgetConfigFrag : BaseFragment(), ColorPickerFragment.ColorPickerDia
 
     private fun onVerticalItemClick(item: VerticalItem) {
         when (item.title) {
-            "标题文字颜色" -> {
+            R.string.setting_widget_header_text_color -> {
                 Utils.buildColorPickerDialogBuilder(requireActivity(), viewModel.widgetConfig.textColor, Const.TITLE_COLOR)
             }
-            "课程文字颜色" -> {
+            R.string.setting_course_text_color -> {
                 Utils.buildColorPickerDialogBuilder(requireActivity(), viewModel.widgetConfig.courseTextColor, Const.COURSE_TEXT_COLOR)
             }
-            "格子边框颜色" -> {
+            R.string.setting_stroke_color -> {
                 Utils.buildColorPickerDialogBuilder(requireActivity(), viewModel.widgetConfig.strokeColor, Const.STROKE_COLOR)
             }
-            "小部件背景颜色" -> {
+            R.string.setting_widget_bg_color -> {
                 Utils.buildColorPickerDialogBuilder(requireActivity(), viewModel.widgetConfig.bgColor, Const.BG_COLOR)
             }
         }
@@ -306,7 +306,7 @@ class TodayWidgetConfigFrag : BaseFragment(), ColorPickerFragment.ColorPickerDia
 
     private fun onVerticalItemLongClick(item: VerticalItem): Boolean {
         return when (item.title) {
-            "小部件背景颜色" -> {
+            R.string.setting_widget_bg_color -> {
                 viewModel.widgetConfig.bgColor = DefaultValue.widgetBgColor
                 loadWidgetBg(DefaultValue.widgetBgColor)
                 true

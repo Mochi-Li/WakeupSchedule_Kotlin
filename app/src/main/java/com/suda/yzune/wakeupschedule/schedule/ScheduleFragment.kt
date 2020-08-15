@@ -49,7 +49,7 @@ class ScheduleFragment : BaseFragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         weekDate = CourseUtils.getDateStringFromWeek(CourseUtils.countWeek(viewModel.tableConfig.startDate, viewModel.tableConfig.sundayFirst), week, viewModel.tableConfig.sundayFirst)
-        ((view as ConstraintLayout).getViewById(R.id.anko_tv_title0) as TextView).text = weekDate[0] + "\n月"
+        ((view as ConstraintLayout).getViewById(R.id.anko_tv_title0) as TextView).text = getString(R.string.main_month, weekDate[0])
         var textView: TextView?
         for (i in 1..7) {
             if (ui.dayMap[i] == -1) continue

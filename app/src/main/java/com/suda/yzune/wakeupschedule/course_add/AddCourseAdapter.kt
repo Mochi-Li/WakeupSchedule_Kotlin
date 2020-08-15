@@ -21,11 +21,8 @@ class AddCourseAdapter(layoutResId: Int, data: MutableList<CourseEditBean>) :
         //helper.setText(R.id.tv_item, "${helper.layoutPosition}")
         helper.setText(R.id.et_room, item.room)
         helper.setText(R.id.et_teacher, item.teacher)
-
-        val week = Common.weekIntList2WeekBeanList(item.weekList.value!!).toString()
-        helper.setText(R.id.et_weeks, week.substring(1, week.length - 1))
-
-        helper.setText(R.id.et_time, "${CourseUtils.getDayStr(item.time.value!!.day)}    第${item.time.value!!.startNode} - ${item.time.value!!.endNode}节")
+        helper.setText(R.id.et_weeks, Common.weekIntList2WeekBeanListString(context, item.weekList.value!!))
+        helper.setText(R.id.et_time, context.getString(R.string.add_course_time, CourseUtils.getDayStr(context, item.time.value!!.day), item.time.value!!.startNode, item.time.value!!.endNode))
     }
 
     interface OnItemEditTextChangedListener {

@@ -111,7 +111,7 @@ class TodayCourseAppWidget : AppWidgetProvider() {
             if (context.getPrefer().getBoolean(Const.KEY_COURSE_REMIND, false)) {
                 val week = CourseUtils.countWeek(tableConfig.startDate, tableConfig.sundayFirst)
                 if (week >= 0) {
-                    val weekDay = CourseUtils.getWeekday()
+                    val weekDay = CourseUtils.getWeekday(context)
                     val before = context.getPrefer().getInt(Const.KEY_REMINDER_TIME, 20)
                     val type = if (week % 2 == 0) 2 else 1
                     val courseList = courseDao.getCourseByDayOfTable(CourseUtils.getWeekdayInt(), week, type, table.id)

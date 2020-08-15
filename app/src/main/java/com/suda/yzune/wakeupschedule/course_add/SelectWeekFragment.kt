@@ -153,7 +153,7 @@ class SelectWeekFragment : BaseDialogFragment() {
 
         btn_save.setOnClickListener {
             if (result.size == 0) {
-                Toasty.error(requireContext(), "请至少选择一周").show()
+                Toasty.error(requireContext(), getString(R.string.add_course_least_one_week)).show()
             } else {
                 viewModel.editList[position].weekList.value = result
                 dismiss()

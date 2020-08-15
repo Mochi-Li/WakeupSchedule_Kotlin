@@ -31,6 +31,7 @@ import com.suda.yzune.wakeupschedule.schedule_import.Common.TYPE_JZ
 import com.suda.yzune.wakeupschedule.schedule_import.Common.TYPE_JZ_1
 import com.suda.yzune.wakeupschedule.schedule_import.Common.TYPE_QZ
 import com.suda.yzune.wakeupschedule.schedule_import.Common.TYPE_QZ_2017
+import com.suda.yzune.wakeupschedule.schedule_import.Common.TYPE_QZ_BJFU
 import com.suda.yzune.wakeupschedule.schedule_import.Common.TYPE_QZ_BR
 import com.suda.yzune.wakeupschedule.schedule_import.Common.TYPE_QZ_CRAZY
 import com.suda.yzune.wakeupschedule.schedule_import.Common.TYPE_QZ_WITH_NODE
@@ -85,6 +86,7 @@ class WebViewLoginFragment : BaseFragment() {
     @JavascriptInterface
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
+        WebView.setWebContentsDebuggingEnabled(true)
         ViewUtils.resizeStatusBar(requireContext(), view.findViewById(R.id.v_status))
         ViewCompat.setOnApplyWindowInsetsListener(view) { v, insets ->
             v.updatePadding(bottom = insets.systemWindowInsets.bottom)
@@ -115,7 +117,7 @@ class WebViewLoginFragment : BaseFragment() {
                     .append("4. 如果遇到网页错位等问题，可以尝试取消底栏的「电脑模式」或者调节字体缩放。")
         }
 
-        if (viewModel.school == "强智教务" || viewModel.importType in arrayOf(TYPE_QZ, TYPE_QZ_BR, TYPE_QZ_CRAZY, TYPE_QZ_WITH_NODE, TYPE_QZ_2017)) {
+        if (viewModel.school == "强智教务" || viewModel.importType in arrayOf(TYPE_QZ, TYPE_QZ_BR, TYPE_QZ_CRAZY, TYPE_QZ_WITH_NODE, TYPE_QZ_2017, TYPE_QZ_BJFU)) {
             if (viewModel.importType == TYPE_QZ) {
                 cg_qz.visibility = View.VISIBLE
                 chip_qz1.isChecked = true
@@ -211,11 +213,18 @@ class WebViewLoginFragment : BaseFragment() {
                     }
         }
 
-        if (viewModel.importType == Common.TYPE_URP_NEW) {
-            cg_new_urp.visibility = View.VISIBLE
-            chip_new_urp.isChecked = true
-        } else {
-            cg_new_urp.visibility = View.GONE
+        when (viewModel.importType) {
+            Common.TYPE_URP_NEW -> {
+                cg_new_urp.visibility = View.VISIBLE
+                chip_new_urp.isChecked = true
+            }
+            Common.TYPE_URP_NEW_AJAX -> {
+                cg_new_urp.visibility = View.VISIBLE
+                chip_new_urp_ajax.isChecked = true
+            }
+            else -> {
+                cg_new_urp.visibility = View.GONE
+            }
         }
 
         MaterialAlertDialogBuilder(requireContext())
@@ -281,6 +290,7 @@ class WebViewLoginFragment : BaseFragment() {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
             CookieManager.getInstance().setAcceptThirdPartyCookies(wv_course, true)
         }
+        wv_course.loadUrl("javascript:jQuery=1;")
         initEvent()
     }
 
@@ -300,7 +310,7 @@ class WebViewLoginFragment : BaseFragment() {
                     .setTitle("设置缩放")
                     .setView(R.layout.dialog_edit_text)
                     .setNegativeButton(R.string.cancel, null)
-                    .setPositiveButton(R.string.sure, null)
+                    .setPositiveButton(R.string.ok, null)
                     .create()
             dialog.show()
             val inputLayout = dialog.findViewById<TextInputLayout>(R.id.text_input_layout)
@@ -466,7 +476,11 @@ class WebViewLoginFragment : BaseFragment() {
                 }
             } else if (viewModel.importType == Common.TYPE_URP || viewModel.isUrp) {
                 if (!isRefer) {
-                    val referUrl = getHostUrl() + "xkAction.do?actionType=6"
+                    val referUrl = if (wv_course.url.endsWith("loginAction.do")) {
+                        wv_course.url.replace("loginAction.do", "xkAction.do?actionType=6")
+                    } else {
+                        getHostUrl() + "xkAction.do?actionType=6"
+                    }
                     wv_course.loadUrl(referUrl)
                     it.longSnack("请在看到网页加载完成后，再点一次右下角按钮")
                     isRefer = true

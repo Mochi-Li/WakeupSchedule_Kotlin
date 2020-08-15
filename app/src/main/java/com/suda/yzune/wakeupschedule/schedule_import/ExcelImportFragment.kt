@@ -21,10 +21,10 @@ class ExcelImportFragment : BaseFragment() {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-        ViewUtils.resizeStatusBar(context!!, v_status)
+        ViewUtils.resizeStatusBar(requireContext(), v_status)
 
         tv_template.setOnClickListener {
-            Utils.openUrl(activity!!, "https://pan.baidu.com/s/1m9gZ-grvQV6S9isu7NeMVQ")
+            Utils.openUrl(requireActivity(), "https://wws.lanzous.com/iBdomev0hvi")
         }
 
         tv_self.setOnClickListener {
@@ -40,7 +40,7 @@ class ExcelImportFragment : BaseFragment() {
         }
 
         ib_back.setOnClickListener {
-            activity!!.finish()
+            requireActivity().finish()
         }
     }
 

@@ -31,13 +31,13 @@ class ToolsFragment : BaseListFragment() {
     }
 
     private fun onItemsCreated(items: MutableList<BaseSettingItem>) {
-        items.add(VerticalItem("上下移动课程", "将第 n 节之后的课程批量上移/下移，可以用来修正导入的错误，或是添加早读午休"))
-        items.add(VerticalItem("", "\n\n\n"))
+//        items.add(VerticalItem("上下移动课程", "将第 n 节之后的课程批量上移/下移，可以用来修正导入的错误，或是添加早读午休"))
+//        items.add(VerticalItem("", "\n\n\n"))
     }
 
     private fun onVerticalItemClick(item: VerticalItem) {
-        when (item.title) {
-            "上下移动课程" -> ShiftCourseFragment.newInstance().show(parentFragmentManager, null)
-        }
+//        when (item.title) {
+//            "上下移动课程" -> ShiftCourseFragment.newInstance().show(parentFragmentManager, null)
+//        }
     }
 }

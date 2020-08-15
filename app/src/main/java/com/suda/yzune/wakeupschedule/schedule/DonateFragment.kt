@@ -22,10 +22,10 @@ class DonateFragment : BaseDialogFragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         initEvent()
-        if (BuildConfig.CHANNEL == "google" || (BuildConfig.CHANNEL == "huawei" && !context!!.getPrefer().getBoolean(Const.KEY_SHOW_DONATE, false))) {
+        if (BuildConfig.CHANNEL == "google" || (BuildConfig.CHANNEL == "huawei" && !requireContext().getPrefer().getBoolean(Const.KEY_SHOW_DONATE, false))) {
             tv_donate.visibility = View.GONE
         }
-        if (BuildConfig.CHANNEL == "huawei" && !context!!.getPrefer().getBoolean(Const.KEY_SHOW_DONATE, false)) {
+        if (BuildConfig.CHANNEL == "huawei" && !requireContext().getPrefer().getBoolean(Const.KEY_SHOW_DONATE, false)) {
             tv_donate_list.visibility = View.GONE
         }
     }
@@ -40,9 +40,9 @@ class DonateFragment : BaseDialogFragment() {
                 val intent = Intent(Intent.ACTION_VIEW)
                 intent.addCategory("android.intent.category.DEFAULT")
                 intent.data = Uri.parse("sinaweibo://userinfo?uid=6970231444")
-                activity!!.startActivity(intent)
+                requireActivity().startActivity(intent)
             } catch (e: Exception) {
-                Toasty.info(context!!, "没有检测到微博客户端o(╥﹏╥)o").show()
+                Toasty.info(requireContext(), getString(R.string.donate_cant_open_weibo)).show()
             }
         }
 
@@ -51,9 +51,9 @@ class DonateFragment : BaseDialogFragment() {
                 val uri = Uri.parse("market://details?id=com.suda.yzune.wakeupschedule")
                 val intent = Intent(Intent.ACTION_VIEW, uri)
                 intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
-                activity!!.startActivity(intent)
+                requireActivity().startActivity(intent)
             } catch (e: Exception) {
-                Toasty.info(context!!, "没有检测到应用商店o(╥﹏╥)o").show()
+                Toasty.info(requireContext(), getString(R.string.donate_cant_open_appstore)).show()
             }
         }
 
@@ -66,9 +66,9 @@ class DonateFragment : BaseDialogFragment() {
                     intent.data = qrCodeUrl
                     intent.setClassName("com.eg.android.AlipayGphone", "com.alipay.mobile.quinox.LauncherActivity")
                     startActivity(intent)
-                    Toasty.success(context!!, "非常感谢(*^▽^*)").show()
+                    Toasty.success(requireContext(), getString(R.string.donate_thanks)).show()
                 } catch (e: Exception) {
-                    Toasty.info(context!!, "没有检测到支付宝客户端o(╥﹏╥)o").show()
+                    Toasty.info(requireContext(), getString(R.string.donate_cant_open_alipay)).show()
                 }
             }
         }
@@ -89,7 +89,7 @@ class DonateFragment : BaseDialogFragment() {
 //        }
 
         tv_donate_list.setOnClickListener {
-            activity!!.start<DonateActivity>()
+            requireActivity().start<DonateActivity>()
         }
     }
 

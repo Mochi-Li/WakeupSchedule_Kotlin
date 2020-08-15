@@ -1,7 +1,9 @@
 package com.suda.yzune.wakeupschedule.settings.items
 
+import androidx.annotation.StringRes
+
 data class SeekBarItem(
-        val name: String,
+        @StringRes val name: Int,
         var valueInt: Int,
         val min: Int,
         var max: Int,

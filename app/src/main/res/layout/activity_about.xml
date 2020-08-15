@@ -50,7 +50,7 @@
             android:layout_width="match_parent"
             android:layout_height="match_parent"
             android:gravity="center_vertical"
-            android:text="WakeUp俱乐部"
+            android:text="@string/wakeup_club"
             android:textSize="16sp" />
 
     </androidx.appcompat.widget.LinearLayoutCompat>
@@ -71,7 +71,7 @@
             android:layout_width="match_parent"
             android:layout_height="match_parent"
             android:gravity="center_vertical"
-            android:text="项目源码"
+            android:text="@string/project_code"
             android:textSize="16sp" />
 
     </androidx.appcompat.widget.LinearLayoutCompat>
@@ -92,7 +92,7 @@
             android:layout_width="match_parent"
             android:layout_height="match_parent"
             android:gravity="center_vertical"
-            android:text="常见问题"
+            android:text="@string/qa"
             android:textSize="16sp" />
 
     </androidx.appcompat.widget.LinearLayoutCompat>
@@ -113,7 +113,7 @@
             android:layout_width="match_parent"
             android:layout_height="match_parent"
             android:gravity="center_vertical"
-            android:text="课程表交流群"
+            android:text="@string/about_qq_group"
             android:textSize="16sp" />
 
     </androidx.appcompat.widget.LinearLayoutCompat>
@@ -134,7 +134,7 @@
             android:layout_width="match_parent"
             android:layout_height="match_parent"
             android:gravity="center_vertical"
-            android:text="新浪微博"
+            android:text="@string/about_weibo"
             android:textSize="16sp" />
 
     </androidx.appcompat.widget.LinearLayoutCompat>
@@ -155,7 +155,7 @@
             android:layout_width="match_parent"
             android:layout_height="match_parent"
             android:gravity="center_vertical"
-            android:text="评价一下"
+            android:text="@string/about_feedback"
             android:textSize="16sp" />
 
     </androidx.appcompat.widget.LinearLayoutCompat>

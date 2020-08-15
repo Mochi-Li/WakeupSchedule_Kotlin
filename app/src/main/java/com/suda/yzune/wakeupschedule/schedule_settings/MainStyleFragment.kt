@@ -135,7 +135,7 @@ class MainStyleFragment : BaseFragment(), ColorPickerFragment.ColorPickerDialogL
         onItemsCreated(items)
         mAdapter.data = items
         initEvent()
-        val settingItem = arguments?.getString("settingItem")
+        val settingItem = arguments?.getInt("settingItem")
         if (settingItem != null && savedInstanceState == null) {
             mRecyclerView.postDelayed({
                 try {
@@ -155,23 +155,23 @@ class MainStyleFragment : BaseFragment(), ColorPickerFragment.ColorPickerDialogL
     }
 
     private fun onItemsCreated(items: MutableList<BaseSettingItem>) {
-        items.add(VerticalItem("课程表背景", "长按可以恢复默认哦~"))
-        items.add(VerticalItem("界面文字颜色", "指标题等字体的颜色\n还可以调颜色的透明度哦 (●ﾟωﾟ●)"))
-        items.add(VerticalItem("课程文字颜色", "指课程格子内的颜色\n还可以调颜色的透明度哦 (●ﾟωﾟ●)"))
-        items.add(VerticalItem("格子边框颜色", "将不透明度调到最低就可以隐藏边框了哦"))
-        items.add(SeekBarItem("格子高度", viewModel.tableConfig.itemHeight, 32, 128, "dp"))
-        items.add(SeekBarItem("格子圆角半径", viewModel.tableConfig.radius, 0, 32, "dp"))
-        items.add(SeekBarItem("格子不透明度", viewModel.tableConfig.itemAlpha, 0, 100, "%"))
-        items.add(SeekBarItem("格子文字大小", viewModel.tableConfig.itemTextSize, 8, 16, "sp"))
-        items.add(SwitchItem("格子文字水平居中", viewModel.tableConfig.itemCenterHorizontal))
+        items.add(VerticalItem(R.string.setting_background, "长按可以恢复默认哦~"))
+        items.add(VerticalItem(R.string.setting_header_color, "指标题等字体的颜色\n还可以调颜色的透明度哦 (●ﾟωﾟ●)"))
+        items.add(VerticalItem(R.string.setting_course_text_color, "指课程格子内的颜色\n还可以调颜色的透明度哦 (●ﾟωﾟ●)"))
+        items.add(VerticalItem(R.string.setting_stroke_color, "将不透明度调到最低就可以隐藏边框了哦"))
+        items.add(SeekBarItem(R.string.setting_item_height, viewModel.tableConfig.itemHeight, 32, 128, "dp"))
+        items.add(SeekBarItem(R.string.setting_item_radius, viewModel.tableConfig.radius, 0, 32, "dp"))
+        items.add(SeekBarItem(R.string.setting_item_alpha, viewModel.tableConfig.itemAlpha, 0, 100, "%"))
+        items.add(SeekBarItem(R.string.setting_course_text_size, viewModel.tableConfig.itemTextSize, 8, 16, "sp"))
+        items.add(SwitchItem(R.string.setting_item_center_horizontal, viewModel.tableConfig.itemCenterHorizontal))
         // items.add(SwitchItem("格子文字竖直居中", viewModel.tableConfig.itemCenterVertical))
-        items.add(SwitchItem("在格子内显示上课时间", viewModel.tableConfig.showTime))
-        items.add(SwitchItem("在格子内显示授课老师", viewModel.tableConfig.showTeacher))
-        items.add(SwitchItem("节数栏显示时间", viewModel.tableConfig.showTimeBar))
-        items.add(SwitchItem("显示周六", viewModel.tableConfig.showSat))
-        items.add(SwitchItem("显示周日", viewModel.tableConfig.showSun))
-        items.add(SwitchItem("显示非本周课程", viewModel.tableConfig.showOtherWeekCourse))
-        items.add(VerticalItem("", "\n\n\n"))
+        items.add(SwitchItem(R.string.setting_item_show_time, viewModel.tableConfig.showTime))
+        items.add(SwitchItem(R.string.setting_item_show_teacher, viewModel.tableConfig.showTeacher))
+        items.add(SwitchItem(R.string.setting_show_time_bar, viewModel.tableConfig.showTimeBar))
+        items.add(SwitchItem(R.string.setting_show_sat, viewModel.tableConfig.showSat))
+        items.add(SwitchItem(R.string.setting_show_sun, viewModel.tableConfig.showSun))
+        items.add(SwitchItem(R.string.setting_show_other_week, viewModel.tableConfig.showOtherWeekCourse))
+        items.add(VerticalItem(R.string.setting_blank, "\n\n\n"))
     }
 
     private suspend fun loadSchedule() {
@@ -182,7 +182,7 @@ class MainStyleFragment : BaseFragment(), ColorPickerFragment.ColorPickerDialogL
         frameLayout.addView(schedule.root, FrameLayout.LayoutParams(
                 FrameLayout.LayoutParams.MATCH_PARENT, FrameLayout.LayoutParams.MATCH_PARENT))
         val weekDate = CourseUtils.getDateStringFromWeek(CourseUtils.countWeek(viewModel.tableConfig.startDate, viewModel.tableConfig.sundayFirst), 1, viewModel.tableConfig.sundayFirst)
-        (schedule.root.getViewById(R.id.anko_tv_title0) as TextView).text = weekDate[0] + "\n月"
+        (schedule.root.getViewById(R.id.anko_tv_title0) as TextView).text = getString(R.string.main_month, weekDate[0])
         var textView: TextView?
         for (i in 1..7) {
             if (schedule.dayMap[i] == -1) continue
@@ -291,10 +291,10 @@ class MainStyleFragment : BaseFragment(), ColorPickerFragment.ColorPickerDialogL
     private fun onSeekBarItemClick(item: SeekBarItem, position: Int) {
         Utils.showSeekBarItemDialog(requireContext(), item) { dialog, value ->
             when (item.title) {
-                "格子高度" -> viewModel.tableConfig.itemHeight = value
-                "格子圆角半径" -> viewModel.tableConfig.radius = value
-                "格子不透明度" -> viewModel.tableConfig.itemAlpha = value
-                "格子文字大小" -> viewModel.tableConfig.itemTextSize = value
+                R.string.setting_item_height -> viewModel.tableConfig.itemHeight = value
+                R.string.setting_item_radius -> viewModel.tableConfig.radius = value
+                R.string.setting_item_alpha -> viewModel.tableConfig.itemAlpha = value
+                R.string.setting_course_text_size -> viewModel.tableConfig.itemTextSize = value
             }
             item.valueInt = value
             mAdapter.notifyItemChanged(position)
@@ -305,14 +305,14 @@ class MainStyleFragment : BaseFragment(), ColorPickerFragment.ColorPickerDialogL
 
     private fun onSwitchItemCheckChange(item: SwitchItem, isChecked: Boolean, position: Int) {
         when (item.title) {
-            "显示周六" -> viewModel.tableConfig.showSat = isChecked
-            "显示周日" -> viewModel.tableConfig.showSun = isChecked
-            "在格子内显示上课时间" -> viewModel.tableConfig.showTime = isChecked
-            "在格子内显示授课老师" -> viewModel.tableConfig.showTeacher = isChecked
-            "显示非本周课程" -> viewModel.tableConfig.showOtherWeekCourse = isChecked
-            "格子文字水平居中" -> viewModel.tableConfig.itemCenterHorizontal = isChecked
-            "格子文字竖直居中" -> viewModel.tableConfig.itemCenterVertical = isChecked
-            "节数栏显示时间" -> viewModel.tableConfig.showTimeBar = isChecked
+            R.string.setting_show_sat -> viewModel.tableConfig.showSat = isChecked
+            R.string.setting_show_sun -> viewModel.tableConfig.showSun = isChecked
+            R.string.setting_item_show_time -> viewModel.tableConfig.showTime = isChecked
+            R.string.setting_item_show_teacher -> viewModel.tableConfig.showTeacher = isChecked
+            R.string.setting_show_other_week -> viewModel.tableConfig.showOtherWeekCourse = isChecked
+            R.string.setting_item_center_horizontal -> viewModel.tableConfig.itemCenterHorizontal = isChecked
+//            "格子文字竖直居中" -> viewModel.tableConfig.itemCenterVertical = isChecked
+            R.string.setting_show_time_bar -> viewModel.tableConfig.showTimeBar = isChecked
         }
         item.checked = isChecked
         launch { loadSchedule() }
@@ -320,7 +320,7 @@ class MainStyleFragment : BaseFragment(), ColorPickerFragment.ColorPickerDialogL
 
     private fun onVerticalItemClick(item: VerticalItem) {
         when (item.title) {
-            "课程表背景" -> {
+            R.string.setting_background -> {
                 MaterialAlertDialogBuilder(requireContext())
                         .setTitle("设置背景类型")
                         .setItems(arrayOf("图片背景", "纯色背景")) { _, which ->
@@ -345,13 +345,13 @@ class MainStyleFragment : BaseFragment(), ColorPickerFragment.ColorPickerDialogL
                         }
                         .show()
             }
-            "界面文字颜色" -> {
+            R.string.setting_header_color -> {
                 buildColorPickerDialogBuilder(requireActivity(), viewModel.tableConfig.textColor, TITLE_COLOR)
             }
-            "课程文字颜色" -> {
+            R.string.setting_course_text_color -> {
                 buildColorPickerDialogBuilder(requireActivity(), viewModel.tableConfig.courseTextColor, COURSE_TEXT_COLOR)
             }
-            "格子边框颜色" -> {
+            R.string.setting_stroke_color -> {
                 buildColorPickerDialogBuilder(requireActivity(), viewModel.tableConfig.strokeColor, STROKE_COLOR)
             }
         }
@@ -359,7 +359,7 @@ class MainStyleFragment : BaseFragment(), ColorPickerFragment.ColorPickerDialogL
 
     private fun onVerticalItemLongClick(item: VerticalItem): Boolean {
         return when (item.title) {
-            "课程表背景" -> {
+            R.string.setting_background -> {
                 viewModel.tableConfig.background = ""
                 loadBg()
                 Toasty.success(requireContext(), "恢复默认壁纸成功~").show()

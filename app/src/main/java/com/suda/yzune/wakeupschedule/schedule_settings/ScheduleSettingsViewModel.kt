@@ -3,6 +3,7 @@ package com.suda.yzune.wakeupschedule.schedule_settings
 import android.app.Application
 import androidx.lifecycle.AndroidViewModel
 import com.suda.yzune.wakeupschedule.AppDatabase
+import com.suda.yzune.wakeupschedule.R
 import com.suda.yzune.wakeupschedule.bean.*
 import com.suda.yzune.wakeupschedule.utils.CourseUtils
 import java.util.*
@@ -21,7 +22,9 @@ class ScheduleSettingsViewModel(application: Application) : AndroidViewModel(app
     private val timeDao = dataBase.timeDetailDao()
     private val widgetDao = dataBase.appWidgetDao()
 
-    val daysArray by lazy(LazyThreadSafetyMode.NONE) { arrayOf("日", "一", "二", "三", "四", "五", "六", "日") }
+    val daysArray by lazy(LazyThreadSafetyMode.NONE) {
+        application.resources.getStringArray(R.array.main_weekdays)
+    }
     val courseArray by lazy(LazyThreadSafetyMode.NONE) {
         arrayOf(listOf(CourseBean(0, "高等数学", 1,
                 "理工楼110", "小洁", 1, 2, 1, 20, 0, "#2979ff", tableConfig.id)),

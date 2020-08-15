@@ -80,7 +80,7 @@ class TimeTableFragment : BaseFragment() {
                     .setTitle("时间表名字")
                     .setView(R.layout.dialog_edit_text)
                     .setNegativeButton(R.string.cancel, null)
-                    .setPositiveButton(R.string.sure, null)
+                    .setPositiveButton(R.string.ok, null)
                     .create()
             dialog.show()
             val inputLayout = dialog.findViewById<TextInputLayout>(R.id.text_input_layout)

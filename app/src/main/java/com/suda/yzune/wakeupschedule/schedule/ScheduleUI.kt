@@ -3,6 +3,7 @@ package com.suda.yzune.wakeupschedule.schedule
 import android.content.Context
 import android.graphics.Color
 import android.graphics.Typeface
+import android.os.Build
 import android.util.TypedValue
 import android.view.Gravity
 import android.view.View
@@ -389,9 +390,18 @@ class ScheduleUI(override val ctx: Context, private val tableConfig: TableConfig
                         detailFragment.show(fragmentActivity.supportFragmentManager, "courseDetail")
                     } catch (e: Exception) {
                         //TODO: 提示是否要删除异常的数据
-                        Toasty.error(fragmentActivity, "哎呀>_<差点崩溃了").show()
+                        Toasty.error(fragmentActivity, ctx.getString(R.string.msg_crash)).show()
                     }
                 }
+
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
+                    textView.setOnLongClickListener {
+                        val shadowBuilder = View.DragShadowBuilder(it)
+                        it.startDragAndDrop(null, shadowBuilder, 1, 0)
+                        return@setOnLongClickListener true
+                    }
+                }
+
             }
 
             ll.addView(textView, FrameLayout.LayoutParams(FrameLayout.LayoutParams.MATCH_PARENT,

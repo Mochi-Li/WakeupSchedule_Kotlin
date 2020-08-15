@@ -74,6 +74,7 @@ class ImportViewModel(application: Application) : AndroidViewModel(application) 
             Common.TYPE_QZ_OLD -> OldQzParser(source)
             Common.TYPE_QZ_CRAZY -> QzCrazyParser(source)
             Common.TYPE_QZ_BR -> QzBrParser(source)
+            Common.TYPE_QZ_BJFU -> QzBJFUParser(source)
             Common.TYPE_QZ_WITH_NODE -> QzWithNodeParser(source)
             Common.TYPE_QZ_2017 -> Qz2017Parser(source)
             Common.TYPE_CF -> ChengFangParser(source)
@@ -88,10 +89,15 @@ class ImportViewModel(application: Application) : AndroidViewModel(application) 
             Common.TYPE_AHNU -> AHNUParser(source)
             Common.TYPE_SCAU -> SCAUParser(source)
             Common.TYPE_SDU -> SDUParser(source)
+            Common.TYPE_HIT -> HITParser(source)
             Common.TYPE_ECJTU -> ECJTUParser(source)
             Common.TYPE_UMOOC -> UMoocParser(source)
             Common.TYPE_SHU -> SHUParser(source)
             Common.TYPE_SIT -> SITParser(source)
+            Common.TYPE_CQMU -> SupwisdomCQMUParser(source)
+            Common.TYPE_LNTU -> SupwisdomLNTUParser(source)
+            Common.TYPE_XATU -> SupwisdomXATUParser(source)
+            Common.TYPE_VATUU -> VATUUParser(source)
             else -> null
         }
         return parser?.saveCourse(getApplication(), importId) { baseList, detailList ->
@@ -308,7 +314,7 @@ class ImportViewModel(application: Application) : AndroidViewModel(application) 
                 }
 
                 firstornot = true//确保下一行的index是本activity的first
-                val matcher = Pattern.compile("TaskActivity\\(.+?,\"(.+?)\",.+?,\"(.+?)\",.+?,\"(.+?)\",\"(.+)\"").matcher(text)
+                val matcher = Pattern.compile("TaskActivity\\(.+?,\"(.*?)\",.+?,\"(.+?)\",.+?,\"(.+?)\",\"(.+)\"").matcher(text)
                 matcher.find()
                 val matchRs = matcher.toMatchResult()
                 if (lclass != matchRs.group(2)) {//课程不同

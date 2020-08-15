@@ -154,7 +154,7 @@ open class ScheduleStyleConfig(context: Context, name: String) {
 }
 
 object DefaultValue {
-    const val startDate: String = "2020-02-03"
+    const val startDate: String = "2020-09-07"
     const val nodes: Int = 20
     const val maxWeek: Int = 20
     const val itemHeight: Int = 64
@@ -173,7 +173,7 @@ object DefaultValue {
     const val showWidgetBg: Boolean = false
     const val showDate: Boolean = true
     const val showColor: Boolean = true
-    const val widgetBgColor: Int = 0x80ffffff.toInt()
+    const val widgetBgColor: Int = 0xD8ffffff.toInt()
     const val itemCenterHorizontal: Boolean = false
     const val itemCenterVertical: Boolean = false
     const val radius: Int = 4

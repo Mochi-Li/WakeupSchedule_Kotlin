@@ -54,7 +54,7 @@ class AddCourseActivity : BaseListActivity(), ColorPickerFragment.ColorPickerDia
 
     override fun onSetupSubButton(): View? {
         val tvButton = AppCompatTextView(this)
-        tvButton.text = "保存"
+        tvButton.text = getString(R.string.save)
         tvButton.typeface = Typeface.DEFAULT_BOLD
         tvButton.setTextColor(color(R.color.colorAccent))
         tvButton.setOnClickListener {
@@ -153,7 +153,7 @@ class AddCourseActivity : BaseListActivity(), ColorPickerFragment.ColorPickerDia
 
     private fun saveAndExit() {
         if (viewModel.baseBean.courseName == "") {
-            Toasty.error(this, "请填写课程名称").show()
+            Toasty.error(this, getString(R.string.add_course_error_input_course_name)).show()
         } else {
             if (viewModel.baseBean.id == -1 || !viewModel.updateFlag) {
                 launch {
@@ -179,7 +179,7 @@ class AddCourseActivity : BaseListActivity(), ColorPickerFragment.ColorPickerDia
                 R.id.ll_time -> {
                     viewModel.editList[position].time.observe(this, Observer {
                         val textView = adapter.getViewByPosition(position + 1, R.id.et_time) as AppCompatTextView
-                        textView.text = "${CourseUtils.getDayStr(it!!.day)}    第${it.startNode} - ${it.endNode}节"
+                        textView.text = getString(R.string.add_course_time, CourseUtils.getDayStr(this, it!!.day), it.startNode, it.endNode)
                     })
                     val selectTimeDialog = SelectTimeFragment.newInstance(position)
                     selectTimeDialog.isCancelable = false
@@ -187,7 +187,7 @@ class AddCourseActivity : BaseListActivity(), ColorPickerFragment.ColorPickerDia
                 }
                 R.id.ib_delete -> {
                     if (adapter.data.size == 1) {
-                        Toasty.error(this, "至少要保留一个时间段").show()
+                        Toasty.error(this, getString(R.string.add_course_at_lease_one_period)).show()
                     } else {
                         adapter.removeAt(position)
                     }
@@ -196,8 +196,7 @@ class AddCourseActivity : BaseListActivity(), ColorPickerFragment.ColorPickerDia
                     viewModel.editList[position].weekList.observe(this, Observer {
                         it!!.sort()
                         val textView = adapter.getViewByPosition(position + 1, R.id.et_weeks) as AppCompatTextView
-                        val text = Common.weekIntList2WeekBeanList(it).toString()
-                        textView.text = text.substring(1, text.length - 1)
+                        textView.text = Common.weekIntList2WeekBeanListString(this, it)
                     })
                     val selectWeekDialog = SelectWeekFragment.newInstance(position)
                     selectWeekDialog.isCancelable = false
@@ -209,7 +208,7 @@ class AddCourseActivity : BaseListActivity(), ColorPickerFragment.ColorPickerDia
                         if (viewModel.teacherList == null) {
                             viewModel.teacherList = viewModel.getExistedTeachers()
                         }
-                        EditDetailFragment.newInstance("授课老师", viewModel.teacherList!!, viewModel.editList[position].teacher
+                        EditDetailFragment.newInstance(getString(R.string.add_course_teacher), viewModel.teacherList!!, viewModel.editList[position].teacher
                                 ?: "").apply {
                             listener = object : EditDetailFragment.OnSaveClickedListener {
                                 override fun save(editText: AppCompatEditText, dialog: Dialog) {
@@ -234,7 +233,7 @@ class AddCourseActivity : BaseListActivity(), ColorPickerFragment.ColorPickerDia
                         if (viewModel.roomList == null) {
                             viewModel.roomList = viewModel.getExistedRooms()
                         }
-                        EditDetailFragment.newInstance("上课地点", viewModel.roomList!!, viewModel.editList[position].room
+                        EditDetailFragment.newInstance(getString(R.string.add_course_classroom), viewModel.roomList!!, viewModel.editList[position].room
                                 ?: "").apply {
                             listener = object : EditDetailFragment.OnSaveClickedListener {
                                 override fun save(editText: AppCompatEditText, dialog: Dialog) {
@@ -283,7 +282,7 @@ class AddCourseActivity : BaseListActivity(), ColorPickerFragment.ColorPickerDia
             val colorInt = Color.parseColor(baseBean.color)
             ivColor.imageTintList = ViewUtils.createColorStateList(colorInt)
             tvColor.setTextColor(colorInt)
-            tvColor.text = "点此更改颜色"
+            tvColor.text = getString(R.string.add_course_change_color)
         }
         llColor.setOnClickListener {
             ColorPickerFragment.newBuilder()
@@ -296,7 +295,7 @@ class AddCourseActivity : BaseListActivity(), ColorPickerFragment.ColorPickerDia
 
     override fun onColorSelected(dialogId: Int, color: Int) {
         tvColor.setTextColor(color)
-        tvColor.text = "点此更改颜色"
+        tvColor.text = getString(R.string.add_course_change_color)
         ivColor.imageTintList = ViewUtils.createColorStateList(color)
         viewModel.baseBean.color = "#${Integer.toHexString(color)}"
     }
@@ -322,26 +321,26 @@ class AddCourseActivity : BaseListActivity(), ColorPickerFragment.ColorPickerDia
                         1 -> appWidgetManager.notifyAppWidgetViewDataChanged(it.id, R.id.lv_course)
                     }
                 }
-                Toasty.success(this@AddCourseActivity, "保存成功").show()
+                Toasty.success(this@AddCourseActivity, R.string.save_success).show()
                 if (!viewModel.updateFlag) {
                     setResult(Activity.RESULT_OK, Intent().putExtra("course", viewModel.baseBean))
                 }
                 finish()
             } catch (e: Exception) {
-                Toasty.error(this@AddCourseActivity, e.message ?: "发生异常", Toast.LENGTH_LONG).show()
+                Toasty.error(this@AddCourseActivity, getString(R.string.error_with_exception, e.message), Toast.LENGTH_LONG).show()
             }
         }
     }
 
     override fun onBackPressed() {
         val builder = MaterialAlertDialogBuilder(this)
-                .setMessage("需要保存当前的编辑吗？")
-                .setNegativeButton("离开") { _, _ ->
+                .setMessage(R.string.add_course_need_save_title)
+                .setNegativeButton(R.string.exit) { _, _ ->
                     finish()
                 }
-                .setPositiveButton("留下", null)
+                .setPositiveButton(R.string.keep, null)
         if (viewModel.baseBean.courseName.isNotEmpty()) {
-            builder.setPositiveButton("保存") { _, _ ->
+            builder.setPositiveButton(R.string.save) { _, _ ->
                 saveAndExit()
             }
         }

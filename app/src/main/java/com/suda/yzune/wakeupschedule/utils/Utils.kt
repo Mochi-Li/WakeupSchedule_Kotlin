@@ -58,7 +58,7 @@ object Utils {
                 .setTitle(item.title)
                 .setView(R.layout.dialog_edit_text)
                 .setNegativeButton(R.string.cancel, null)
-                .setPositiveButton(R.string.sure, null)
+                .setPositiveButton(R.string.ok, null)
                 .setCancelable(false)
                 .create()
         dialog.show()

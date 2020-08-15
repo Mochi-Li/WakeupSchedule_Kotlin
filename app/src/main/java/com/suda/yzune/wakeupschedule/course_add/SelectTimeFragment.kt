@@ -15,7 +15,9 @@ class SelectTimeFragment : BaseDialogFragment() {
         get() = R.layout.fragment_select_time
 
     var position = -1
-    private val dayList = arrayOf("周一", "周二", "周三", "周四", "周五", "周六", "周日")
+    private val dayList by lazy(LazyThreadSafetyMode.NONE) {
+        resources.getStringArray(R.array.weekdays)
+    }
     private val nodeList = arrayOfNulls<String>(30)
     private val viewModel by activityViewModels<AddCourseViewModel>()
     private lateinit var course: CourseEditBean
@@ -47,7 +49,7 @@ class SelectTimeFragment : BaseDialogFragment() {
 
     private fun initNodeList() {
         for (i in 1..30) {
-            nodeList[i - 1] = "第 $i 节"
+            nodeList[i - 1] = getString(R.string.add_course_lesson, i)
         }
     }
 

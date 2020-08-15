@@ -1,5 +1,7 @@
 package com.suda.yzune.wakeupschedule.schedule_import
 
+import android.content.Context
+import com.suda.yzune.wakeupschedule.R
 import com.suda.yzune.wakeupschedule.bean.CourseBaseBean
 import com.suda.yzune.wakeupschedule.schedule_import.bean.Course
 import com.suda.yzune.wakeupschedule.schedule_import.bean.WeekBean
@@ -18,9 +20,11 @@ object Common {
     const val TYPE_QZ_OLD = "qz_old"
     const val TYPE_QZ_CRAZY = "qz_crazy"
     const val TYPE_QZ_BR = "qz_br"
+    const val TYPE_QZ_BJFU = "qz_bjfu"
     const val TYPE_QZ_WITH_NODE = "qz_with_node"
     const val TYPE_QZ_2017 = "qz_2017" // 华南农业大学
     const val TYPE_CF = "cf"
+    const val TYPE_VATUU = "vatuu"
     const val TYPE_PKU = "pku" // 北京大学
     const val TYPE_BNUZ = "bnuz" // 北京师范大学珠海分校
     const val TYPE_HNIU = "hniu" // 湖南信息职业技术学院
@@ -30,11 +34,16 @@ object Common {
     const val TYPE_ECJTU = "ecjtu" // 华东交通大学
     const val TYPE_SHU = "shu"// 上海大学
     const val TYPE_SIT = "sit"// 上海应用技术大学
+    const val TYPE_CQMU = "cqmu_shuwei" // 重庆医科大学
+    const val TYPE_LNTU = "lntu_shuwei" // 辽宁工程技术大学
+    const val TYPE_XATU = "xatu_shuwei" // 西安工业大学
     const val TYPE_AHNU = "ahnu" // 安徽师范大学
     const val TYPE_SCAU = "scau" // 四川农业大学
     const val TYPE_SDU = "sdu" // 山东大学
     const val TYPE_JZ = "jz" // 金智教务
     const val TYPE_JZ_1 = "jz_1"
+    const val TYPE_HAUST = "haust" // 河南科技大学
+    const val TYPE_HIT = "hit" // 哈尔滨工业大学
     const val TYPE_LOGIN = "login" // 模拟登录方式
     const val TYPE_MAINTAIN = "maintain" // 维护状态，暂不可用
 
@@ -100,6 +109,18 @@ object Common {
     )
 
     private val headerNodePattern = Regex("""第.*节""")
+
+    fun weekIntList2WeekBeanListString(context: Context, input: MutableList<Int>): String {
+        val list = weekIntList2WeekBeanList(input)
+        return list.joinToString {
+            val typeString = when (it.type) {
+                1 -> " ${context.getString(R.string.odd)}"
+                2 -> " ${context.getString(R.string.even)}"
+                else -> ""
+            }
+            context.getString(R.string.week_bean_to_string, it.start, it.end, typeString)
+        }
+    }
 
     fun weekIntList2WeekBeanList(input: MutableList<Int>): MutableList<WeekBean> {
         var reset = 0

@@ -11,7 +11,7 @@
         android:layout_height="wrap_content"
         android:layout_marginTop="16dp"
         android:gravity="center"
-        android:text="请选择周数"
+        android:text="@string/add_course_title_select_week"
         android:textStyle="bold" />
 
     <com.suda.yzune.wakeupschedule.widget.SelectedRecyclerView
@@ -36,7 +36,7 @@
             android:layout_margin="8dp"
             android:layout_weight="1"
             android:gravity="center"
-            android:text="全周" />
+            android:text="@string/all_weeks" />
 
         <androidx.appcompat.widget.AppCompatTextView
             android:id="@+id/tv_type1"
@@ -45,7 +45,7 @@
             android:layout_margin="8dp"
             android:layout_weight="1"
             android:gravity="center"
-            android:text="单周" />
+            android:text="@string/odd" />
 
         <androidx.appcompat.widget.AppCompatTextView
             android:id="@+id/tv_type2"
@@ -54,21 +54,21 @@
             android:layout_margin="8dp"
             android:layout_weight="1"
             android:gravity="center"
-            android:text="双周" />
+            android:text="@string/even" />
 
         <com.google.android.material.button.MaterialButton
             android:id="@+id/btn_cancel"
             style="@style/DialogButtonStyle"
             android:layout_width="0dp"
             android:layout_weight="1"
-            android:text="取消" />
+            android:text="@string/cancel" />
 
         <com.google.android.material.button.MaterialButton
             android:id="@+id/btn_save"
             style="@style/DialogButtonStyle"
             android:layout_width="0dp"
             android:layout_weight="1"
-            android:text="保存"
+            android:text="@string/save"
             android:textStyle="bold" />
 
     </androidx.appcompat.widget.LinearLayoutCompat>

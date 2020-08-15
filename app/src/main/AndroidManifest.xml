@@ -22,14 +22,15 @@
         tools:replace="android:allowBackup"
         tools:targetApi="n">
         <activity
+            android:label="@string/title_appwidget_style"
             android:name=".schedule_appwidget.WidgetStyleConfigActivity"
             android:configChanges="orientation|screenSize|screenLayout|smallestScreenSize"
             android:excludeFromRecents="true"
-            android:label="小部件样式"
+            android:theme="@style/AppTheme.Transparent"
             android:launchMode="singleInstance" />
         <activity
             android:name=".suda_life.SudaLifeActivity"
-            android:label="苏大生活" />
+            android:label="@string/title_suda_life" />
 
         <meta-data
             android:name="CHANNEL"
@@ -41,7 +42,7 @@
 
             <!-- android:screenOrientation="portrait"> -->
             <intent-filter
-                android:label="导入到课程表"
+                android:label="@string/title_import"
                 tools:ignore="AppLinkUrlError">
                 <action android:name="android.intent.action.VIEW" />
 
@@ -52,7 +53,7 @@
                     android:pathPattern=".*\\.wakeup_schedule" />
             </intent-filter>
             <intent-filter
-                android:label="导入到课程表"
+                android:label="@string/title_import"
                 tools:ignore="AppLinkUrlError">
                 <action android:name="android.intent.action.VIEW" />
 
@@ -63,7 +64,7 @@
                     android:pathPattern=".*\\.html" />
             </intent-filter>
             <intent-filter
-                android:label="导入到课程表"
+                android:label="@string/title_import"
                 tools:ignore="AppLinkUrlError">
                 <action android:name="android.intent.action.VIEW" />
 
@@ -77,17 +78,17 @@
         <activity android:name=".schedule.ScheduleActivity" />
         <activity
             android:name=".course_add.AddCourseActivity"
-            android:label="添加课程" />
+            android:label="@string/title_add_course" />
         <activity
             android:name=".settings.SettingsActivity"
-            android:label="全局设置" />
+            android:label="@string/title_settings" />
         <activity
             android:name=".settings.TimeSettingsActivity"
-            android:label="选择时间表" />
+            android:label="@string/title_select_time" />
 
         <receiver
             android:name=".schedule_appwidget.ScheduleAppWidget"
-            android:label="一周课程">
+            android:label="@string/title_week_widget">
             <intent-filter>
                 <action android:name="android.appwidget.action.APPWIDGET_UPDATE" />
             </intent-filter>
@@ -110,10 +111,10 @@
 
         <activity
             android:name=".intro.AboutActivity"
-            android:label="关于" />
+            android:label="@string/title_about" />
         <activity
             android:name=".DonateActivity"
-            android:label="捐赠" />
+            android:label="@string/title_donate" />
         <activity
             android:name=".SplashActivity"
             android:theme="@style/SplashTheme">
@@ -125,14 +126,14 @@
         </activity>
         <activity
             android:name=".schedule_manage.ScheduleManageActivity"
-            android:label="多课表管理" />
+            android:label="@string/title_schedules_management" />
         <activity
             android:name=".schedule_settings.ScheduleSettingsActivity"
             android:configChanges="orientation|screenSize|screenLayout|smallestScreenSize"
-            android:label="课表设置" />
+            android:label="@string/title_schedule_settings" />
         <activity
             android:name=".schedule_appwidget.WeekScheduleAppWidgetConfigActivity"
-            android:label="提示">
+            android:label="@string/title_tips">
             <intent-filter>
                 <action android:name="android.appwidget.action.APPWIDGET_CONFIGURE" />
             </intent-filter>
@@ -140,7 +141,7 @@
 
         <receiver
             android:name=".today_appwidget.TodayCourseAppWidget"
-            android:label="日视图">
+            android:label="@string/title_day_widget">
             <intent-filter>
                 <action android:name="android.appwidget.action.APPWIDGET_UPDATE" />
             </intent-filter>
@@ -152,10 +153,11 @@
 
         <activity
             android:name=".schedule_import.SchoolListActivity"
-            android:label="选择学校" />
+            android:label="@string/title_select_school"
+            android:windowSoftInputMode="adjustResize" />
         <activity
             android:name=".settings.AdvancedSettingsActivity"
-            android:label="高级功能" />
+            android:label="@string/title_advanced_settings" />
         <activity
             android:name=".intro.IntroYoungActivity"
             android:label="咩咩" />

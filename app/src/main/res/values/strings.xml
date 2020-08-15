@@ -1,58 +1,20 @@
 <resources>
-    <string name="icon_location" translatable="false"></string>
-    <string name="icon_back" translatable="false"></string>
-    <string name="icon_send" translatable="false"></string>
-    <string name="icon_share" translatable="false"></string>
-    <string name="icon_more" translatable="false"></string>
-    <string name="icon_close" translatable="false"></string>
-    <string name="icon_heart" translatable="false"></string>
-    <string name="icon_date" translatable="false"></string>
-    <string name="icon_delete" translatable="false"></string>
-    <string name="icon_upload" translatable="false"></string>
-    <string name="icon_clock" translatable="false"></string>
-    <string name="icon_setting" translatable="false"></string>
-    <string name="icon_search" translatable="false"></string>
-    <string name="icon_info" translatable="false"></string>
-    <string name="icon_refresh" translatable="false"></string>
-    <string name="icon_add" translatable="false"></string>
-    <string name="icon_done" translatable="false"></string>
-    <string name="icon_doc" translatable="false"></string>
-    <string name="icon_msg" translatable="false"></string>
-    <string name="icon_download" translatable="false"></string>
-    <string name="icon_star" translatable="false"></string>
-    <string name="icon_person" translatable="false"></string>
-    <string name="icon_nav" translatable="false"></string>
 
+    <string name="ok">Ok</string>
+    <string name="cancel">Cancel</string>
 
-    <string name="text_login_web_title">登录教务系统</string>
-    <string name="hint_student_id">学号</string>
-    <string name="hint_password">密码</string>
+    <string name="about_version">v%1$s</string>
+
+    <string name="text_login_web_title">Login</string>
+    <string name="hint_student_id">Student ID</string>
+    <string name="hint_password">Password</string>
     <string name="hint_check_code">验证码</string>
-    <string name="toast_check_code_get_error">获取验证码失败</string>
-    <string name="text_login">登录</string>
-
-    <string name="text_node">节</string>
-    <string name="text_week">周</string>
-    <string name="appwidget_text">EXAMPLE</string>
-
-    <!-- TODO: Remove or change this placeholder text -->
-    <string name="add_widget">Add widget</string>
-    <string name="hello_blank_fragment">Hello blank fragment</string>
-    <string name="school_BeijingLinYeDaXue">北京林业大学</string>
-    <string name="school_SuzhouDaXue">苏州大学</string>
-    <string name="school_GuangdongWaiYuWaiMaoDaXue">广东外语外贸大学</string>
-    <string name="school_DalianWaiGuoYuDaxue">大连外国语大学</string>
-    <string name="school_ChangchunDaXue">长春大学</string>
-    <string name="school_TianjinZhongYiYaoDaXue">天津中医药大学</string>
-    <string name="type_ZhengFang">正方教务</string>
-    <string name="type_NewZhengFang">新正方教务</string>
-
-    <string name="type_QiangZhi">强智教务</string>
 
     <string name="error_course_data">检测到课程数据有误，请仔细核对</string>
     <string name="error_course_node">有课程的节数大于课表的最大节数</string>
 
-    <string name="setting_schedule_name">课表名称</string>
+    <string name="setting_schedule_name">Schedule Name</string>
+    <string name="setting_current_week">Current Week</string>
     <string name="setting_class_time">上课时间</string>
     <string name="setting_term_start_date">学期开始日期</string>
     <string name="setting_nodes">一天课程节数</string>
@@ -60,36 +22,190 @@
     <string name="setting_sunday_first">周日为每周第一天</string>
     <string name="setting_show_sat">显示周六</string>
     <string name="setting_show_sun">显示周日</string>
-    <string name="setting_show_time">在格子内显示上课时间</string>
-    <string name="setting_background">课程表背景</string>
+    <string name="setting_background">Background</string>
     <string name="setting_header_color">界面文字颜色</string>
     <string name="setting_course_text_color">课程文字颜色</string>
     <string name="setting_stroke_color">格子边框颜色</string>
-    <string name="setting_item_height">课程格子高度</string>
-    <string name="setting_item_alpha">课程格子不透明度</string>
-    <string name="setting_course_text_size">课程显示文字大小</string>
+    <string name="setting_item_height">格子高度</string>
+    <string name="setting_item_alpha">格子不透明度</string>
+    <string name="setting_course_text_size">格子文字大小</string>
     <string name="setting_show_other_week">显示非本周课程</string>
 
-    <string name="setting_widget_item_height">小部件格子高度</string>
-    <string name="setting_widget_item_alpha">小部件格子不透明度</string>
-    <string name="setting_widget_text_size">小部件显示文字大小</string>
-    <string name="setting_widget_header_color">小部件标题颜色</string>
-    <string name="setting_widget_course_text_color">小部件课程颜色</string>
-    <string name="setting_widget_stroke_color">小部件格子边框颜色</string>
-
     <string name="setting_auto_check_update">自动检查更新</string>
-    <string name="setting_show_day_widget_bg">显示日视图背景</string>
-    <string name="setting_show_suda_life">显示侧栏「苏大生活」</string>
-    <string name="setting_setup_schedule">设置当前课表</string>
+    <string name="setting_show_suda_life">功能面板显示「苏大生活」</string>
     <string name="setting_day_night_theme">显示主题</string>
 
-    <string name="sure">确定</string>
-    <string name="cancel">取消</string>
+    <string name="msg_crash">Err &gt;_&lt; Almost crashed.</string>
+    <string name="donate">Donate</string>
+    <string name="wakeup_club">WakeUp Club</string>
+    <string name="project_code">Project Code</string>
+    <string name="qa">QA</string>
+    <string name="about_qq_group">QQ Group</string>
+    <string name="about_weibo">Sina Weibo</string>
+    <string name="about_feedback">Feedback</string>
+    <string name="title_about">About</string>
+    <string name="title_donate">Donate</string>
+    <string name="title_tips">Tips</string>
+    <string name="title_advanced_settings">Advanced Settings</string>
+    <string name="title_select_school">Select Your School</string>
+    <string name="title_day_widget">Day Widget</string>
+    <string name="title_schedule_settings">Schedule Settings</string>
+    <string name="title_schedules_management">Schedules Management</string>
+    <string name="title_week_widget">Week Widget</string>
+    <string name="title_select_time">Select the TimeTable</string>
+    <string name="title_settings">Settings</string>
+    <string name="title_add_course">Add Course</string>
+    <string name="title_suda_life">Suda Life</string>
+    <string name="title_appwidget_style">Appwidget Style</string>
+    <string name="title_import">Import</string>
+    <string name="odd">Odd</string>
+    <string name="even">Even</string>
+    <string name="week_bean_to_string">Week %1$d - %2$d%3$s</string>
 
     <string-array name="day_night_setting">
-        <item>浅色模式</item>
-        <item>深色模式</item>
-        <item>跟随系统</item>
+        <item>Light Mode</item>
+        <item>Dark Mode</item>
+        <item>Auto</item>
+    </string-array>
+
+    <string name="detail_lesson_time">Lesson %1$d - %2$d&#160;&#160;&#160;&#160;%3$s - %4$s</string>
+    <string name="detail_delete_from_other_week">The lesson is not on this week. Please turn to the week containing this lesson to delete it.</string>
+    <string name="detail_delete_choice_0">Only the lesson on %2$s, Week %1$d</string>
+    <string name="detail_delete_choice_1">All the lessons on %1$s with the same teacher and same place</string>
+    <string name="detail_delete_choice_2">The whole course</string>
+    <string name="detail_delete_title">Choose the delete way. Please think twice. 😯</string>
+    <string name="detail_delete_confirm">Confirm</string>
+    <string name="delete_success">Successfully deleted.</string>
+    <string name="save_success">Successfully saved.</string>
+
+    <string name="error_with_exception">Something wrong. &gt;_&lt;\n%1$s</string>
+    <string name="error_with_network_exception">Something wrong. &gt;_&lt; Please check your network connection.\n%1$s</string>
+    <string name="donate_message">Nice to meet you!</string>
+    <string name="donate_feedback">Review on App Store</string>
+    <string name="donate_follow_weibo">Follow our Sina Weibo</string>
+    <string name="donate_alipay">Donate via Alipay</string>
+    <string name="donate_view_list">Check the donation list</string>
+    <string name="donate_cant_open_weibo">Failed to open Weibo. o(╥﹏╥)o</string>
+    <string name="donate_cant_open_appstore">Failed to open App Store. o(╥﹏╥)o</string>
+    <string name="donate_thanks">Thank you (*^▽^*)</string>
+    <string name="donate_cant_open_alipay">Failed to open Alipay. o(╥﹏╥)o</string>
+    <string name="table_name_default">My Schedule</string>
+
+    <string name="export_tips">Please choose the folder to export.\nDO NOT modify the file extension.</string>
+    <string name="export_uploading">Uploading… Please wait.</string>
+    <string name="export_exception_share_empty">The shared content is empty. </string>
+    <string name="export_cal_title">Cal-%1$s</string>
+    <string name="error_server_not_respond">Something wrong on the server. &gt;_&lt; Please try again later.</string>
+    <string name="import_dialog_title">Import Schedule</string>
+    <string name="import_dialog_msg">EAS stands for the Edu Admin System. Importing schedule from EAS is only available for some Chinese colleges so far.</string>
+    <string name="import_dialog_from_eas">From EAS</string>
+    <string name="import_dialog_from_excel">From Excel</string>
+    <string name="import_dialog_from_html">From Html</string>
+    <string name="import_dialog_from_backup">From backup</string>
+    <string name="import_dialog_from_share_code">From share code</string>
+    <string name="import_dialog_apply">Apply for adaptation</string>
+    <string name="tips_saf">To avoid using sensitive external storage read and write permissions, this App uses the system-level file selector to select files. If you cannot find the path, please click the three dots in the upper right corner of the selector, select &quot;Show internal storage devices&quot;, and then select the path through the sidebar.</string>
+    <string name="tips_see_tutorial">View the tutorial</string>
+    <string name="save">Save</string>
+
+    <string name="add_course_error_input_course_name">Please input the course name.</string>
+    <string name="add_course_time">Lesson %2$d - %3$d, %1$s</string>
+    <string name="add_course_at_lease_one_period">At least one time period is needed.</string>
+    <string name="add_course_teacher">Teacher</string>
+    <string name="add_course_classroom">Classroom</string>
+    <string name="add_course_change_color">Change color</string>
+    <string name="add_course_lesson">Lesson %1$d</string>
+    <string name="add_course_need_save_title">Need to save the current edits?</string>
+    <string name="exit">Exit</string>
+    <string name="keep">Keep</string>
+    <string name="add_course_title_select_time">Day &amp; Period</string>
+    <string name="add_course_least_one_week">At least one week is needed.</string>
+    <string name="schedule_name_cant_empty">The name can not be empty. &gt;_&lt;</string>
+    <string name="create_success">Successfully created.</string>
+    <string name="main_feedback_tips">We will reply to you the next day.</string>
+    <string name="tooltip_current_week">Tap here to back to the current week.</string>
+    <string name="tooltip_add_course">Tap here to add course manually.</string>
+    <string name="tooltip_import_schedule">Tap here to import your schedule.</string>
+    <string name="tooltip_share">Tap here to share or export the schedule.</string>
+    <string name="tooltip_more">Tap here to see more.</string>
+    <string name="tooltip_finish">Complete the tutorial</string>
+    <string name="next">Next</string>
+    <string name="add_course_title_select_week">Select Weeks</string>
+    <string name="all_weeks">All</string>
+
+    <string name="week_num">Week %1$d</string>
+    <string name="not_the_current_week">not the current week</string>
+    <string name="semester_not_start_yet">the semester has not started yet</string>
+    <string name="main_current_week_exceeded">the current week has exceeded the range</string>
+    <string name="main_msg_current_week_exceeded">The current week has exceeded the range. Do you want to modify the Current Week or Start Date?</string>
+    <string name="main_dialog_go_to_schedule_settings">Modify</string>
+    <string name="main_modify_current_week">Modify</string>
+    <string name="main_create_new_schedule">New</string>
+    <string name="main_manage_schedules">Manage</string>
+    <string name="main_sheet_title_week">Week</string>
+    <string name="main_sheet_title_multi_schedules">Multi-Schedule</string>
+    <string name="main_month">\n%1$s</string>
+    <string name="setting_theme">外观</string>
+    <string name="setting_pay">愿意为之付费吗？</string>
+    <string name="setting_unlock">如何解锁？请仔细阅读以下内容哦</string>
+    <string name="setting_after_unlock">解锁后</string>
+    <string name="setting_theme_color">主题颜色</string>
+    <string name="setting_hide_virtual_key">主界面虚拟键沉浸</string>
+    <string name="setting_notify">上课提醒</string>
+    <string name="setting_notify_intro">功能说明</string>
+    <string name="setting_notify_turn_on">开启上课提醒</string>
+    <string name="setting_notify_on_going">提醒通知常驻</string>
+    <string name="setting_notify_time">提前几分钟提醒</string>
+    <string name="setting_add_widget">如何添加小部件？</string>
+    <string name="setting_blank" translatable="false"> </string>
+    <string name="setting_advance">高级</string>
+    <string name="setting_general">常规</string>
+    <string name="setting_current_schedule">设置当前课表</string>
+    <string name="setting_display_mode">显示主题</string>
+    <string name="setting_page_preload">页面预加载</string>
+    <string name="setting_blank_area">课表下方增加留白区域</string>
+    <string name="setting_show_empty_view">显示空视图图片</string>
+    <string name="setting_to_meizu_users">致魅族用户</string>
+    <string name="setting_resize_widget">如何调整小部件大小？</string>
+    <string name="setting_widget_style">如何调整小部件样式？</string>
+    <string name="setting_widget_loading">小部件刷新不及时/显示正在加载</string>
+    <string name="setting_more_question">更多问题</string>
+    <string name="setting_item_radius">格子圆角半径</string>
+    <string name="setting_item_center_horizontal">格子文字水平居中</string>
+    <string name="setting_item_show_time">在格子内显示上课时间</string>
+    <string name="setting_item_show_teacher">在格子内显示授课老师</string>
+    <string name="setting_show_time_bar">节数栏显示时间</string>
+    <string name="setting_schedule_config">课表数据</string>
+    <string name="setting_schedule_appearance">课表外观</string>
+    <string name="setting_utils">实用工具</string>
+    <string name="setting_widget">桌面小部件</string>
+    <string name="setting_manage_course">管理已添加课程</string>
+    <string name="setting_widget_bg_color">小部件背景颜色</string>
+    <string name="setting_widget_header_text_color">标题文字颜色</string>
+    <string name="setting_widget_show_color">显示小部件色块</string>
+    <string name="setting_widget_show_bg">显示小部件背景</string>
+    <string name="setting_widget_show_date">显示日期标题</string>
+    <string name="my_schedule">我的课表</string>
+
+    <string-array name="weekdays">
+        <item>Mon</item>
+        <item>Tues</item>
+        <item>Wed</item>
+        <item>Thur</item>
+        <item>Fri</item>
+        <item>Sat</item>
+        <item>Sun</item>
+    </string-array>
+
+    <string-array name="main_weekdays">
+        <item>Sun</item>
+        <item>Mon</item>
+        <item>Tues</item>
+        <item>Wed</item>
+        <item>Thur</item>
+        <item>Fri</item>
+        <item>Sat</item>
+        <item>Sun</item>
     </string-array>
 
 </resources>

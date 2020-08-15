@@ -101,11 +101,14 @@ class CourseDetailFragment : BaseDialogFragment() {
                 }
             })
         }
-        et_weeks.text = Common.weekIntList2WeekBeanList(weekList).toString().removeSurrounding("[", "]")
+        et_weeks.text = Common.weekIntList2WeekBeanListString(requireContext(), weekList)
         try {
-            et_time.text = "第${course.startNode} - ${course.startNode + course.step - 1}节    ${viewModel.timeList[course.startNode - 1].startTime} - ${viewModel.timeList[course.startNode + course.step - 2].endTime}"
+            et_time.text = getString(R.string.detail_lesson_time,
+                    course.startNode, course.startNode + course.step - 1,
+                    viewModel.timeList[course.startNode - 1].startTime,
+                    viewModel.timeList[course.startNode + course.step - 2].endTime)
         } catch (e: Exception) {
-            et_time.longSnack("该课程似乎有点问题哦>_<请修改一下")
+            et_time.longSnack(R.string.msg_crash)
         }
     }
 
@@ -134,7 +137,7 @@ class CourseDetailFragment : BaseDialogFragment() {
 
         ib_delete_course.setOnClickListener {
             if (!course.inWeek(week)) {
-                Toasty.info(requireContext(), "非本周课程请翻到含有这节课的周进行删除操作", Toasty.LENGTH_LONG).show()
+                Toasty.info(requireContext(), getString(R.string.detail_delete_from_other_week), Toasty.LENGTH_LONG).show()
                 return@setOnClickListener
             }
             showDeleteDialog()
@@ -144,13 +147,12 @@ class CourseDetailFragment : BaseDialogFragment() {
 
     private fun showDeleteDialog() {
         var index = 0
-        val choices = arrayOf("仅第${week}周${CourseUtils.getDayStr(course.day)}的这节课",
-                "全部${CourseUtils.getDayStr(course.day)}同老师同地点的这节课",
-                "这门课程的全部时间段")
+        val choices = arrayOf(getString(R.string.detail_delete_choice_0, week, CourseUtils.getDayStr(requireContext(), course.day)),
+                getString(R.string.detail_delete_choice_1, CourseUtils.getDayStr(requireContext(), course.day)),
+                getString(R.string.detail_delete_choice_2))
         MaterialAlertDialogBuilder(requireContext())
-                .setTitle("选择删除范围，请三思😯")
-                //.setMessage("此操作不可恢复哦")
-                .setPositiveButton("确认删除") { _, _ ->
+                .setTitle(getString(R.string.detail_delete_title))
+                .setPositiveButton(getString(R.string.detail_delete_confirm)) { _, _ ->
                     launch {
                         try {
                             when (index) {
@@ -158,7 +160,7 @@ class CourseDetailFragment : BaseDialogFragment() {
                                 1 -> viewModel.deleteCourseDetailOfDayAllWeek(course)
                                 2 -> viewModel.deleteCourseBaseBean(course.id, course.tableId)
                             }
-                            Toasty.success(requireContext(), "删除成功").show()
+                            Toasty.success(requireContext(), getString(R.string.delete_success)).show()
                             val appWidgetManager = AppWidgetManager.getInstance(requireActivity().applicationContext)
                             val list = viewModel.getScheduleWidgetIds()
                             list.forEach {
@@ -169,7 +171,7 @@ class CourseDetailFragment : BaseDialogFragment() {
                             }
                             dismiss()
                         } catch (e: Exception) {
-                            Toasty.error(requireContext(), "出现异常>_<\n" + e.message).show()
+                            Toasty.error(requireContext(), getString(R.string.error_with_exception, e.message)).show()
                         }
                     }
                 }

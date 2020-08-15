@@ -21,7 +21,6 @@ import com.suda.yzune.wakeupschedule.utils.Const
 import com.suda.yzune.wakeupschedule.utils.getPrefer
 import splitties.activities.start
 import splitties.resources.color
-import splitties.snackbar.longSnack
 import splitties.snackbar.snack
 
 class SettingsActivity : BaseListActivity() {
@@ -78,70 +77,58 @@ class SettingsActivity : BaseListActivity() {
     }
 
     private fun onItemsCreated(items: MutableList<BaseSettingItem>) {
-        items.add(CategoryItem("高级", true))
+        items.add(CategoryItem(R.string.setting_advance, true))
         when {
             BuildConfig.CHANNEL == "google" -> {
-                items.add(VerticalItem("高级功能", "如果想支持一下社团和开发者\n请去支付宝18862196504\n高级功能会持续更新~\n采用诚信授权模式ヾ(=･ω･=)o", keys = listOf("高级")))
+                items.add(VerticalItem(R.string.setting_advanced_func, "如果想支持一下社团和开发者\n请去支付宝18862196504\n高级功能会持续更新~\n采用诚信授权模式ヾ(=･ω･=)o", keys = listOf("高级")))
             }
             BuildConfig.CHANNEL == "huawei" && !getPrefer().getBoolean(Const.KEY_SHOW_DONATE, false) -> {
-                items.add(VerticalItem("高级功能", "高级功能会持续更新~", keys = listOf("高级")))
+                items.add(VerticalItem(R.string.setting_advanced_func, "高级功能会持续更新~", keys = listOf("高级")))
             }
             else -> {
-                items.add(VerticalItem("解锁高级功能", "解锁赞助一下社团和开发者ヾ(=･ω･=)o\n高级功能会持续更新~\n采用诚信授权模式", keys = listOf("高级")))
+                items.add(VerticalItem(R.string.setting_advanced_func, "解锁赞助一下社团和开发者ヾ(=･ω･=)o\n高级功能会持续更新~\n采用诚信授权模式", keys = listOf("高级")))
             }
         }
 
-        items.add(CategoryItem("常规", false))
-        items.add(HorizontalItem("设置当前课表", "点这里！！！"))
-        items.add(HorizontalItem("显示主题", dayNightTheme[dayNightIndex]))
-        items.add(SwitchItem("自动检查更新", getPrefer().getBoolean(Const.KEY_CHECK_UPDATE, true)))
+        items.add(CategoryItem(R.string.setting_general, false))
+        items.add(HorizontalItem(R.string.setting_current_schedule, "点这里！！！"))
+        items.add(HorizontalItem(R.string.setting_display_mode, dayNightTheme[dayNightIndex]))
+        items.add(SwitchItem(R.string.setting_auto_check_update, getPrefer().getBoolean(Const.KEY_CHECK_UPDATE, true)))
         // items.add(SwitchItem("节数栏显示时间", getPrefer().getBoolean(Const.KEY_SCHEDULE_DETAIL_TIME, true), ""))
-        items.add(SwitchItem("页面预加载", getPrefer().getBoolean(Const.KEY_SCHEDULE_PRE_LOAD, true), "开启后，滑动界面后会马上显示课表。关闭后，滑动界面后需要短暂的时间加载课表，不过理论上内存占用会更小，App启动速度也会更快"))
-        items.add(SwitchItem("课表下方增加留白区域", getPrefer().getBoolean(Const.KEY_SCHEDULE_BLANK_AREA, true), "开启后，课表下方会多出一段空白区域，便于将底部的课程滑动至屏幕中间查看"))
+        items.add(SwitchItem(R.string.setting_page_preload, getPrefer().getBoolean(Const.KEY_SCHEDULE_PRE_LOAD, true), "开启后，滑动界面后会马上显示课表。关闭后，滑动界面后需要短暂的时间加载课表，不过理论上内存占用会更小，App启动速度也会更快"))
+        items.add(SwitchItem(R.string.setting_blank_area, getPrefer().getBoolean(Const.KEY_SCHEDULE_BLANK_AREA, true), "开启后，课表下方会多出一段空白区域，便于将底部的课程滑动至屏幕中间查看"))
         // items.add(SwitchItem("显示日视图课程色块", getPrefer().getBoolean(Const.KEY_DAY_WIDGET_COLOR, true)))
-        items.add(SwitchItem("显示空视图图片", getPrefer().getBoolean(Const.KEY_SHOW_EMPTY_VIEW, true), "当没有课程时显示在看书的小女孩儿"))
-        items.add(SwitchItem("功能面板显示「苏大生活」", getPrefer().getBoolean(Const.KEY_SHOW_SUDA_LIFE, true)))
-        items.add(VerticalItem("", "\n\n\n"))
+        items.add(SwitchItem(R.string.setting_show_empty_view, getPrefer().getBoolean(Const.KEY_SHOW_EMPTY_VIEW, true), "当没有课程时显示在看书的小女孩儿"))
+        items.add(SwitchItem(R.string.setting_show_suda_life, getPrefer().getBoolean(Const.KEY_SHOW_SUDA_LIFE, true)))
+        items.add(VerticalItem(R.string.setting_blank, "\n\n\n"))
     }
 
     private fun onSwitchItemCheckChange(item: SwitchItem, isChecked: Boolean) {
         when (item.title) {
-            "自动检查更新" -> {
+            R.string.setting_auto_check_update -> {
                 getPrefer().edit {
                     putBoolean(Const.KEY_CHECK_UPDATE, isChecked)
                 }
             }
-            "页面预加载" -> {
+            R.string.setting_page_preload -> {
                 getPrefer().edit {
                     putBoolean(Const.KEY_SCHEDULE_PRE_LOAD, isChecked)
                 }
                 mRecyclerView.snack("重启App后生效哦")
             }
-            "课表下方增加留白区域" -> {
+            R.string.setting_blank_area -> {
                 getPrefer().edit {
                     putBoolean(Const.KEY_SCHEDULE_BLANK_AREA, isChecked)
                 }
                 mRecyclerView.snack("重启App后生效哦")
             }
-            "节数栏显示具体时间" -> {
-                getPrefer().edit {
-                    putBoolean(Const.KEY_SCHEDULE_DETAIL_TIME, isChecked)
-                }
-                mRecyclerView.snack("重启App后生效哦")
-            }
-            "显示空视图图片" -> {
+            R.string.setting_show_empty_view -> {
                 getPrefer().edit {
                     putBoolean(Const.KEY_SHOW_EMPTY_VIEW, isChecked)
                 }
                 mRecyclerView.snack("切换页面后生效哦")
             }
-            "显示日视图课程色块" -> {
-                getPrefer().edit {
-                    putBoolean(Const.KEY_DAY_WIDGET_COLOR, isChecked)
-                }
-                mRecyclerView.longSnack("请点击小部件右上角的「切换按钮」查看效果~")
-            }
-            "功能面板显示「苏大生活」" -> {
+            R.string.setting_show_suda_life -> {
                 getPrefer().edit {
                     putBoolean(Const.KEY_SHOW_SUDA_LIFE, isChecked)
                 }
@@ -153,7 +140,7 @@ class SettingsActivity : BaseListActivity() {
 
     private fun onHorizontalItemClick(item: HorizontalItem, position: Int) {
         when (item.title) {
-            "设置当前课表" -> {
+            R.string.setting_current_schedule -> {
                 launch {
                     val tableId = getPrefer().getInt(Const.KEY_SHOW_TABLE_ID, 1)
                     val table = tableDao.getTableById(tableId)
@@ -163,10 +150,10 @@ class SettingsActivity : BaseListActivity() {
                             }, 180)
                 }
             }
-            "显示主题" -> {
+            R.string.setting_display_mode -> {
                 MaterialAlertDialogBuilder(this)
-                        .setTitle("显示主题")
-                        .setPositiveButton("确定") { _, _ ->
+                        .setTitle(R.string.setting_display_mode)
+                        .setPositiveButton(R.string.ok) { _, _ ->
                             getPrefer().edit {
                                 putInt(Const.KEY_DAY_NIGHT_THEME, dayNightIndex)
                             }
@@ -188,10 +175,7 @@ class SettingsActivity : BaseListActivity() {
 
     private fun onVerticalItemClick(item: VerticalItem) {
         when (item.title) {
-            "解锁高级功能" -> {
-                start<AdvancedSettingsActivity>()
-            }
-            "高级功能" -> {
+            R.string.setting_advanced_func -> {
                 start<AdvancedSettingsActivity>()
             }
         }

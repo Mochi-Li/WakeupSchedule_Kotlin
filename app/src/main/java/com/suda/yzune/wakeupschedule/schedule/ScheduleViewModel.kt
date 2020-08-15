@@ -43,7 +43,9 @@ class ScheduleViewModel(application: Application) : AndroidViewModel(application
     var itemHeight = 0
     var alphaInt = 225
     val allCourseList = Array(7) { MutableLiveData<List<CourseBean>>() }
-    val daysArray = arrayOf("日", "一", "二", "三", "四", "五", "六", "日")
+    val daysArray by lazy(LazyThreadSafetyMode.NONE) {
+        application.resources.getStringArray(R.array.main_weekdays)
+    }
     var currentWeek = 1
 
     suspend fun initTableSelectList(): MutableList<TableConfig> {
@@ -70,6 +72,7 @@ class ScheduleViewModel(application: Application) : AndroidViewModel(application
         val id = tableDao.insertTable(TableBean(id = 0))
         return TableConfig(getApplication(), id.toInt()).apply {
             this.tableName = tableName
+            this.startDate = DefaultValue.startDate
         }
     }
 

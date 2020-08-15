@@ -51,7 +51,7 @@ class HtmlImportFragment : BaseFragment() {
             }
         }
         tv_way.setOnClickListener {
-            Utils.openUrl(requireActivity(), "https://www.jianshu.com/p/4cd071697fed")
+            Utils.openUrl(requireActivity(), "https://support.qq.com/products/97617/faqs/73528")
         }
 
         tv_type.setOnClickListener {

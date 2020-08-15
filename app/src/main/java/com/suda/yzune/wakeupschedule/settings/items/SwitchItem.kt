@@ -1,7 +1,9 @@
 package com.suda.yzune.wakeupschedule.settings.items
 
+import androidx.annotation.StringRes
+
 data class SwitchItem(
-        val name: String,
+        @StringRes val name: Int,
         var checked: Boolean,
         var desc: String = "",
         val keys: List<String>? = null) : BaseSettingItem(name, keys) {

@@ -24,7 +24,7 @@ class TimeSettingsActivity : BaseTitleActivity() {
 
     override fun onSetupSubButton(): AppCompatTextView? {
         tvButton = AppCompatTextView(this)
-        tvButton.text = "保存"
+        tvButton.setText(R.string.save)
         tvButton.typeface = Typeface.DEFAULT_BOLD
         tvButton.setTextColor(color(R.color.colorAccent))
         tvButton.setOnClickListener {
@@ -77,10 +77,10 @@ class TimeSettingsActivity : BaseTitleActivity() {
             R.id.timeSettingsFragment -> {
                 MaterialAlertDialogBuilder(this)
                         .setMessage("需要保存以使设置生效吗？")
-                        .setPositiveButton("保存") { _, _ ->
+                        .setPositiveButton(R.string.save) { _, _ ->
                             saveAndExit()
                         }
-                        .setNegativeButton("离开") { _, _ ->
+                        .setNegativeButton(R.string.exit) { _, _ ->
                             navController.navigateUp()
                         }
                         .show()

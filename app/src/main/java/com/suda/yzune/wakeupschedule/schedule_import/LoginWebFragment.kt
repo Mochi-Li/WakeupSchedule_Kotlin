@@ -251,7 +251,7 @@ class LoginWebFragment : BaseFragment() {
             "南京审计大学" -> {
                 val nauCourse = NAUCourse(et_id.text.toString(), et_pwd.text.toString())
                 try {
-                    nauCourse.getCourseTable(viewModel.importId).let {
+                    nauCourse.getCourseTable(requireContext(), viewModel.importId).let {
                         result = viewModel.writeCourseList2DB(it.first, it.second)
                     }
                 } catch (e: Exception) {

@@ -1,5 +1,6 @@
 package com.suda.yzune.wakeupschedule.schedule_import.login_school.nau
 
+import android.content.Context
 import com.suda.yzune.wakeupschedule.bean.CourseBaseBean
 import com.suda.yzune.wakeupschedule.bean.CourseDetailBean
 import com.suda.yzune.wakeupschedule.schedule_import.Common
@@ -139,7 +140,7 @@ class NAUCourse(private val userId: String, private val userPw: String) {
         return null
     }
 
-    private fun parseCourseTable(importTableId: Int, htmlContent: String): Pair<List<CourseBaseBean>, List<CourseDetailBean>> {
+    private fun parseCourseTable(context: Context, importTableId: Int, htmlContent: String): Pair<List<CourseBaseBean>, List<CourseDetailBean>> {
         val document = Jsoup.parse(htmlContent)
         val courseList = ArrayList<CourseBaseBean>()
         val courseDetailList = ArrayList<CourseDetailBean>()
@@ -203,7 +204,7 @@ class NAUCourse(private val userId: String, private val userPw: String) {
                     }
                     courseList.add(CourseBaseBean(
                             i - 1, td[2].text(),
-                            "#${Integer.toHexString(ViewUtils.getCustomizedColor(index = courseList.size % 9))}",
+                            "#${Integer.toHexString(ViewUtils.getCustomizedColor(context, courseList.size % 9))}",
                             importTableId
                     ))
 
@@ -213,11 +214,11 @@ class NAUCourse(private val userId: String, private val userPw: String) {
         return courseList to courseDetailList
     }
 
-    suspend fun getCourseTable(importTableId: Int) = withContext(Dispatchers.IO) {
+    suspend fun getCourseTable(context: Context, importTableId: Int) = withContext(Dispatchers.IO) {
         try {
             login()
             getCourseTableHtmlContent()?.let {
-                return@withContext parseCourseTable(importTableId, it)
+                return@withContext parseCourseTable(context, importTableId, it)
             }
             throw NetworkErrorException("无法获取课表信息！")
         } finally {

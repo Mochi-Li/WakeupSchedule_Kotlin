@@ -58,7 +58,7 @@ object AppWidgetUtils {
             week++
         }
         val date = CourseUtils.getTodayDate()
-        val weekDay = CourseUtils.getWeekday()
+        val weekDay = CourseUtils.getWeekday(context)
         if (config.showDate) {
             mRemoteViews.setViewVisibility(R.id.tv_date, View.VISIBLE)
         } else {
@@ -195,7 +195,7 @@ object AppWidgetUtils {
         val tableBean = TableConfig(context, context.getPrefer().getInt(Const.KEY_SHOW_TABLE_ID, 1))
         val week = CourseUtils.countWeek(tableBean.startDate, tableBean.sundayFirst, nextDay)
         val date = CourseUtils.getTodayDate()
-        val weekDay = CourseUtils.getWeekday(nextDay)
+        val weekDay = CourseUtils.getWeekday(context, nextDay)
         if (config.showDate) {
             mRemoteViews.setViewVisibility(R.id.tv_date, View.VISIBLE)
         } else {

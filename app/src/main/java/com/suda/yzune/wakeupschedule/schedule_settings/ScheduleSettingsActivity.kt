@@ -36,7 +36,7 @@ class ScheduleSettingsActivity : BaseTitleActivity(), ColorPickerFragment.ColorP
         intent.extras?.getInt("action", 0)?.let {
             if (it == 0) return@let
             val bundle = Bundle()
-            bundle.putString("settingItem", intent.extras?.getString("settingItem"))
+            bundle.putInt("settingItem", intent.extras?.getInt("settingItem") ?: 0)
             navController.navigate(it, bundle)
         }
     }

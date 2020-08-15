@@ -126,7 +126,7 @@ class LoginWebActivity : BaseActivity() {
                 .setTitle(title)
                 .setMessage(msg)
                 .setCancelable(false)
-                .setPositiveButton(R.string.sure) { _, _ ->
+                .setPositiveButton(R.string.ok) { _, _ ->
                     if (needStartActivity) {
                         val intent = Intent(this@LoginWebActivity, SplashActivity::class.java)
                         intent.flags = Intent.FLAG_ACTIVITY_CLEAR_TASK or Intent.FLAG_ACTIVITY_NEW_TASK

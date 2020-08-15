@@ -4,8 +4,8 @@ import android.app.Activity
 import android.content.Intent
 import android.graphics.Typeface
 import android.os.Bundle
-import android.text.Editable
-import android.text.TextWatcher
+import android.text.*
+import android.text.style.UnderlineSpan
 import android.util.TypedValue
 import android.view.Gravity
 import android.view.View
@@ -20,6 +20,7 @@ import androidx.core.view.setPadding
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.bigkoo.quicksidebar.listener.OnQuickSideBarTouchListener
+import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import com.google.gson.Gson
 import com.suda.yzune.wakeupschedule.AppDatabase
 import com.suda.yzune.wakeupschedule.R
@@ -27,19 +28,23 @@ import com.suda.yzune.wakeupschedule.base_view.BaseTitleActivity
 import com.suda.yzune.wakeupschedule.schedule_import.Common.TYPE_AHNU
 import com.suda.yzune.wakeupschedule.schedule_import.Common.TYPE_BNUZ
 import com.suda.yzune.wakeupschedule.schedule_import.Common.TYPE_CF
+import com.suda.yzune.wakeupschedule.schedule_import.Common.TYPE_CQMU
 import com.suda.yzune.wakeupschedule.schedule_import.Common.TYPE_ECJTU
 import com.suda.yzune.wakeupschedule.schedule_import.Common.TYPE_HELP
+import com.suda.yzune.wakeupschedule.schedule_import.Common.TYPE_HIT
 import com.suda.yzune.wakeupschedule.schedule_import.Common.TYPE_HNIU
 import com.suda.yzune.wakeupschedule.schedule_import.Common.TYPE_HNUST
 import com.suda.yzune.wakeupschedule.schedule_import.Common.TYPE_HUNNU
 import com.suda.yzune.wakeupschedule.schedule_import.Common.TYPE_JNU
 import com.suda.yzune.wakeupschedule.schedule_import.Common.TYPE_JZ
 import com.suda.yzune.wakeupschedule.schedule_import.Common.TYPE_JZ_1
+import com.suda.yzune.wakeupschedule.schedule_import.Common.TYPE_LNTU
 import com.suda.yzune.wakeupschedule.schedule_import.Common.TYPE_LOGIN
 import com.suda.yzune.wakeupschedule.schedule_import.Common.TYPE_MAINTAIN
 import com.suda.yzune.wakeupschedule.schedule_import.Common.TYPE_PKU
 import com.suda.yzune.wakeupschedule.schedule_import.Common.TYPE_QZ
 import com.suda.yzune.wakeupschedule.schedule_import.Common.TYPE_QZ_2017
+import com.suda.yzune.wakeupschedule.schedule_import.Common.TYPE_QZ_BJFU
 import com.suda.yzune.wakeupschedule.schedule_import.Common.TYPE_QZ_BR
 import com.suda.yzune.wakeupschedule.schedule_import.Common.TYPE_QZ_CRAZY
 import com.suda.yzune.wakeupschedule.schedule_import.Common.TYPE_QZ_OLD
@@ -52,6 +57,8 @@ import com.suda.yzune.wakeupschedule.schedule_import.Common.TYPE_UMOOC
 import com.suda.yzune.wakeupschedule.schedule_import.Common.TYPE_URP
 import com.suda.yzune.wakeupschedule.schedule_import.Common.TYPE_URP_NEW
 import com.suda.yzune.wakeupschedule.schedule_import.Common.TYPE_URP_NEW_AJAX
+import com.suda.yzune.wakeupschedule.schedule_import.Common.TYPE_VATUU
+import com.suda.yzune.wakeupschedule.schedule_import.Common.TYPE_XATU
 import com.suda.yzune.wakeupschedule.schedule_import.Common.TYPE_ZF
 import com.suda.yzune.wakeupschedule.schedule_import.Common.TYPE_ZF_1
 import com.suda.yzune.wakeupschedule.schedule_import.Common.TYPE_ZF_NEW
@@ -111,6 +118,21 @@ class SchoolListActivity : BaseTitleActivity(), OnQuickSideBarTouchListener {
                 weight = 1f
             })
 
+            val inputFilter = object : InputFilter {
+                override fun filter(source: CharSequence?, start: Int, end: Int, dest: Spanned?, dstart: Int, dend: Int): CharSequence? {
+                    val ss = SpannableString(source)
+                    val spans = ss.getSpans(0, ss.length, Any::class.java)
+                    if (spans != null) {
+                        for (span in spans) {
+                            if (span is UnderlineSpan) {
+                                return ""
+                            }
+                        }
+                    }
+                    return null
+                }
+            }
+
             searchView = AppCompatEditText(context).apply {
                 hint = "请输入……"
                 textSize = 16f
@@ -120,6 +142,7 @@ class SchoolListActivity : BaseTitleActivity(), OnQuickSideBarTouchListener {
                 setLines(1)
                 setSingleLine()
                 imeOptions = EditorInfo.IME_ACTION_SEARCH
+                filters = arrayOf(inputFilter)
                 addTextChangedListener(object : TextWatcher {
                     override fun afterTextChanged(s: Editable?) {}
 
@@ -200,7 +223,7 @@ class SchoolListActivity : BaseTitleActivity(), OnQuickSideBarTouchListener {
             add(SchoolInfo("B", "北京大学", "http://elective.pku.edu.cn", TYPE_PKU))
             add(SchoolInfo("B", "北京工业大学", "http://gdjwgl.bjut.edu.cn/", TYPE_ZF))
             add(SchoolInfo("B", "北京师范大学珠海分校", "http://es.bnuz.edu.cn/", TYPE_BNUZ))
-            add(SchoolInfo("B", "北京林业大学", "http://newjwxt.bjfu.edu.cn/", TYPE_QZ_BR))
+            add(SchoolInfo("B", "北京林业大学", "http://newjwxt.bjfu.edu.cn/", TYPE_QZ_BJFU))
             add(SchoolInfo("B", "北京理工大学", "http://jwms.bit.edu.cn/", TYPE_QZ_WITH_NODE))
             add(SchoolInfo("B", "北京理工大学珠海学院", "http://e.zhbit.com/jsxsd/", TYPE_QZ_WITH_NODE))
             add(SchoolInfo("B", "北京联合大学", "", TYPE_ZF))
@@ -232,7 +255,7 @@ class SchoolListActivity : BaseTitleActivity(), OnQuickSideBarTouchListener {
             add(SchoolInfo("F", "福建师范大学", "http://jwglxt.fjnu.edu.cn/xtgl/login_slogin.html", TYPE_ZF_NEW))
             add(SchoolInfo("G", "广东外语外贸大学", "http://jxgl.gdufs.edu.cn/jsxsd/", TYPE_QZ_WITH_NODE))
             add(SchoolInfo("G", "广东工业大学", "http://jxfw.gdut.edu.cn/", TYPE_CF))
-            add(SchoolInfo("G", "广东海洋大学", "http://210.38.137.126:8016/default2.aspx", TYPE_ZF))
+            add(SchoolInfo("G", "广东海洋大学", "https://jw.gdou.edu.cn/xtgl/", TYPE_ZF_NEW))
             add(SchoolInfo("G", "广东环境保护工程职业学院", "http://113.107.254.7/", TYPE_ZF))
             add(SchoolInfo("G", "广东科学技术职业学院", "", TYPE_ZF_1))
             add(SchoolInfo("G", "广东财经大学", "http://jwxt.gdufe.edu.cn/", TYPE_QZ))
@@ -283,7 +306,7 @@ class SchoolListActivity : BaseTitleActivity(), OnQuickSideBarTouchListener {
             add(SchoolInfo("H", "湖南商学院", "http://jwgl.hnuc.edu.cn/", TYPE_QZ))
             add(SchoolInfo("H", "湖南城市学院", "http://58.47.143.9:2045/zfca/login", TYPE_ZF))
             add(SchoolInfo("H", "湖南工业大学", "http://218.75.197.123:83/", TYPE_QZ))
-            add(SchoolInfo("H", "湖南工商大学", "http://jwgl.hnuc.edu.cn/", TYPE_QZ))
+            add(SchoolInfo("H", "湖南工商大学", "http://jwgl.hutb.edu.cn/", TYPE_QZ))
             add(SchoolInfo("H", "湖南工学院", "http://jwgl.hnit.edu.cn/", TYPE_QZ_OLD))
             add(SchoolInfo("H", "湖南理工学院", "http://bkjw.hnist.cn/login", TYPE_URP_NEW))
             add(SchoolInfo("H", "湖南科技大学", "http://kdjw.hnust.cn:8080/kdjw", TYPE_HNUST))
@@ -344,8 +367,8 @@ class SchoolListActivity : BaseTitleActivity(), OnQuickSideBarTouchListener {
             add(SchoolInfo("S", "四川美术学院", "", TYPE_QZ))
             add(SchoolInfo("S", "四川轻化工大学", "http://61.139.105.138/xtgl/", TYPE_ZF_NEW))
             add(SchoolInfo("S", "山东农业大学", "http://xjw.sdau.edu.cn/jwglxt/", TYPE_ZF_NEW))
-            add(SchoolInfo("S", "山东大学威海校区", "https://portal.wh.sdu.edu.cn/", TYPE_QZ))
-            add(SchoolInfo("S", "山东大学（威海）", "", TYPE_QZ))
+            add(SchoolInfo("S", "山东大学威海校区", "http://service.wh.sdu.edu.cn/", TYPE_QZ))
+            add(SchoolInfo("S", "山东大学（威海）", "http://service.wh.sdu.edu.cn/", TYPE_QZ))
             add(SchoolInfo("S", "山东师范大学", "http://www.bkjw.sdnu.edu.cn", TYPE_ZF))
             add(SchoolInfo("S", "山东政法大学", "http://114.214.79.176/jwglxt/", TYPE_ZF_NEW))
             add(SchoolInfo("S", "山东理工大学", "", TYPE_ZF_NEW))
@@ -406,13 +429,13 @@ class SchoolListActivity : BaseTitleActivity(), OnQuickSideBarTouchListener {
             add(SchoolInfo("Y", "云南财经大学", "http://202.203.194.2/", TYPE_ZF))
             add(SchoolInfo("Y", "延安大学", "http://jwglxt.yau.edu.cn/jwglxt/xtgl/login_slogin.html", TYPE_ZF_NEW))
             add(SchoolInfo("Y", "烟台大学", "http://202.194.116.132/login", TYPE_URP_NEW))
-            add(SchoolInfo("Z", "中南大学", "https://csujwc.its.csu.edu.cn/", TYPE_QZ))
+            add(SchoolInfo("Z", "中南大学", "http://csujwc.its.csu.edu.cn/", TYPE_QZ))
             add(SchoolInfo("Z", "中南林业科技大学", "http://jwgl.csuft.edu.cn/", TYPE_QZ))
             add(SchoolInfo("Z", "中南财经政法大学", "", TYPE_QZ))
             add(SchoolInfo("Z", "中国农业大学", "http://urpjw.cau.edu.cn/login", TYPE_URP_NEW_AJAX))
             add(SchoolInfo("Z", "中国医科大学", "http://jw.cmu.edu.cn/jwglxt/xtgl/login_slogin.html", TYPE_ZF_NEW))
             add(SchoolInfo("Z", "中国地质大学（武汉）", "", TYPE_ZF_NEW))
-            add(SchoolInfo("Z", "中国石油大学（北京）", "http://urp.cup.edu.cn/login", TYPE_URP_NEW_AJAX))
+            add(SchoolInfo("Z", "中国石油大学（北京）", "http://urp.cup.edu.cn/login", TYPE_URP_NEW))
             add(SchoolInfo("Z", "中国石油大学（华东）", "", TYPE_QZ))
             add(SchoolInfo("Z", "中国矿业大学", "http://jwxt.cumt.edu.cn/jwglxt/", TYPE_ZF_NEW))
             add(SchoolInfo("Z", "中国矿业大学徐海学院", "http://xhjw.cumt.edu.cn:8080/jwglxt/xtgl/", TYPE_ZF_NEW))
@@ -487,7 +510,6 @@ class SchoolListActivity : BaseTitleActivity(), OnQuickSideBarTouchListener {
             add(SchoolInfo("W", "无锡商业职业技术学院", "", TYPE_ZF_NEW))
             add(SchoolInfo("S", "深圳信息职业技术学院", "", TYPE_ZF_NEW))
             add(SchoolInfo("H", "湖南机电职业技术学院", "", TYPE_ZF_NEW))
-            add(SchoolInfo("X", "徐州工业职业", "", TYPE_ZF_NEW))
             add(SchoolInfo("S", "山东政法学院", "", TYPE_ZF_NEW))
             add(SchoolInfo("Y", "云南大学旅游文化学院", "", TYPE_ZF_NEW))
             add(SchoolInfo("W", "武汉传媒学院", "", TYPE_ZF_NEW))
@@ -608,7 +630,7 @@ class SchoolListActivity : BaseTitleActivity(), OnQuickSideBarTouchListener {
             add(SchoolInfo("C", "长沙民政职业技术学院", "", TYPE_ZF))
             add(SchoolInfo("Z", "中国计量大学", "", TYPE_ZF))
             add(SchoolInfo("G", "广东科技学院", "", TYPE_ZF))
-            add(SchoolInfo("X", "西安思源学院", "", TYPE_ZF))
+            add(SchoolInfo("X", "西安思源学院", "http://ehall.xasyu.cn/new/index.html", TYPE_JZ))
             add(SchoolInfo("S", "山东管理学院", "", TYPE_ZF))
             add(SchoolInfo("T", "太原科技大学华科学院", "", TYPE_ZF))
             add(SchoolInfo("H", "韩山师范学院", "", TYPE_ZF))
@@ -621,7 +643,7 @@ class SchoolListActivity : BaseTitleActivity(), OnQuickSideBarTouchListener {
             add(SchoolInfo("S", "山东水利职业学院", "", TYPE_ZF))
             add(SchoolInfo("H", "呼伦贝尔学院", "", TYPE_ZF))
             add(SchoolInfo("X", "西南林业大学", "", TYPE_ZF))
-            add(SchoolInfo("X", "西安财经大学", "", TYPE_ZF))
+            add(SchoolInfo("X", "西安财经大学", "http://jwgl.xaufe.edu.cn/login_cas.aspx", TYPE_ZF))
             add(SchoolInfo("H", "淮海工学院", "", TYPE_ZF))
             add(SchoolInfo("X", "西安文理学院", "", TYPE_ZF))
             add(SchoolInfo("D", "大连海洋大学", "", TYPE_ZF))
@@ -643,7 +665,7 @@ class SchoolListActivity : BaseTitleActivity(), OnQuickSideBarTouchListener {
             add(SchoolInfo("C", "长春金融高等专科学校", "", TYPE_ZF))
             add(SchoolInfo("B", "宝鸡文理学院", "", TYPE_ZF))
             add(SchoolInfo("Y", "云南财经大学中华职业学院", "", TYPE_ZF))
-            add(SchoolInfo("B", "北方民族大学", "", TYPE_ZF))
+            add(SchoolInfo("B", "北方民族大学", "", TYPE_QZ))
             add(SchoolInfo("S", "苏州市职业大学", "", TYPE_ZF))
             add(SchoolInfo("B", "北京社会管理职业学院", "", TYPE_ZF))
             add(SchoolInfo("H", "黑龙江生物科技职业学院", "", TYPE_ZF))
@@ -655,7 +677,7 @@ class SchoolListActivity : BaseTitleActivity(), OnQuickSideBarTouchListener {
             add(SchoolInfo("Z", "中山火炬职业技术学院", "", TYPE_ZF))
             add(SchoolInfo("Z", "郑州轻工业大学易斯顿国际美术学院", "", TYPE_ZF))
             add(SchoolInfo("C", "滁州学院", "", TYPE_ZF))
-            add(SchoolInfo("H", "亳州职业技术学院", "", TYPE_ZF))
+            add(SchoolInfo("B", "亳州职业技术学院", "", TYPE_ZF))
             add(SchoolInfo("Y", "燕山大学", "", TYPE_ZF))
             add(SchoolInfo("T", "天津滨海职业学院", "", TYPE_ZF))
             add(SchoolInfo("C", "成都工业学院", "", TYPE_ZF))
@@ -708,12 +730,12 @@ class SchoolListActivity : BaseTitleActivity(), OnQuickSideBarTouchListener {
             add(SchoolInfo("H", "河南质量工程职业学院", "", TYPE_ZF))
             add(SchoolInfo("C", "常州轻工职业技术学院", "", TYPE_ZF))
             add(SchoolInfo("Z", "浙江大学城市学院", "", TYPE_ZF))
-            add(SchoolInfo("C", "重庆师范大学", "", TYPE_ZF))
+            add(SchoolInfo("C", "重庆师范大学", "http://jwxt.cqnu.edu.cn/", TYPE_ZF))
             add(SchoolInfo("Z", "浙江树人大学", "", TYPE_ZF))
             add(SchoolInfo("C", "长江师范学院", "", TYPE_ZF))
             add(SchoolInfo("J", "吉林华桥外国语学院", "", TYPE_ZF))
             add(SchoolInfo("Q", "衢州学院", "", TYPE_ZF))
-            add(SchoolInfo("C", "楚雄师范学院", "", TYPE_ZF))
+
             add(SchoolInfo("C", "池州学院", "", TYPE_ZF))
             add(SchoolInfo("F", "福建医科大学", "", TYPE_ZF))
             add(SchoolInfo("Z", "中国刑事警察学院", "", TYPE_ZF))
@@ -759,7 +781,7 @@ class SchoolListActivity : BaseTitleActivity(), OnQuickSideBarTouchListener {
             add(SchoolInfo("C", "重庆理工大学", "", TYPE_ZF))
             add(SchoolInfo("H", "湖北理工学院", "", TYPE_ZF))
             add(SchoolInfo("N", "南京邮电大学", "", TYPE_ZF))
-            add(SchoolInfo("Y", "云南经济管理学院", "", TYPE_ZF))
+
             add(SchoolInfo("N", "南京邮电大学通达学院", "", TYPE_ZF))
             add(SchoolInfo("G", "广东轻工职业技术学校", "", TYPE_ZF))
             add(SchoolInfo("S", "山西工商学院", "", TYPE_ZF))
@@ -774,7 +796,7 @@ class SchoolListActivity : BaseTitleActivity(), OnQuickSideBarTouchListener {
             add(SchoolInfo("B", "北京交通大学海滨学院", "", TYPE_ZF))
             add(SchoolInfo("B", "北京工业大学耿丹学院", "", TYPE_ZF))
             add(SchoolInfo("G", "贵州大学", "", TYPE_ZF))
-            add(SchoolInfo("H", "亳州学院", "", TYPE_ZF))
+            add(SchoolInfo("B", "亳州学院", "", TYPE_ZF))
             add(SchoolInfo("X", "新疆工程学院", "", TYPE_ZF))
             add(SchoolInfo("K", "昆明理工大学津桥学院", "", TYPE_ZF))
             add(SchoolInfo("H", "河北经贸大学经济管理学院", "", TYPE_ZF))
@@ -809,7 +831,7 @@ class SchoolListActivity : BaseTitleActivity(), OnQuickSideBarTouchListener {
             add(SchoolInfo("A", "安徽工程大学", "", TYPE_ZF_1))
             add(SchoolInfo("S", "苏州高博软件技术学院", "", TYPE_ZF_1))
             add(SchoolInfo("C", "成都纺织高等专科学校", "", TYPE_ZF_1))
-            add(SchoolInfo("S", "四川交通职业技术学院", "", TYPE_ZF_1))
+            add(SchoolInfo("S", "四川交通职业技术学院", "", TYPE_VATUU))
             add(SchoolInfo("G", "广东南华工商职业技术学院", "", TYPE_ZF_1))
             add(SchoolInfo("G", "广东水利电力职业技术学院", "", TYPE_ZF_1))
             add(SchoolInfo("G", "广东理工职业学院", "", TYPE_ZF_1))
@@ -849,10 +871,81 @@ class SchoolListActivity : BaseTitleActivity(), OnQuickSideBarTouchListener {
 
             add(SchoolInfo("S", "四川农业大学", "http://jiaowu.sicau.edu.cn/web/web/web/index.asp", TYPE_SCAU))
             add(SchoolInfo("S", "山东大学", "http://bkjws.sdu.edu.cn/", TYPE_SDU))
+
+//            add(SchoolInfo("H", "河南科技大学", "http://jxglxt2.haust.edu.cn/wsxk/stu_zxjg_rpt.aspx", TYPE_HAUST))
+            add(SchoolInfo("G", "广西中医药大学", "http://210.36.99.150/jsxsd/", TYPE_QZ))
+            add(SchoolInfo("G", "广州中医药大学", "http://jw.gzucm.edu.cn/", TYPE_CF))
+            add(SchoolInfo("C", "成都中医药大学", "http://jwweb.cdutcm.edu.cn/", TYPE_CF))
+            add(SchoolInfo("G", "广东东软学院", "http://172.13.1.32/", TYPE_CF))
+            add(SchoolInfo("H", "湖北医药学院药护学院", "http://218.197.54.110/", TYPE_CF))
+            add(SchoolInfo("J", "济宁医学院", "http://210.44.16.13/", TYPE_CF))
+            add(SchoolInfo("G", "广东技术师范大学天河学院", "http://jwgl.thxy.cn/", TYPE_CF))
+            add(SchoolInfo("G", "广州理工学院", "http://jwgl.thxy.cn/", TYPE_CF))
+            add(SchoolInfo("G", "广东石油化工学院", "http://210.38.250.43/", TYPE_CF))
+            add(SchoolInfo("S", "首都医科大学", "http://jwfw.ccmu.edu.cn/", TYPE_CF))
+            add(SchoolInfo("Z", "遵义医科大学医学与科技学院", "http://www.mtszmu.com:8887/", TYPE_CF))
+            add(SchoolInfo("Z", "遵义医科大学", "http://211.83.160.60/", TYPE_CF))
+            add(SchoolInfo("G", "广东交通职业技术学院", "http://jw.gdcp.cn/", TYPE_CF))
+            add(SchoolInfo("S", "沈阳体育学院", "http://jwgl.syty.edu.cn/", TYPE_CF))
+            add(SchoolInfo("S", "沈阳医学院", "http://59.46.59.74:81/", TYPE_CF))
+            add(SchoolInfo("X", "星海音乐学院", "", TYPE_CF))
+            add(SchoolInfo("A", "阿坝师范学院", "http://jwcs.abtu.edu.cn/", TYPE_CF))
+
+            add(SchoolInfo("G", "广州番禺职业技术学院", "http://jiaowu.gzpyp.edu.cn/jsxsd/", TYPE_QZ))
+            add(SchoolInfo("D", "东莞职业技术学院", "http://jw.dgpt.edu.cn/", TYPE_QZ))
+
+            add(SchoolInfo("S", "四川城市职业学院", "http://scuvc.tuoqie.com/service/login.html", TYPE_VATUU))
+            add(SchoolInfo("S", "四川国际标榜职业学院", "http://jwc.polus.edu.cn/service/login.html", TYPE_VATUU))
+            add(SchoolInfo("S", "四川工商学院", "http://jwxt.stbu.edu.cn/service/login.html", TYPE_VATUU))
+            add(SchoolInfo("S", "石家庄铁道大学", "https://tiedao.vatuu.com/service/login.html", TYPE_VATUU))
+            add(SchoolInfo("X", "西南交通大学", "", TYPE_VATUU))
+
+            add(SchoolInfo("C", "长春工业大学", "http://111.116.20.13/", TYPE_QZ_OLD))
+            add(SchoolInfo("Z", "中国石油大学（北京）克拉玛依校区", "http://jw.cupk.edu.cn/", TYPE_QZ))
+
+            add(SchoolInfo("C", "重庆医科大学", "", TYPE_CQMU))
+            add(SchoolInfo("N", "南华大学", "http://jwzx.usc.edu.cn/", TYPE_QZ))
+            add(SchoolInfo("H", "华北电力大学保定校区", "https://jwxt.ncepu.edu.cn/", TYPE_QZ))
+            add(SchoolInfo("Y", "云南师范大学", "http://jwmis.ynnu.edu.cn/", TYPE_QZ))
+            add(SchoolInfo("Y", "云南经济管理学院", "http://xjwxt.ynjgy.com/ynjjglxy_jsxsd/", TYPE_QZ))
+            add(SchoolInfo("C", "重庆人文科技学院", "http://jwxt.cqrk.edu.cn:18080/", TYPE_QZ))
+            add(SchoolInfo("S", "山东交通学院", "", TYPE_QZ))
+            add(SchoolInfo("C", "长春工程学院", "", TYPE_QZ))
+            add(SchoolInfo("S", "四川外国语大学", "http://202.202.193.207/", TYPE_ZF))
+            add(SchoolInfo("S", "四川外国语大学重庆南方翻译学院", "http://jw.tcsisu.com/", TYPE_ZF))
+            add(SchoolInfo("D", "东北农业大学", "", TYPE_URP))
+            add(SchoolInfo("J", "吉林医药学院", "", TYPE_QZ))
+            add(SchoolInfo("H", "河北地质大学", "", TYPE_URP))
+            add(SchoolInfo("S", "陕西师范大学", "", TYPE_URP))
+            add(SchoolInfo("C", "楚雄师范学院", "http://jwglxt.cxtc.edu.cn/", TYPE_ZF_NEW))
+            add(SchoolInfo("H", "华北理工大学", "http://xjw1.ncst.edu.cn/", TYPE_URP))
+            add(SchoolInfo("L", "辽宁对外经贸学院", "http://219.216.227.245/", TYPE_URP))
+            add(SchoolInfo("H", "哈尔滨师范大学", "http://202.118.128.11:9980/jsxsd/", TYPE_QZ))
+            add(SchoolInfo("G", "广西梧州学院", "", TYPE_ZF))
+            add(SchoolInfo("G", "广东职业技术学院", "http://61.142.209.19/default2.aspx", TYPE_ZF))
+            add(SchoolInfo("C", "川北医学院", "http://sys-jiaowu.nsmc.edu.cn/", TYPE_ZF))
+            add(SchoolInfo("H", "衡阳师范学院", "http://59.51.24.46/hysf/", TYPE_QZ_OLD))
+
+            add(SchoolInfo("H", "哈尔滨工业大学", "http://jwts.hit.edu.cn/", TYPE_HIT))
+            add(SchoolInfo("H", "哈尔滨工业大学（深圳）", "http://jw.hitsz.edu.cn/", TYPE_HIT))
+            add(SchoolInfo("H", "哈尔滨工业大学（威海）", "http://jwts.hitwh.edu.cn/", TYPE_HIT))
+            add(SchoolInfo("B", "北京航空航天大学", "http://jwxt.buaa.edu.cn:7001/ieas2.1/", TYPE_HIT))
+            add(SchoolInfo("H", "黑龙江建筑职业技术学院", "http://1.189.33.198:7001/bkjw/", TYPE_HIT))
+
+            add(SchoolInfo("X", "西安工业大学", "", TYPE_XATU))
+            add(SchoolInfo("X", "西北政法大学", "", TYPE_XATU))
+            add(SchoolInfo("D", "大连海事大学", "", TYPE_XATU))
+            add(SchoolInfo("T", "天津农学院", "", TYPE_XATU))
+            add(SchoolInfo("L", "辽宁工程技术大学", "", TYPE_LNTU))
+
+            add(SchoolInfo("S", "山西大学", "http://sdbkjw.sxu.edu.cn/", TYPE_ZF_NEW))
+
         }
 
         schools.sortWith(compareBy({ it.sortKey }, { it.name }))
 
+        schools.add(0, SchoolInfo("通", "为途教务", "", TYPE_VATUU))
+        schools.add(0, SchoolInfo("通", "乘方教务", "", TYPE_CF))
         schools.add(0, SchoolInfo("通", "优慕课在线", "", TYPE_UMOOC))
         schools.add(0, SchoolInfo("通", "旧强智（需要 IE 的那种）", "", TYPE_QZ_OLD))
         schools.add(0, SchoolInfo("通", "强智教务", "", TYPE_QZ))
@@ -883,20 +976,41 @@ class SchoolListActivity : BaseTitleActivity(), OnQuickSideBarTouchListener {
                 return@setOnItemClickListener
             }
             if (fromLocal) {
+                getPrefer().edit {
+                    putString(Const.KEY_IMPORT_SCHOOL, gson.toJson(showList[position]))
+                }
                 setResult(Activity.RESULT_OK, Intent().apply { putExtra("type", showList[position].type) })
                 finish()
             } else {
                 launch {
-                    if (showList[position].type == TYPE_HUNNU) {
-                        Toasty.info(this@SchoolListActivity, "暂时只能通过「从HTML文件导入」方式使用哦", Toasty.LENGTH_LONG).show()
+                    getPrefer().edit {
+                        putString(Const.KEY_IMPORT_SCHOOL, gson.toJson(showList[position]))
+                    }
+                    if (showList[position].type?.endsWith("shuwei") == true) {
+                        MaterialAlertDialogBuilder(this@SchoolListActivity)
+                                .setTitle(R.string.title_tips)
+                                .setMessage("树维教务需要配合电脑导入课程哦，我们制作了详尽的视频教程，快去看看吧")
+                                .setPositiveButton(R.string.ok) { _, _ ->
+                                    Utils.openUrl(this@SchoolListActivity, "https://www.bilibili.com/video/BV1Ki4y1G7ZK/")
+                                }
+                                .setCancelable(false)
+                                .show()
+                        return@launch
+                    }
+                    if (showList[position].type == TYPE_HUNNU || showList[position].type == TYPE_QZ_OLD) {
+                        MaterialAlertDialogBuilder(this@SchoolListActivity)
+                                .setTitle(R.string.title_tips)
+                                .setMessage("暂时只能通过「从HTML文件导入」方式使用哦，我们为你准备了导入教程")
+                                .setPositiveButton(R.string.tips_see_tutorial) { _, _ ->
+                                    Utils.openUrl(this@SchoolListActivity, "https://support.qq.com/products/97617/faqs/73528")
+                                }
+                                .setCancelable(false)
+                                .show()
                         return@launch
                     }
                     if (showList[position].type == TYPE_MAINTAIN) {
                         Toasty.info(this@SchoolListActivity, "处于维护中哦", Toasty.LENGTH_LONG).show()
                         return@launch
-                    }
-                    getPrefer().edit {
-                        putString(Const.KEY_IMPORT_SCHOOL, gson.toJson(showList[position]))
                     }
                     val tableId = getPrefer().getInt(Const.KEY_SHOW_TABLE_ID, 1)
                     startActivityForResult(Intent(this@SchoolListActivity, LoginWebActivity::class.java).apply {
