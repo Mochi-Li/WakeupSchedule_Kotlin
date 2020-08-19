@@ -12,6 +12,7 @@ import android.view.ViewGroup
 import android.widget.Toast
 import androidx.core.content.res.ResourcesCompat
 import androidx.fragment.app.activityViewModels
+import com.bumptech.glide.Glide
 import com.google.android.material.button.MaterialButton
 import com.google.android.material.textfield.TextInputLayout
 import com.suda.yzune.wakeupschedule.R
@@ -83,7 +84,9 @@ class LoginWebFragment : BaseFragment() {
             tv_thanks.text = "感谢 @颩欥殘膤\n能导入贵校课程离不开他无私贡献代码"
         }
         if (viewModel.school == "华中科技大学") {
+            refreshCode(VerificationCodeSchool.HUST)
             et_id.inputType = InputType.TYPE_CLASS_TEXT
+            input_code.visibility = View.VISIBLE;
             tv_thanks.text = "感谢 @Lyt99\n能导入贵校课程离不开他无私贡献代码"
         }
         if (viewModel.school == "西北工业大学") {
@@ -113,11 +116,18 @@ class LoginWebFragment : BaseFragment() {
         fab_login.setImageDrawable(textDrawable)
 
         iv_code.setOnClickListener {
-            refreshCode()
+            when (viewModel.school) {
+                "华中科技大学" -> refreshCode(VerificationCodeSchool.HUST)
+                else -> refreshCode()
+            }
+
         }
 
         iv_error.setOnClickListener {
-            refreshCode()
+            when (viewModel.school) {
+                "华中科技大学" -> refreshCode(VerificationCodeSchool.HUST)
+                else -> refreshCode()
+            }
         }
 
 //        sheet.setOnClickListener {
@@ -132,7 +142,10 @@ class LoginWebFragment : BaseFragment() {
         }
 
         btn_cancel.setOnClickListener {
-            refreshCode()
+            when (viewModel.school) {
+                "华中科技大学" -> refreshCode(VerificationCodeSchool.HUST)
+                else -> refreshCode()
+            }
             fab_login.isExpanded = false
         }
 
@@ -141,6 +154,7 @@ class LoginWebFragment : BaseFragment() {
                 et_id.text!!.isEmpty() -> input_id.showError("学号不能为空")
                 et_pwd.text!!.isEmpty() -> input_pwd.showError("密码不能为空")
                 et_code.text!!.isEmpty() && viewModel.school == "苏州大学" -> input_code.showError("验证码不能为空")
+                et_code.text!!.isEmpty() && viewModel.school == "华中科技大学" -> input_code.showError("验证码不能为空")
                 else -> launch { login() }
             }
         }
@@ -217,13 +231,18 @@ class LoginWebFragment : BaseFragment() {
                 }
             }
             "华中科技大学" -> {
-                val hub = MobileHub(et_id.text.toString(), et_pwd.text.toString())
+                val hub = MobileHub.getInstance()
                 try {
-                    hub.login()
+                    hub.login(et_id.text.toString(), et_pwd.text.toString(), et_code.text.toString())
                     hub.getCourseSchedule()
                     result = viewModel.convertHUST(hub.courseHTML)
                 } catch (e: Exception) {
                     exception = e
+                    when (e) {
+                        is PasswordErrorException -> {
+                            refreshCode(VerificationCodeSchool.HUST)
+                        }
+                    }
                 }
             }
             "西北工业大学" -> {
@@ -300,19 +319,39 @@ class LoginWebFragment : BaseFragment() {
             }
         }
     }
+    private enum class VerificationCodeSchool {
+        Suda,
+        HUST,
+    }
 
-    private fun refreshCode() {
+    // 需要验证码的学校，在这里添加枚举
+    private fun refreshCode(school : VerificationCodeSchool = VerificationCodeSchool.Suda) {
         launch {
             et_code.setText("")
             progress_bar.visibility = View.VISIBLE
             iv_code.visibility = View.INVISIBLE
             iv_error.visibility = View.INVISIBLE
             try {
-                val bitmap = viewModel.sudaXK?.getCheckCode()
-                progress_bar.visibility = View.GONE
-                iv_code.visibility = View.VISIBLE
-                iv_error.visibility = View.INVISIBLE
-                iv_code.setImageBitmap(bitmap)
+                when (school) {
+                    VerificationCodeSchool.HUST ->{
+                        val gif = MobileHub.getInstance().getVerificationCode()
+                        progress_bar.visibility = View.GONE
+                        iv_code.visibility = View.VISIBLE
+                        iv_error.visibility = View.INVISIBLE
+
+                        Glide.with(this@LoginWebFragment).load("").into(iv_code)
+
+                    }
+                    VerificationCodeSchool.Suda->{
+                        val bitmap = viewModel.sudaXK?.getCheckCode()
+                        progress_bar.visibility = View.GONE
+                        iv_code.visibility = View.VISIBLE
+                        iv_error.visibility = View.INVISIBLE
+                        iv_code.setImageBitmap(bitmap)
+                    }
+                }
+
+
             } catch (e: Exception) {
                 progress_bar.visibility = View.GONE
                 iv_code.visibility = View.INVISIBLE

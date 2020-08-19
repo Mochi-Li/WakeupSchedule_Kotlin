@@ -1,15 +1,31 @@
 package com.suda.yzune.wakeupschedule.schedule_import.login_school.hust
 
+import android.graphics.Bitmap
+import android.graphics.BitmapFactory
+import com.bumptech.glide.Glide
 import com.suda.yzune.wakeupschedule.schedule_import.exception.NetworkErrorException
 import com.suda.yzune.wakeupschedule.schedule_import.exception.PasswordErrorException
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import okhttp3.*
-import java.math.BigInteger
+import java.util.*
+import kotlin.collections.ArrayList
+import kotlin.collections.HashMap
 
-class MobileHub(private var user: String, private var password: String) {
+class MobileHub private constructor() {
+    companion object {
+        @JvmStatic
+        fun getInstance(): MobileHub {
+            return SingletonHolder.mInstance
+        }
+    }
+    //改为单例模式用来保证cookie一致
+    private object SingletonHolder {
+        val mInstance: MobileHub = MobileHub()
+    }
     private val loginUrl = "https://pass.hust.edu.cn/cas/login?service=http%3A%2F%2Fhub.m.hust.edu.cn%2Fcj%2Findex.jsp"
     private val getScheduleUrl = "http://hub.m.hust.edu.cn/kcb/todate/namecourse.action"
+    private val getVerificationCodeUrl = "https://pass.hust.edu.cn/cas/code"
 
     private val headers = Headers.Builder()
             .add("User-Agent", "Mozilla/5.0 (Windows NT 9.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/70.0.3538.102 Safari/537.36")
@@ -29,21 +45,28 @@ class MobileHub(private var user: String, private var password: String) {
                 override fun loadForRequest(url: HttpUrl): MutableList<Cookie> {
                     val cookies = cookieStore[url.host()]
 
-                    val ret = cookies?.toMutableList() ?: ArrayList()
-                    return ret
+                    return cookies?.toMutableList() ?: ArrayList()
                 }
             })
             .build()
-    private lateinit var modulus: String
+    // private lateinit var modulus: String
     private lateinit var execution: String
     private lateinit var lt : String
 
     lateinit var courseHTML: String
 
-    init {
-        user = user.toUpperCase()
+    suspend fun getVerificationCode(): ByteArray? {
+        refreshSession()
+        return withContext(Dispatchers.IO){
+            val request = Request.Builder()
+                    .url(getVerificationCodeUrl)
+                    .headers(headers)
+                    .get()
+                    .build()
+            val response = httpClient.newCall(request).execute()
+            response.body()?.bytes()
+        }
     }
-
     private suspend fun refreshSession() {
         val request = Request.Builder()
                 .url(loginUrl)
@@ -61,8 +84,8 @@ class MobileHub(private var user: String, private var password: String) {
         execution = matchResult.groupValues.last()
     }
 
-    suspend fun login() {
-        refreshSession()
+    suspend fun login(username: String, password: String,  code: String) {
+        val user = username.toUpperCase(Locale.ROOT)
 
         val cipher = Cipher()
 
@@ -74,7 +97,7 @@ class MobileHub(private var user: String, private var password: String) {
                 .add("ul", user.length.toString())
                 .add("pl", password.length.toString())
                 .add("execution", execution)
-                .add("code", "code")
+                .add("code", code)
                 .add("lt", lt)
                 .add("_eventId", "submit")
                 .build()
@@ -90,7 +113,7 @@ class MobileHub(private var user: String, private var password: String) {
         val response = withContext(Dispatchers.IO) { httpClient.newCall(request).execute() }
 
         if (response.request().url().toString().contains("login")) {
-            throw PasswordErrorException("学号或密码错误，请检查后再输入")
+            throw PasswordErrorException("学号、密码或验证码错误，请检查后再输入")
         }
     }
 
